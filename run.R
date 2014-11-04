@@ -1,3 +1,3 @@
 library(shiny)
-runApp("C:/Users/jeff/Desktop/shiny_example/polygonmapper_V4")
+runApp("C:/Users/jeff/Documents/GitHub/mapotron")
 

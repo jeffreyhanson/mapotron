@@ -134,17 +134,13 @@ shinyServer(function(input, output, session) {
 	})
 	# annotate button observer 
 	observe({
-		if (input$toolBtn6==0)
+		if (input$toolBtn6==0 & toc$tool==1)
 			return()
 		isolate({
-			# reset
-			eval(parse(text=toc$reset()))
-			# reset previous tool button
-			suppressWarnings(updateButton(session, paste0("toolBtn",toc$tool), style="inverse"))
-			# highlight current tool button
-			updateButton(session, "toolBtn6", style = "primary")
-			# set status
-			toc$tool<<-6
+			# update annotation
+			toc$addAnnotation(toc$activeId,input$annotationTxt)			
+			# update popup
+			eval(parse(text=toc$featureLST[[toc$activeId]]$addAnnotation()))
 		})
 	})
 	# remove button observer
@@ -167,7 +163,7 @@ shinyServer(function(input, output, session) {
 	observe({
 		event = input$map_marker_click
 		if (is.null(event))
-			event = input$map_geojson_click		
+			event = input$map_geojson_click
 		if (is.null(event) | toc$tool!=1)
 			return()
 		isolate({
@@ -175,6 +171,9 @@ shinyServer(function(input, output, session) {
 			eval(parse(text=toc$reset()))
 			# add popup
 			eval(parse(text=toc$selectFeature(event$id)))
+			session$sendInputMessage("annotationTxt", list(value=toc$featureLST[[toc$activeId]]$annotation))
+			updateButton(session, "toolBtn6", disabled=FALSE)
+			session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('disabled',false)"))
 		})
 	})
 	## deselect layer
@@ -185,6 +184,8 @@ shinyServer(function(input, output, session) {
 		isolate({
 			# reset
 			eval(parse(text=toc$reset()))
+			updateButton(session, "toolBtn6", disabled=TRUE)
+			session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('disabled',true)"))
 		})
 	})
 	

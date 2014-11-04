@@ -4,18 +4,18 @@ library(ShinyDash)
 shinyUI(basicPage(
 	# navbar
 	bsNavBar("navBar", brand="Mapotron", inverse=TRUE, fixed=TRUE,
+		suppressWarnings(bsActionButton("toolBtn1", img(src="icons/toolBtn1_white.png", height=20, width=20), style="primary")),
 		bsNavDropDown("baseSel", label="Base Layer", choices=c("None"="-9999")),
 		tagList(
 			div(style="display:inline-block; position: relative; top: 6px; bottom: 0; left: 0; right 0; padding: 0;",
 				tags$input(id = "annotationTxt", type="text", value="", class="input")
 			)
 		),
-		suppressWarnings(bsActionButton("toolBtn5", img(src="icons/toolBtn5_white.png", height=20, width=20), style="inverse")),
-		suppressWarnings(bsActionButton("toolBtn1", img(src="icons/toolBtn1_white.png", height=20, width=20), style="primary")),
+		suppressWarnings(bsActionButton("toolBtn6", img(src="icons/toolBtn6_white.png", height=20, width=20), style="inverse")),
 		suppressWarnings(bsActionButton("toolBtn2", img(src="icons/toolBtn2_white.png", height=20, width=20), style="inverse")),
 		suppressWarnings(bsActionButton("toolBtn3", img(src="icons/toolBtn3_white.png", height=20, width=20), style="inverse")),
 		suppressWarnings(bsActionButton("toolBtn4", img(src="icons/toolBtn4_white.png", height=20, width=20), style="inverse")),
-		suppressWarnings(bsActionButton("toolBtn6", img(src="icons/toolBtn6_white.png", height=20, width=20), style="inverse")),		
+		suppressWarnings(bsActionButton("toolBtn5", img(src="icons/toolBtn5_white.png", height=20, width=20), style="inverse")),
 		suppressWarnings(bsActionButton("toolBtn7", img(src="icons/toolBtn7_white.png", height=20, width=20), style="inverse")),
 		rightItems=list(
 			bsButton("helpBtn", img(src="icons/help_white.png", height=20, width=20), style="inverse"),
@@ -143,17 +143,26 @@ shinyUI(basicPage(
 	),
 	
 	# map container html tags
-	tags$head(tags$style("
-    .mapContainer {
-      position: fixed;
-      top: 40px;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      overflow: hidden;
-      padding: 0;
-    },
-  "))
+	tags$head(
+		tags$style("
+			.mapContainer {
+			  position: fixed;
+			  top: 40px;
+			  left: 0;
+			  right: 0;
+			  bottom: 0;
+			  overflow: hidden;
+			  padding: 0;
+			}
+		"), tags$script(HTML('
+			  Shiny.addCustomMessageHandler("jsCode",
+				function(message) {
+				  console.log(message)
+				  eval(message.code);
+				}
+			  );
+		'))
+	)  
 ))
 
 

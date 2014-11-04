@@ -102,12 +102,22 @@ TOC = setRefClass("TOC",
 			}
 		},
 		reset=function() {
+			x=c()
 			if (activeId!="-9999") {
 				if (tool==1)
 					x=deselectFeature()
 				if (tool %in% 2:5)
 					x=stopEditFeature()
 				activeId<<- "-9999"
+			}
+			if (tool==1) {
+				x=c(x,
+					'session$sendInputMessage("annotationTxt", list(value=""))',
+					'updateButton(session, "toolBtn6", disabled=TRUE)',
+					"session$sendCustomMessage(type=\"jsCode\",list(code=\"$('#annotationTxt').prop('disabled',true)\"))"
+				)
+			}
+			if (length(x)>0) {
 				return(x)
 			} else {
 				return("")
