@@ -1,0 +1,54 @@
+@import url(//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600);
+
+body {
+  overflow-y: scroll;
+  padding-bottom: 20px;
+}
+
+body {
+  font-family: Source Sans Pro;
+  color: #444;
+  font-weight: 300;
+}
+
+#map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 400;
+}
+
+#data table {
+  width: 100%;
+}
+#data td+td {
+  width: 80px;
+}
+
+.container-fluid {
+  padding-top: 400px;
+}
+
+#desc { font-size: 16px; }
+
+#desc span {
+  color: #944;
+  font-weight: 400;
+}
+
+div.busy { 
+  position:absolute;
+  top: 40%;
+  left: 50%;
+  margin-top: -100px;
+  margin-left: -50px;
+  display:none;
+  background: rgba(230, 230, 230, .8);
+  text-align: center;
+  padding-top: 20px;
+  padding-left: 30px;
+  padding-bottom: 40px;
+  padding-right: 30px;
+  border-radius: 5px;
+}

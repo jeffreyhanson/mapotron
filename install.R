@@ -1,0 +1,6 @@
+install.packages(c("devtools","shiny","rgdal","maps","fields""RColorBrewer"))
+library(devtools)
+devtools::install_github('trestletech/ShinyDash')
+devtools::install_github('paleo13/leaflet-shiny')
+devtools::install_github('ebailey78/shinyBS')
+devtools::install_github("rpremraj/mailR")

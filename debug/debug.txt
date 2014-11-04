@@ -1,0 +1,6 @@
+{"type":"Feature",
+		 "properties":{"region_id":1, "region_name":"My Region"},
+		 "geometry":{"type":"Point","coordinates": [ [ 121.45, -21.78 ] ]},
+		 "style":{"color":"#FFFB0E","fillColor":"#FDC086","fillOpacity":"0.5","opacity":"0.8"}
+			}
+		
