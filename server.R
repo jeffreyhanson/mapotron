@@ -161,11 +161,23 @@ shinyServer(function(input, output, session) {
 	
 	## select layer
 	observe({
+		print(1)
 		event = input$map_marker_click
+		print(2)
 		if (is.null(event))
 			event = input$map_geojson_click
+		cat("start event\n")	
+		cat("lat",event$lat,"\n")
+		cat("lat",event$lon,"\n")
+		cat("clicklat",event$clicklat,"\n")
+		cat("clicklon",event$clicklon,"\n")
+		cat("end event\n")
+			
+		
+		print(3)
 		if (is.null(event) | toc$tool!=1)
 			return()
+		print(4)
 		isolate({
 			# reset
 			eval(parse(text=toc$reset()))
@@ -222,9 +234,9 @@ shinyServer(function(input, output, session) {
 
 	# add a coordinate
 	observe({
-		event= input$map_click
+		event = input$map_geojson_click
 		if (is.null(event))
-			event = input$map_geojson_click
+			event= input$map_click
 		if  (!(!is.null(event) & ((toc$tool %in% c(2:5) &  toc$activeId!="-9999") | (toc$tool==2))))
 			return()
 		isolate({
