@@ -1,5 +1,5 @@
 ### default options
-options(shiny.error=traceback)
+# options(shiny.error=traceback)
 
 ### load dependencies
 library(rgdal)
