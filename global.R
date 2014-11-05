@@ -287,9 +287,9 @@ txt
 ,
 "
 
-Download this person's data at: ", shinyurl,file.path("www/exports",emailaddress,"user_zip",paste0(userId,"_data.zip")), "
+Download this person's data at: ", shinyurl,file.path("exports",emailaddress,"user_zip",paste0(userId,"_data.zip")), "
 
-Batch download all the data people have sent you at: ", shinyurl,file.path("www/exports",emailaddress,"all_zip","spatialdata.zip"),"
+Batch download all the data people have sent you at: ", shinyurl,file.path("exports",emailaddress,"all_zip","spatialdata.zip"),"
 
 Cheers,
 
@@ -523,7 +523,7 @@ PolygonToSp=function(x) {
 	annotations=c()
 	for (i in seq_along(x)) {
 		if (nrow(x[[i]]$coords)>0) {
-			tempLST[[length(tempLST)+1]]=Polygons(list(Polygon(rbind(x[[i]]$coords[1,], deparse.level=0))), x[[i]]$featureId)
+			tempLST[[length(tempLST)+1]]=Polygons(list(Polygon(x[[i]]$coords[c(seq_len(nrow(x[[i]]$coords)),1),])), x[[i]]$featureId)
 			ids[length(ids)+1]=x[[i]]$featureId
 			annotations[length(annotations)+1]=x[[i]]$annotation
 		}
