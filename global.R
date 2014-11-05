@@ -23,6 +23,7 @@ load("data/baselayers.RDATA")
 featureDefaultOptions=list(fillOpacity=0.5,opacity=1)
 baseDefaultOptions=list(fillOpacity=0.2,opacity=0.3)
 emailDF=read.table("other/emailaccount.csv", sep=",", header=TRUE, as.is=TRUE)
+shinyurl="https://paleo13.shinyapps.io/mapotron/"
 
 ### define classes
 # id class
@@ -233,19 +234,19 @@ TOC = setRefClass("TOC",
 		export=function(firstname, lastname, emailaddress, emailtxt) {
 			## prepare directories
 			# create directory for researcher if not exist
-			dir.create(file.path("exports",emailaddress), showWarnings=FALSE)
+			dir.create(file.path("www/exports",emailaddress), showWarnings=FALSE)
 			# generate a user id
 			userId=paste0("user_",sample(1e+10,1))
-			while(file.exists(file.path("exports",emailaddress,"data",userId))) {
+			while(file.exists(file.path("www/exports",emailaddress,"data",userId))) {
 				userId=paste0("user_",sample(1e+10,1))
 			}
-			dir.create(file.path("exports",emailaddress,"data"), showWarnings=FALSE)
-			dir.create(file.path("exports",emailaddress,"data",userId), showWarnings=FALSE)
-			dir.create(file.path("exports",emailaddress,"user_zip"), showWarnings=FALSE)
-			dir.create(file.path("exports",emailaddress,"all_zip"), showWarnings=FALSE)
+			dir.create(file.path("www/exports",emailaddress,"data"), showWarnings=FALSE)
+			dir.create(file.path("www/exports",emailaddress,"data",userId), showWarnings=FALSE)
+			dir.create(file.path("www/exports",emailaddress,"user_zip"), showWarnings=FALSE)
+			dir.create(file.path("www/exports",emailaddress,"all_zip"), showWarnings=FALSE)
 			# generate file paths
-			userZipPTH=file.path("exports",emailaddress,"user_zip",paste0(userId,"_data.zip"))
-			emailZipPTH=file.path("exports",emailaddress,"all_zip","spatialdata.zip")
+			userZipPTH=file.path("www/exports",emailaddress,"user_zip",paste0(userId,"_data.zip"))
+			emailZipPTH=file.path("www/exports",emailaddress,"all_zip","spatialdata.zip")
 			
 			## export data
 			# generate nested list of objects
@@ -258,7 +259,7 @@ TOC = setRefClass("TOC",
 				if (length(tempLST[[i]])>0) {
 					writeOGR(
 						do.call(paste0(names(tempLST)[i],"ToSp"), list(tempLST[[i]])),
-						file.path("exports",emailaddress,"data",userId),
+						file.path("www/exports",emailaddress,"data",userId),
 						names(tempLST)[i],
 						overwrite=TRUE,
 						driver="ESRI Shapefile"
@@ -266,10 +267,10 @@ TOC = setRefClass("TOC",
 				}
 			}
 			# prepare zip files
-			zip(userZipPTH, list.files(file.path("exports",emailaddress,"data",userId), full.names=TRUE), flags="-r9X -j -q")
+			zip(userZipPTH, list.files(file.path("www/exports",emailaddress,"data",userId), full.names=TRUE), flags="-r9X -j -q")
 			if (file.exists(emailZipPTH))
 				file.remove(emailZipPTH)
-			zip(emailZipPTH, list.files(file.path("exports",emailaddress,"user_zip"), full.names=TRUE), flags="-r9X -j -q")
+			zip(emailZipPTH, list.files(file.path("www/exports",emailaddress,"user_zip"), full.names=TRUE), flags="-r9X -j -q")
 			
 			## send email
 			txt=ifelse(nchar(emailtxt)==0,"",paste0("They also left the following message: ",emailtxt))
@@ -286,9 +287,9 @@ txt
 ,
 "
 
-Download this person's data at: ", userZipPTH, "
+Download this person's data at: ", shinyurl,userZipPTH, "
 
-Batch download all the data people have sent you at: ", emailZipPTH,"
+Batch download all the data people have sent you at: ", shinyurl,emailZipPTH,"
 
 Cheers,
 
