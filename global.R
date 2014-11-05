@@ -1,3 +1,6 @@
+### default options
+options(shiny.error=traceback)
+
 ### load dependencies
 library(rgdal)
 library(leaflet)
@@ -15,7 +18,7 @@ baseCol=unlist(Map(brewer.pal, brewer.pal.info[match(basePals, rownames(brewer.p
 editCol="#FFFB0E"
 selectCol="#00FFFF"
 markerCol="#FF0000"
-program_version="0.0.4"
+program_version="0.0.5"
 load("data/baselayers.RDATA")
 featureDefaultOptions=list(fillOpacity=0.5,opacity=1)
 baseDefaultOptions=list(fillOpacity=0.2,opacity=0.3)
@@ -69,7 +72,7 @@ TOC = setRefClass("TOC",
 				for (i in seq_along(x@polygons)) {
 					newSubId=featureId$new()
 					for (j in seq_along(x@polygons[[i]]@Polygons)) {
-						newSubSubId=featureId$new()
+						newSubSubId=paste0("base_",newBaseId,"_",featureId$new())
 						baseLST[[newBaseId]][[newSubSubId]]<<-POLYGON$new(newSubSubId, parseOpts(list(baseDefaultOptions, list(color=baseColor(newSubId),fillcolor=baseColor(newSubId)))))
 						baseLST[[newBaseId]][[newSubSubId]]$coords<<-x@polygons[[i]]@Polygons[[j]]@coords
 						baseLST[[newBaseId]][[newSubSubId]]$annotation<<-as.character(x@data[[1]][i])
@@ -82,7 +85,7 @@ TOC = setRefClass("TOC",
 				for (i in seq_along(x@lines)) {
 					newSubId=featureId$new()
 					for (j in seq_along(x@lines[[i]]@Lines)) {
-						newSubId=featureId$new()
+						newSubId=paste0("base_",newBaseId,"_",featureId$new())
 						baseLST[[newBaseId]][[newSubId]]<<-LINE$new(newSubId, parseOpts(list(baseDefaultOptions, list(color=baseColor(newSubId),fillcolor=baseColor(newSubId)))))
 						baseLST[[newBaseId]][[newSubId]]$coords<<-x@lines[[i]]@Lines[[j]]@coords
 						baseLST[[newBaseId]][[newSubId]]$annotation<<-as.character(x@data[[1]][i])
@@ -93,11 +96,11 @@ TOC = setRefClass("TOC",
 				newBaseId=featureId$new()
 				baseLST[[newBaseId]]<<-list()
 				for (i in seq_len(nrow(x@coords))) {
-					newSubId=featureId$new()
-					baseLST[[newBaseId]]<<-POINT$new(newSubSubId, parseOpts(list(baseDefaultOptions, list(color=featureColor(newSubId),fillcolor=featureColor(newSubId)))))
-					baseLST[[newBaseId]]$coords<<-x@coords[i,,drop=FALSE]
-					baseLST[[newBaseId]]$annotation<<-as.character(x@data[[1]][i])
-					baseLST[[newBaseId]]$markerId<<-markerId$new()
+					newSubId=paste0("base_",newBaseId,"_",featureId$new())
+					baseLST[[newBaseId]][[newSubId]]<<-POINT$new(newSubSubId, parseOpts(list(baseDefaultOptions, list(color=featureColor(newSubId),fillcolor=featureColor(newSubId)))))
+					baseLST[[newBaseId]][[newSubId]]$coords<<-x@coords[i,,drop=FALSE]
+					baseLST[[newBaseId]][[newSubId]]$annotation<<-as.character(x@data[[1]][i])
+					baseLST[[newBaseId]][[newSubId]]$markerId<<-markerId$new()
 				}
 			}
 		},
@@ -105,7 +108,7 @@ TOC = setRefClass("TOC",
 			x=c()
 			if (activeId!="-9999") {
 				if (tool==1)
-					x=deselectFeature()
+					x=deselectLayer()
 				if (tool %in% 2:5)
 					x=stopEditFeature()
 				activeId<<- "-9999"
@@ -187,6 +190,34 @@ TOC = setRefClass("TOC",
 				return(x$remove())
 			}))
 		},
+		selectLayer=function(Id) {
+			if (grepl("base_",Id) | grepl("sub_",Id)) {
+				return(selectBase(Id))
+			} else {
+				return(selectFeature(Id))
+			}
+		},
+		deselectLayer=function() {
+			if (grepl("base_",activeId)) {
+				return(deselectBase())
+			} else {
+				return(deselectFeature())
+			}
+		},
+		selectBase=function(Id) {
+			activeId<<-as.character(Id)
+			return(c(
+				baseLST[[strsplit(activeId, "_")[[1]][[2]]]][[activeId]]$plot(highlight=selectCol),
+				baseLST[[strsplit(activeId, "_")[[1]][[2]]]][[activeId]]$addAnnotation()
+			))
+		},
+		deselectBase=function() {
+			return(c(
+				baseLST[[strsplit(activeId, "_")[[1]][[2]]]][[activeId]]$removeAnnotation(),
+				baseLST[[strsplit(activeId, "_")[[1]][[2]]]][[activeId]]$plot()
+			))
+		},
+		
 		addCoordinate=function(Id, coord) {
 			newCoordId=markerId$new()
 			featureLST[[as.character(Id)]]$addCoordinate(coord, newCoordId)
@@ -365,7 +396,7 @@ LINE=setRefClass("LINE",
 				}
 			'
 			))
-			return(paste0("map$addGeoJSON(",paste(deparse(jsonX), collapse=""),", ", featureId, ")"))
+			return(paste0("map$addGeoJSON(",paste(deparse(jsonX), collapse=""),", '", featureId, "')"))
 		},
 		addAnnotation=function() {
 			pos=ceiling(nrow(coords)/2)
@@ -403,7 +434,7 @@ POLYGON=setRefClass("POLYGON",
 				}
 				'
 			))
-			return(paste0("map$addGeoJSON(",paste(deparse(jsonX), collapse=""),", ", featureId, ")"))
+			return(paste0("map$addGeoJSON(",paste(deparse(jsonX), collapse=""),", '", featureId, "')"))
 		},
 		addAnnotation=function() {
 			return(paste0("map$showPopup(",

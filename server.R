@@ -160,34 +160,58 @@ shinyServer(function(input, output, session) {
 	})
 	
 	## select layer
+	# marker click
 	observe({
-		print(1)
 		event = input$map_marker_click
-		print(2)
-		if (is.null(event))
-			event = input$map_geojson_click
-		cat("start event\n")	
-		cat("lat",event$lat,"\n")
-		cat("lat",event$lon,"\n")
-		cat("clicklat",event$clicklat,"\n")
-		cat("clicklon",event$clicklon,"\n")
-		cat("end event\n")
-			
-		
-		print(3)
 		if (is.null(event) | toc$tool!=1)
 			return()
-		print(4)
 		isolate({
 			# reset
 			eval(parse(text=toc$reset()))
-			# add popup
-			eval(parse(text=toc$selectFeature(event$id)))
+			# select layer
+			eval(parse(text=toc$selectLayer(event$id)))
 			session$sendInputMessage("annotationTxt", list(value=toc$featureLST[[toc$activeId]]$annotation))
-			updateButton(session, "toolBtn6", disabled=FALSE)
-			session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('disabled',false)"))
+			# update widgets
+			if (!grepl("base_",event$id)) {
+				updateButton(session, "toolBtn6", disabled=FALSE)
+				session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('disabled',false)"))
+				session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('readonly',false)"))
+			} else {
+				updateButton(session, "toolBtn6", disabled=TRUE)
+				session$sendInputMessage("annotationTxt", list(value=toc$baseLST[[strsplit(toc$activeId, "_")[[1]][[2]]]][[toc$activeId]]$annotation))
+				session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('disabled',true)"))	
+				session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('readonly',true)"))
+			}
+		})
+	})	
+	# geojson click
+	observe({
+		event = input$map_geojson_click
+		if (is.null(event) | toc$tool!=1)
+			return()
+		isolate({
+			# reset
+			eval(parse(text=toc$reset()))
+			if (!grepl("base_",event$id)) {
+				## if feature layer			
+				# add popup
+				eval(parse(text=toc$selectFeature(event$id)))
+				session$sendInputMessage("annotationTxt", list(value=toc$featureLST[[toc$activeId]]$annotation))
+				# enable annotation widgets
+				updateButton(session, "toolBtn6", disabled=FALSE)
+				session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('disabled',false)"))
+				session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('readonly',false)"))				
+			} else {
+				## if base layer
+				# add popup
+				eval(parse(text=toc$selectBase(event$id)))
+				session$sendInputMessage("annotationTxt", list(value=toc$baseLST[[strsplit(toc$activeId, "_")[[1]][[2]]]][[toc$activeId]]$annotation))
+				session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('disabled',true)"))	
+				session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('readonly',true)"))
+			}
 		})
 	})
+	
 	## deselect layer
 	observe({
 		event=input$map_click
@@ -196,8 +220,6 @@ shinyServer(function(input, output, session) {
 		isolate({
 			# reset
 			eval(parse(text=toc$reset()))
-			updateButton(session, "toolBtn6", disabled=TRUE)
-			session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('disabled',true)"))
 		})
 	})
 	
@@ -232,11 +254,9 @@ shinyServer(function(input, output, session) {
 		}
 	})
 
-	# add a coordinate
+	# add a coordinate on map click
 	observe({
-		event = input$map_geojson_click
-		if (is.null(event))
-			event= input$map_click
+		event=input$map_click
 		if  (!(!is.null(event) & ((toc$tool %in% c(2:5) &  toc$activeId!="-9999") | (toc$tool==2))))
 			return()
 		isolate({
@@ -247,6 +267,24 @@ shinyServer(function(input, output, session) {
 			}
 			# add coordinate and marker
 			eval(parse(text=toc$addCoordinate(toc$activeId, c(event$lng, event$lat))))
+			# update feature
+			eval(parse(text=toc$plotFeature(toc$activeId, highlight=editCol)))
+		})
+	})
+	
+	# add a coordinate on geojson click
+	observe({
+		event = input$map_geojson_click		
+		if  (!(!is.null(event) & ((toc$tool %in% c(2:5) &  toc$activeId!="-9999") | (toc$tool==2))))
+			return()
+		isolate({
+			#  create new feature if point
+			if (toc$tool==2) {
+				eval(parse(text=toc$reset()))
+				toc$newPoint()
+			}
+			# add coordinate and marker
+			eval(parse(text=toc$addCoordinate(toc$activeId, c(event$clicklng, event$clicklat))))
 			# update feature
 			eval(parse(text=toc$plotFeature(toc$activeId, highlight=editCol)))
 		})
