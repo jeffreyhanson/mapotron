@@ -302,7 +302,7 @@ Mapotron Development Team (www.mapotron.com)
 			)
 		},
 		garbageCleaner=function() {
-			if (length(toc$featureLST)==0) {
+			if (length(featureLST)>0) {
 				featureLST<<-featureLST[which(sapply(featureLST, function(x) {
 					return(nrow(x$coords)>0)
 				}))]

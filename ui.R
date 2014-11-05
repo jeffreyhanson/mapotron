@@ -56,32 +56,32 @@ shinyUI(basicPage(
 			tags$script(type="text/javascript", src = "busy.js")
 			),
 			tags$div(class="row-fluid",
-				column(width=6,
-					textInput("firstName", "First Name", value = ""),
-					br(),
-					textInput("lastName", "Last Name", value = ""),
-					br(),
-					textInput("emailAddress", "Researcher's Email Address", value = ""),
-					br(),
-					br(),
-					div(style="position: relative; left: 25%;",
-							bsActionButton("saveBtn", label="Save Data", style="primary")
+				fluidRow(
+					column(width=6,
+						textInput("firstName", "First Name", value = ""),
+						br(),
+						textInput("lastName", "Last Name", value = ""),
+						br(),
+						textInput("emailAddress", "Researcher's Email Address", value = ""),
+						br(),
+						br(),
+						div(style="position: relative; left: 25%;",
+								bsActionButton("saveBtn", label="Send Data", style="primary")
+						)
 					),
-					div(class = "busy",  
-					  p("Calculation in progress.."), 
-					  img(src="icons/ajax-loader.gif")
-					)
-				),
-				column(width=4,
-					tagList(
-						div(style="position: relative; top: 0px; bottom: 0; left: 0px; right 0; padding: 0;",
-							tags$label("Message"),
-							tags$textarea(id="emailtxt", rows=12, cols=20, "")
+					column(width=4,
+						tagList(
+							div(style="position: relative; top: 0px; bottom: 0; left: 0px; right 0; padding: 0;",
+								tags$label("Message"),
+								tags$textarea(id="emailtxt", rows=12, cols=20, "")
+							)
 						)
 					)
+				),
+				fluidRow(
+					bsAlert("alertAchr")
 				)
 			)
-				
 		)
 	),
 	
@@ -155,14 +155,27 @@ shinyUI(basicPage(
 			  padding: 0;
 			}
 		"), tags$script(HTML('
-			  Shiny.addCustomMessageHandler("jsCode",
+			Shiny.addCustomMessageHandler("jsCode",
 				function(message) {
 				  console.log(message)
 				  eval(message.code);
 				}
 			  );
+
+			Shiny.addCustomMessageHandler("saveBtn_enable", 
+				function(message) {
+					$("#saveBtn").removeAttr("disabled");
+				}
+			);
+			
+			Shiny.addCustomMessageHandler("saveBtn_disable", 
+				function(message) {
+					$("#saveBtn").attr("disabled", "true");
+				}
+			);
+			
 		'))
-	)  
+	)
 ))
 
 

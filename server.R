@@ -324,27 +324,14 @@ shinyServer(function(input, output, session) {
 		})
 	})
 	
-	## save button observer
-	observe({
-		if (input$saveBtn==0)
-			return()
-		isolate({
-			createAlert(session, inputId = "alertAchr",
-				message = "Shh, I'm thinking...",
-				type = "warning",
-				dismiss = TRUE,
-				block = FALSE,
-				append = FALSE
-			)
-		})
-	})
-	
 	## export button observer
 	observe({
 		if (input$saveBtn==0)
 			return()
 		isolate({
 			# init
+			session$sendCustomMessage("saveBtn_disable",list(message=""))
+			alert=NULL
 			if (toc$activeId!="-9999") {
 				eval(parse(text=toc$stopEditFeature()))
 			}
@@ -358,9 +345,7 @@ shinyServer(function(input, output, session) {
 				if (all(sapply(x, nchar)>0)) {
 					# save shapefiles
 					x=try(toc$export(x[[1]], x[[2]], x[[3]], input$emailtxt))
-					if (!inherits(x,"try-error")) {
-						alert=list(text="Data saved and email notification sent!",type="success")
-					} else {
+					if (inherits(x,"try-error")) {
 						alert=list(text="Error processing data!",type="danger")
 					}
 				} else {
@@ -368,18 +353,22 @@ shinyServer(function(input, output, session) {
 					if (length(y)==1) {
 						alert=list(text=paste0(names(x)[y], " field is incomplete!"),type="danger")
 					} else {
-						alert=list(text=paste0(paste(names(x)[], collapse=" and "), " fields are incomplete!"),type="danger")
+						alert=list(text=paste0(paste(names(x)[y], collapse=" and "), " fields are incomplete!"),type="danger")
 					}
 				}
 			}
 			# create alert
-			createAlert(session, inputId = "alertAchr",
-				message = alert$text,
-				type = alert$type,
-				dismiss = TRUE,
-				block = FALSE,
-				append = FALSE
-			)
+			if (!is.null(alert)) {
+				createAlert(session, inputId = "alertAchr",
+					message = alert$text,
+					type = alert$type,
+					dismiss = TRUE,
+					block = FALSE,
+					append = FALSE
+				)
+			}
+			# update button
+			session$sendCustomMessage("saveBtn_enable",list(message=""))
 		})
 	})
 })
