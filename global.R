@@ -287,9 +287,9 @@ txt
 ,
 "
 
-Download this person's data at: ", shinyurl,userZipPTH, "
+Download this person's data at: ", shinyurl,file.path("www/exports",emailaddress,"user_zip",paste0(userId,"_data.zip")), "
 
-Batch download all the data people have sent you at: ", shinyurl,emailZipPTH,"
+Batch download all the data people have sent you at: ", shinyurl,file.path("www/exports",emailaddress,"all_zip","spatialdata.zip"),"
 
 Cheers,
 
