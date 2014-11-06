@@ -4,20 +4,26 @@ library(ShinyDash)
 shinyUI(basicPage(
 	# navbar
 	bsNavBar("navBar", brand="Mapotron", inverse=TRUE, fixed=TRUE,
-		suppressWarnings(bsActionButton("toolBtn1", img(src="icons/toolBtn1_white.png", height=20, width=20), style="primary")),
 		bsNavDropDown("baseSel", label="Base Layer", choices=c("None"="-9999")),
+		suppressWarnings(bsActionButton("toolBtn1", img(src="icons/toolBtn1_white.png", height=20, width=20), style="primary")),
 		tagList(
 			div(style="display:inline-block; position: relative; top: 6px; bottom: 0; left: 0; right 0; padding: 0;",
-				tags$input(id = "annotationTxt", type="text", value="", class="input")
+				tags$input(id = "annotationTxt", type="text", value="", class="enterTextInput")
 			)
 		),
-		suppressWarnings(bsActionButton("toolBtn6", img(src="icons/toolBtn6_white.png", height=20, width=20), style="inverse")),
 		suppressWarnings(bsActionButton("toolBtn2", img(src="icons/toolBtn2_white.png", height=20, width=20), style="inverse")),
 		suppressWarnings(bsActionButton("toolBtn3", img(src="icons/toolBtn3_white.png", height=20, width=20), style="inverse")),
 		suppressWarnings(bsActionButton("toolBtn4", img(src="icons/toolBtn4_white.png", height=20, width=20), style="inverse")),
+		bsNavDivider(),
 		suppressWarnings(bsActionButton("toolBtn5", img(src="icons/toolBtn5_white.png", height=20, width=20), style="inverse")),
 		suppressWarnings(bsActionButton("toolBtn7", img(src="icons/toolBtn7_white.png", height=20, width=20), style="inverse")),
 		rightItems=list(
+			tagList(div(style="display:inline-block; position: relative; top: 2px; color: #999", tags$h5("Take me to "))),
+			tagList(
+				div(style="display:inline-block; position: relative; top: 6px; bottom: 0; left: 0; right 0; padding: 0;",
+					tags$input(id = "geocodeTxt", type="text", value="", class="enterTextInput")
+				)
+			),
 			bsButton("helpBtn", img(src="icons/help_white.png", height=20, width=20), style="inverse"),
 			bsButton("sendBtn", img(src="icons/email_white.png", height=20, width=20), style="inverse")
 		)
@@ -62,7 +68,7 @@ shinyUI(basicPage(
 						br(),
 						textInput("lastName", "Last Name", value = ""),
 						br(),
-						textInput("emailAddress", "Researcher's Email Address", value = ""),
+						textInput("emailAddress", "Colleague's Email Address", value = ""),
 						br(),
 						br(),
 						div(style="position: relative; left: 25%;",
@@ -167,12 +173,57 @@ shinyUI(basicPage(
 					$("#saveBtn").removeAttr("disabled");
 				}
 			);
-			
-			Shiny.addCustomMessageHandler("saveBtn_disable", 
-				function(message) {
-					$("#saveBtn").attr("disabled", "true");
+				
+
+			var enterTextInputBinding = new Shiny.InputBinding();
+				$.extend(enterTextInputBinding, {
+				find: function(scope) {
+					return $(scope).find(\'.enterTextInput\');
+				},
+				getId: function(el) {
+					//return InputBinding.prototype.getId.call(this, el) || el.name;
+					return $(el).attr(\'id\')
+				},
+				getValue: function(el) {
+					return el.value;
+				},
+				setValue: function(el, value) {
+					el.value = value;
+				},
+				subscribe: function(el, callback) {
+					$(el).on(\'keyup.textInputBinding input.textInputBinding\', function(event) {
+						if(event.keyCode == 13) { //if enter
+							callback()
+						}
+					});	
+				},
+				unsubscribe: function(el) {
+					$(el).off(\'.enterTextInputBinding\');
+				},
+				receiveMessage: function(el, data) {
+					if (data.hasOwnProperty(\'value\'))
+						this.setValue(el, data.value);
+					if (data.hasOwnProperty(\'label\'))
+						$(el).parent().find(\'label[for=\' + el.id + \']\').text(data.label);
+					$(el).trigger(\'change\');
+				},
+				getState: function(el) {
+					return {
+						label: $(el).parent().find(\'label[for=\' + el.id + \']\').text(),
+						value: el.value
+					};
+				},
+				getRatePolicy: function() {
+					return {
+						policy: \'debounce\',
+						delay: 250
+					};
 				}
-			);
+            });
+			
+            Shiny.inputBindings.register(enterTextInputBinding, \'shiny.enterTextInput\');
+
+				
 			
 		'))
 	)

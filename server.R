@@ -52,7 +52,6 @@ shinyServer(function(input, output, session) {
 			
 		})
 	})
-	
 	## map click button observer
 	observe({
 		if (input$toolBtn1==0)
@@ -69,7 +68,6 @@ shinyServer(function(input, output, session) {
 			
 		})
 	})
-	
 	# add point button observer
 	observe({
 		if (input$toolBtn2==0)
@@ -132,15 +130,27 @@ shinyServer(function(input, output, session) {
 			toc$tool<<-5
 		})
 	})
-	# annotate button observer 
+	# annotate text input observer 
 	observe({
-		if (input$toolBtn6==0 & toc$tool==1)
+		if (nchar(input$annotationTxt)>0 & toc$tool==1) {
+			isolate({
+				# update annotation
+				toc$addAnnotation(toc$activeId,input$annotationTxt)			
+				# update popup
+				eval(parse(text=toc$featureLST[[toc$activeId]]$addAnnotation()))
+			})
+		}
+	})
+	# geocode text input observer
+	observe({	
+		if (input$geocodeTxt=="")
 			return()
 		isolate({
-			# update annotation
-			toc$addAnnotation(toc$activeId,input$annotationTxt)			
-			# update popup
-			eval(parse(text=toc$featureLST[[toc$activeId]]$addAnnotation()))
+			coord=google$find(input$geocodeTxt)
+			if (all(!is.na(coord))) {
+				map$setView(coord[1], coord[2], zoom=8)
+				map$showPopup(coord[1], coord[2], input$geocodeTxt, "geocode_marker")
+			}
 		})
 	})
 	# remove button observer
@@ -228,7 +238,7 @@ shinyServer(function(input, output, session) {
 	observe({
 		event = input$map_marker_click
 		if (!is.null(event) & toc$tool==5 & toc$activeId=="-9999") {
-			if (!grepl("marker_", event$id)) {
+			if (!grepl("marker_", event$id) & !grepl("base_",event$id)) {
 				# select layer
 				isolate({
 					# select layer
@@ -244,13 +254,15 @@ shinyServer(function(input, output, session) {
 	observe({
 		event = input$map_geojson_click
 		if (!is.null(event) & toc$tool==5 & toc$activeId=="-9999") {
-			# select layer
-			isolate({
+			if(!grepl("base_",event$id)) {		
 				# select layer
-				eval(parse(text=toc$startEditFeature(event$id)))
-				# update feature
-				eval(parse(text=toc$plotFeature(event$id, highlight=editCol)))
-			})
+				isolate({
+					# select layer
+					eval(parse(text=toc$startEditFeature(event$id)))
+					# update feature
+					eval(parse(text=toc$plotFeature(event$id, highlight=editCol)))
+				})
+			}
 		}
 	})
 
@@ -294,7 +306,7 @@ shinyServer(function(input, output, session) {
 	observe({
 		event = input$map_marker_click
 		if (!is.null(event) & toc$tool %in% 2:5 & toc$activeId!="-9999") {
-			if (grepl("marker_", event$id)) {
+			if (grepl("marker_", event$id) & !grepl("base_",event$id)) {
 				isolate({
 					# remove coordinate
 					eval(parse(text=toc$removeCoordinate(toc$activeId, sub("marker_","",event$id))))
@@ -319,8 +331,10 @@ shinyServer(function(input, output, session) {
 		if (is.null(event) | toc$tool!=7)
 			return()
 		isolate({
-			# update polygons
-			eval(parse(text=toc$removeFeature(as.character(event$id))))
+			if (!grepl("base_",event$id)) {
+				# update polygons
+				eval(parse(text=toc$removeFeature(as.character(event$id))))
+			}
 		})
 	})
 	
@@ -336,13 +350,16 @@ shinyServer(function(input, output, session) {
 				eval(parse(text=toc$stopEditFeature()))
 			}
 			toc$garbageCleaner()
+			toc$removeOldFiles()
 			
 			# main
 			x=list("First Name"=input$firstName, "Last Name"=input$lastName, "Email Address"=input$emailAddress)
 			if (length(toc$featureLST)==0) {
 				alert=list(text="No spatial data!",type="danger")
 			} else {
-				if (all(sapply(x, nchar)>0)) {
+				if (input$emailAddress %in% emailBlockList) {
+					alert=list(text="This email address has been blocked!",type="danger")
+				} else if (all(sapply(x, nchar)>0)) {
 					# save shapefiles
 					x=try(toc$export(x[[1]], x[[2]], x[[3]], input$emailtxt))
 					if (inherits(x,"try-error")) {

@@ -1,4 +1,4 @@
-install.packages(c("devtools","shiny","rgdal","maps","fields","RColorBrewer"))
+install.packages(c("devtools","shiny","rgdal","maps","fields","RColorBrewer","plyr","RCurl","RJSONIO","taRifx.geo"))
 library(devtools)
 devtools::install_github('trestletech/ShinyDash')
 devtools::install_github('paleo13/leaflet-shiny')
