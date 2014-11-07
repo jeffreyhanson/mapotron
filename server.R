@@ -223,7 +223,6 @@ shinyServer(function(input, output, session) {
 			}
 		})
 	})
-	
 	## deselect layer
 	observe({
 		event=input$map_click
@@ -236,38 +235,6 @@ shinyServer(function(input, output, session) {
 	})
 	
 	## edit layer observer
-	# start editing a point feature
-	observe({
-		event = input$map_marker_click
-		if (!is.null(event) & toc$tool==5 & toc$activeId=="-9999") {
-			if (!grepl("marker_", event$id) & !grepl("base_",event$id)) {
-				# select layer
-				isolate({
-					# select layer
-					eval(parse(text=toc$startEditFeature(event$id)))
-					# update feature
-					eval(parse(text=toc$plotFeature(event$id, highlight=editCol)))
-				})
-			}
-		}
-	})
-	
-	# start editing a polygon or line feature
-	observe({
-		event = input$map_geojson_click
-		if (!is.null(event) & toc$tool==5 & toc$activeId=="-9999") {
-			if(!grepl("base_",event$id)) {		
-				# select layer
-				isolate({
-					# select layer
-					eval(parse(text=toc$startEditFeature(event$id)))
-					# update feature
-					eval(parse(text=toc$plotFeature(event$id, highlight=editCol)))
-				})
-			}
-		}
-	})
-
 	# add a coordinate on map click
 	observe({
 		event=input$map_click
@@ -322,6 +289,36 @@ shinyServer(function(input, output, session) {
 						# if line or polygon remove coordinate and marker
 						eval(parse(text=toc$plotFeature(toc$activeId, highlight=editCol)))
 					}
+				})
+			}
+		}
+	})
+	# start editing a point feature
+	observe({
+		event = input$map_marker_click
+		if (!is.null(event) & toc$tool==5 & toc$activeId=="-9999") {
+			if (!grepl("marker_", event$id) & !grepl("base_",event$id)) {
+				# select layer
+				isolate({
+					# select layer
+					eval(parse(text=toc$startEditFeature(event$id)))
+					# update feature
+					eval(parse(text=toc$plotFeature(event$id, highlight=editCol)))
+				})
+			}
+		}
+	})
+	# start editing a polygon or line feature
+	observe({
+		event = input$map_geojson_click
+		if (!is.null(event) & toc$tool==5 & toc$activeId=="-9999") {
+			if(!grepl("base_",event$id)) {		
+				# select layer
+				isolate({
+					# select layer
+					eval(parse(text=toc$startEditFeature(event$id)))
+					# update feature
+					eval(parse(text=toc$plotFeature(event$id, highlight=editCol)))
 				})
 			}
 		}
