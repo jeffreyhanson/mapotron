@@ -22,7 +22,7 @@ baseCol=unlist(Map(brewer.pal, brewer.pal.info[match(basePals, rownames(brewer.p
 editCol="#FFFB0E"
 selectCol="#00FFFF"
 markerCol="#FF0000"
-program_version="0.0.7"
+program_version="0.0.8"
 load("data/baselayers.RDATA")
 featureDefaultOptions=list(fillOpacity=0.5,opacity=1)
 baseDefaultOptions=list(fillOpacity=0.2,opacity=0.3)
