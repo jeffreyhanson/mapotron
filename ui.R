@@ -44,12 +44,12 @@ shinyUI(basicPage(
 	),
 	
 	# tool tips
-	bsTooltip("toolBtn1", "navigation + show annotation", placement = "bottom", trigger = "hover"),
+	bsTooltip("toolBtn1", "navigation + select feature", placement = "bottom", trigger = "hover"),
 	bsTooltip("toolBtn2", "add point feature", placement = "bottom", trigger = "hover"),
 	bsTooltip("toolBtn3", "add line feature", placement = "bottom", trigger = "hover"),
 	bsTooltip("toolBtn4", "add polygon feature", placement = "bottom", trigger = "hover"),
 	bsTooltip("toolBtn5", "edit feature", placement = "bottom", trigger = "hover"),
-	bsTooltip("toolBtn6", "add annotation", placement = "bottom", trigger = "hover"),
+	bsTooltip("annotationTxt", "annotate feature", placement = "bottom", trigger = "hover"),
 	bsTooltip("toolBtn7", "remove feature", placement = "bottom", trigger = "hover"),
 	
 	# save modal
@@ -98,7 +98,7 @@ shinyUI(basicPage(
 				h4("Help"),
 				fluidRow(
 					column(bsActionButton("mapBtn_help", img(src="icons/toolBtn1_white.png", height=20, width=20), style="inverse"),width=3),
-					column(h6("navigation + show annotations"),width=9)
+					column(h6("navigation + select feature"),width=9)
 				),
 				fluidRow(
 					column(bsActionButton("addPointBtn_help", img(src="icons/toolBtn2_white.png", height=20, width=20), style="inverse"),width=3),
@@ -115,10 +115,6 @@ shinyUI(basicPage(
 				fluidRow(
 					column(bsActionButton("editBtn_help", img(src="icons/toolBtn5_white.png", height=20, width=20), style="inverse"),width=3),
 					column(h6("edit existing feature"),width=7)
-				),
-				fluidRow(
-					column(bsActionButton("annotateBtn_help", img(src="icons/toolBtn6_white.png", height=20, width=20), style="inverse"),width=3),
-					column(h6("annotate existing feature"),width=7)
 				),
 				fluidRow(
 					column(bsActionButton("removeBtn_help", img(src="icons/toolBtn7_white.png", height=20, width=20), style="inverse"),width=3),

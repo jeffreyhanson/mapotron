@@ -21,6 +21,8 @@ shinyServer(function(input, output, session) {
 		toc$newBase(baselayers[[i]])
 	}
 	toc$emailOptions=list(host.name=emailDF$host.name, port=emailDF$port, user.name=emailDF$user.name, passwd=emailDF$password, ssl=TRUE)
+	# set widget styles
+	session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('disabled',true)"))	
 	
 	# generate program version number
 	output$program_version=renderText({program_version})
@@ -146,10 +148,10 @@ shinyServer(function(input, output, session) {
 		if (input$geocodeTxt=="")
 			return()
 		isolate({
-			coord=google$find(input$geocodeTxt)
-			if (all(!is.na(coord))) {
-				map$setView(coord[1], coord[2], zoom=8)
-				map$showPopup(coord[1], coord[2], input$geocodeTxt, "geocode_marker")
+			ret=google$find(sanitise(input$geocodeTxt))
+			if (ret$status) {
+				map$fitBounds(ret$bbox[1], ret$bbox[4], ret$bbox[3], ret$bbox[2])
+				map$showPopup(ret$lat, ret$lng, ret$name, "geocode_marker")
 			}
 		})
 	})
@@ -286,8 +288,10 @@ shinyServer(function(input, output, session) {
 	
 	# add a coordinate on geojson click
 	observe({
-		event = input$map_geojson_click		
-		if  (!(!is.null(event) & ((toc$tool %in% c(2:5) &  toc$activeId!="-9999") | (toc$tool==2))))
+		event = input$map_geojson_click	
+		if (is.null(event) | grepl("base_",toc$activeId))
+			return()
+		if  (!(toc$tool %in% c(2:5) & toc$activeId!="-9999") | (toc$tool==2))
 			return()
 		isolate({
 			#  create new feature if point
@@ -331,7 +335,7 @@ shinyServer(function(input, output, session) {
 		if (is.null(event) | toc$tool!=7)
 			return()
 		isolate({
-			if (!grepl("base_",event$id)) {
+			if (!grepl("base_",event$id) & !grepl("base_",toc$activeId)) {
 				# update polygons
 				eval(parse(text=toc$removeFeature(as.character(event$id))))
 			}

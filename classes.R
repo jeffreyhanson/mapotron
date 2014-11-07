@@ -202,7 +202,7 @@ TOC = setRefClass("TOC",
 			featureLST[[as.character(Id)]]$removeMarker(coordId)
 		},
 		addAnnotation=function(Id, text) {
-			featureLST[[as.character(Id)]]$annotation<<-gsub("'", "",gsub('"', '', text))
+			featureLST[[as.character(Id)]]$annotation<<-sanitise(text)
 		},
 		export=function(firstname, lastname, emailaddress, emailtxt) {
 			## prepare directories
@@ -458,26 +458,21 @@ POLYGON=setRefClass("POLYGON",
 
 # geocoding class
 GEOCODE=setRefClass("GEOCODE",
-	fields=list(placenames="character", coords="matrix"),
+	fields=list(cache="list"),
 	methods=list(
 		initialize=function() {
-			placenames<<-character(0)
-			coords<<-matrix(nrow=0, ncol=2)
+			cache<<-list()
 		},
 		find=function(place) {
 			place=tolower(place)
-			pos=which(placenames==place)
+			pos=which(names(cache)==place)
 			if (length(pos)==0) {
-				coord=geocode(place)
-				update(place, coord)
-				return(coord)
+				ret=geocode.google(place)
+				cache[[place]]<<-ret
+				return(ret)
 			} else {
-				return(coords[pos[1],])
+				return(cache[[pos]])
 			}
-		},
-		update=function(place, coord) {
-			placenames<<-c(placenames, place)
-			coords<<-rbind(coords,coord)
 		}
 	)
 )

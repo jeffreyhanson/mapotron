@@ -48,6 +48,37 @@ baseColor=function(x) {
 	return(baseCol[as.numeric(x) %% length(baseCol)])
 }
 
+sanitise=function(x) {
+	return(gsub('"', "", gsub("\\", "", gsub('"', '', gsub("'", "", deparse(x), fixed=TRUE), fixed=TRUE), fixed=TRUE), fixed=TRUE))
+}
+
+geocode.google=function(placename) {
+	# get data from google
+	placeurl=paste0("http://maps.google.com/maps/api/geocode/", "json", "?address=", placename, "&sensor=", "false")
+	doc=RCurl::getURL(placeurl)
+	json=RJSONIO::fromJSON(doc, simplify=FALSE)
+	# parse response
+	if (json$status=="OK")  {
+		return(
+			list(
+				lat=json$results[[1]]$geometry$location$lat,
+				lng=json$results[[1]]$geometry$location$lng,
+				name=json$results[[1]]$formatted_address,
+				bbox=c(
+					json$results[[1]]$geometry$bounds$northeast$lat,
+					json$results[[1]]$geometry$bounds$northeast$lng,
+					json$results[[1]]$geometry$bounds$southwest$lat,
+					json$results[[1]]$geometry$bounds$southwest$lng
+				),
+				status=TRUE
+			)
+		)
+	} else {
+		return(list(lat=NA, lng=NA, name=NA, bbox=NA, status=FALSE))
+	}
+}
+
+
 # json functions
 list2json=function(prefix,lst) {
 	if (length(lst)==0) {
