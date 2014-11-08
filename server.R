@@ -374,11 +374,11 @@ shinyServer(function(input, output, session) {
 	
 	## email button observer
 	observe({
-		if (input$emailBtn==0)
+		if (input$sendEmailBtn==0)
 			return()
 		isolate({
 			# init
-			session$sendCustomMessage("disable_email_button",list(message="emailBtn"))
+			session$sendCustomMessage("disable_email_button",list(message="sendEmailBtn"))
 			alert=NULL
 			if (toc$activeId!="-9999") {
 				eval(parse(text=toc$stopEditFeature()))
@@ -419,7 +419,7 @@ shinyServer(function(input, output, session) {
 				)
 			}
 			# update button
-			session$sendCustomMessage("enable_email_button",list(message="emailBtn"))
+			session$sendCustomMessage("enable_email_button",list(message="sendEmailBtn"))
 		})
 	})
 })

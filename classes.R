@@ -234,12 +234,12 @@ TOC = setRefClass("TOC",
 			zipPTH=file.path("www","exports",emailaddress,"zip","spatialdata.zip")
 			
 			## export data
-			saveSpatialData(featureLST,file.path("www","exports",emailaddress,"zip","spatialdata.zip"),c("firstname"=firstname,"lastname"=lastname))			
+			saveSpatialData(featureLST,file.path("www","exports",emailaddress,"data",userId),c("firstname"=firstname,"lastname"=lastname))			
 			
 			# load spatial objects and combine them
 			for (i in c("Point", "LineString", "Polygon")) {
 				# get list of files
-				currVEC=gsub(".shp", "", list.files(file.path("www/exports",emailaddress,"data"), paste0("^",i,".*.shp$"), full.names=TRUE, recursive=TRUE), fixed=TRUE)
+				currVEC=gsub(".shp", "", list.files(file.path("www","exports",emailaddress,"data"), paste0("^",i,".*.shp$"), full.names=TRUE, recursive=TRUE), fixed=TRUE)
 				if (length(currVEC)>0) {
 					currVEC=Map(readOGR, dirname(currVEC), basename(currVEC), verbose=FALSE)
 					if (i %in% c("LineString","Polygon")) {					

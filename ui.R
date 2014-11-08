@@ -73,7 +73,7 @@ shinyUI(basicPage(
 						br(),
 						br(),
 						div(style="position: relative; left: 25%;",
-								bsActionButton("emailBtn", label="Send Data", style="primary")
+								bsActionButton("sendEmailBtn", label="Send Data", style="primary")
 						)
 					),
 					column(width=4,
@@ -164,7 +164,7 @@ shinyUI(basicPage(
 					"). Alternatively, you can send this data to a colleague, by clicking on the email button (",
 					bsButton("emailBtn_help", img(src="icons/email_white.png", height=20, width=20), style="inverse"),
 					"), filling in the text boxes, and clicking on the send data button(",
-					bsActionButton("emailBtn_help", label="Send Data", style="primary"),
+					bsActionButton("sendEmailBtn_help", label="Send Data", style="primary"),
 					")."
 				),
 				id="col7", value="helpPanel6"
@@ -252,12 +252,12 @@ shinyUI(basicPage(
 
 			Shiny.addCustomMessageHandler("enable_email_button", 
 				function(message) {
-					$("#emailBtn").removeAttr("disabled");
+					$("#sendEmailBtn").removeAttr("disabled");
 				}
 			);
 			Shiny.addCustomMessageHandler("disable_email_button", 
 				function(message) {
-					$("#emailBtn").prop(\"disabled\",true);
+					$("#sendEmailBtn").prop(\"disabled\",true);
 				}
 			);
 			
