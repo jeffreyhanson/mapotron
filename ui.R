@@ -3,7 +3,7 @@ library(ShinyDash)
 
 shinyUI(basicPage(
 	# navbar
-	bsNavBar("navBar", brand="Mapotron", inverse=TRUE, fixed=TRUE,
+	bsNavBar2("navBar", "brandBtn", brand="Mapotron", inverse=TRUE, fixed=TRUE,
 		bsNavDropDown("baseSel", label="Base Layer", choices=c("None"="-9999")),
 		suppressWarnings(bsActionButton("toolBtn1", img(src="icons/toolBtn1_white.png", height=20, width=20), style="primary")),
 		tagList(
@@ -168,14 +168,20 @@ shinyUI(basicPage(
 					")."
 				),
 				id="col7", value="helpPanel6"
+			),
+			bsCollapsePanel(
+				"Some of the buttons don't work and the interface looks dumb!", 
+				tags$div(class="row-fluid",HTML(
+					"<p>Mapotron was tested using <a href=\"https://www.google.com/chrome/\">Google Chrome</a>. Please use <a href=\"https://www.google.com/chrome/\">Google Chrome</a>.  We cannot guarantee that Mapotron will work with any other web browser; we do not plan to explicitly accommodate other web browser's in the near future.</p>
+					<p>If you are using Google Chrome and encounter issues, please <a href=\"mailto:&#109;&#097;&#112;&#111;&#116;&#114;&#111;&#110;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109\">contact us</a> </p>"
+				)),
+				id="col8", value="helpPanel6"
 			)
 		)
 	)), 
-	
-	
-	
+		
 	# about modal
-	bsModal("aboutMdl", "About", trigger="x",
+	bsModal("aboutMdl", "About", trigger="brandBtn",
 		tags$div(class="row-fluid",
 			column(
 				fluidRow(

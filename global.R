@@ -22,7 +22,7 @@ baseCol=unlist(Map(brewer.pal, brewer.pal.info[match(basePals, rownames(brewer.p
 editCol="#FFFB0E"
 selectCol="#00FFFF"
 markerCol="#FF0000"
-program_version="1.0.0"
+program_version="1.0.1"
 load("data/baselayers.RDATA")
 featureDefaultOptions=list(fillOpacity=0.5,opacity=1)
 baseDefaultOptions=list(fillOpacity=0.2,opacity=0.3)
@@ -126,6 +126,29 @@ saveSpatialData=function(featureLST, expDir, attrVEC) {
 		}
 	}
 }
+
+# make custom bs navbar
+bsNavBar2=function (inputId, brandId, brand, ..., rightItems, fixed = FALSE, inverse = FALSE) 
+{
+    class <- "navbar"
+    if (inverse) 
+        class <- paste(class, "navbar-inverse")
+    if (fixed) 
+        class <- paste(class, "navbar-fixed-top")
+    leftItems <- list(...)
+    if (missing(rightItems))
+        rightItems = list("")
+    shinyBS:::sbsHead(
+		tags$div(id = inputId, class = class, 
+			tags$div(class = "navbar-inner", 
+				tags$a(class = "brand", id = brandId, href = "#", brand), 
+				tags$ul(class = "nav pull-left", leftItems), 
+				tags$ul(class = "nav pull-right", rightItems)
+			)
+		)
+	)
+}
+
 
 # json functions
 list2json=function(prefix,lst) {
