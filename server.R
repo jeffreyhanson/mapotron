@@ -20,6 +20,7 @@ shinyServer(function(input, output, session) {
 	for (i in seq_along(baselayers)) {
 		toc$newBase(baselayers[[i]])
 	}
+
 	toc$emailOptions=list(host.name=emailDF$host.name, port=emailDF$port, user.name=emailDF$user.name, passwd=emailDF$password, ssl=TRUE)
 	# set widget styles
 	session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('disabled',true)"))	
@@ -51,7 +52,6 @@ shinyServer(function(input, output, session) {
 			# replot features
 			toc$removeAllFeatures()
 			toc$plotAllFeatures()
-			
 		})
 	})
 	## map click button observer
@@ -148,12 +148,24 @@ shinyServer(function(input, output, session) {
 		if (input$geocodeTxt=="")
 			return()
 		isolate({
-			ret=google$find(sanitise(input$geocodeTxt))
-			if (ret$status) {
-				map$fitBounds(ret$bbox[1], ret$bbox[4], ret$bbox[3], ret$bbox[2])
-				map$showPopup(ret$lat, ret$lng, ret$name, "geocode_marker")
+			coords=try(extractCoordinates(sanitise(input$geocodeTxt)),silent=TRUE)
+			if (!inherits(coords,"try-error")) {
+				if (coords[1]<90 & coords[1]>-90 & coords[2]<180 & coords[2]>-180) {
+					map$setView(coords[1], coords[2], defaultZoom)
+					map$showPopup(coords[1], coords[2], input$geocodeTxt, "geocode_marker")
+				} else {
+					return()
+				}
+			} else {
+				ret=google$find(sanitise(input$geocodeTxt))
+				if (ret$status) {
+					map$fitBounds(ret$bbox[1], ret$bbox[4], ret$bbox[3], ret$bbox[2])
+					map$showPopup(ret$lat, ret$lng, ret$name, "geocode_marker")
+				}
 			}
 		})
+		
+		
 	})
 	# remove button observer
 	observe({
@@ -338,14 +350,35 @@ shinyServer(function(input, output, session) {
 			}
 		})
 	})
-	
-	## export button observer
+
+	## download button observer
 	observe({
-		if (input$saveBtn==0)
+		if (input$downloadBtn==0)
 			return()
 		isolate({
 			# init
-			session$sendCustomMessage("saveBtn_disable",list(message=""))
+			session$sendCustomMessage("disable_download_button",list(message="downloadBtn"))
+			alert=NULL
+			if (toc$activeId!="-9999") {
+				eval(parse(text=toc$stopEditFeature()))
+			}
+			toc$garbageCleaner()
+			toc$removeOldFiles()
+		
+			# main
+			session$sendCustomMessage("download_file",list(message=toc$download()))
+			# update button
+			session$sendCustomMessage("enable_download_button",list(message="downloadBtn"))		
+		})
+	})
+	
+	## email button observer
+	observe({
+		if (input$emailBtn==0)
+			return()
+		isolate({
+			# init
+			session$sendCustomMessage("disable_email_button",list(message="emailBtn"))
 			alert=NULL
 			if (toc$activeId!="-9999") {
 				eval(parse(text=toc$stopEditFeature()))
@@ -386,7 +419,7 @@ shinyServer(function(input, output, session) {
 				)
 			}
 			# update button
-			session$sendCustomMessage("saveBtn_enable",list(message=""))
+			session$sendCustomMessage("enable_email_button",list(message="emailBtn"))
 		})
 	})
 })

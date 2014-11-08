@@ -1,5 +1,5 @@
 ### default options
-# options(shiny.error=traceback)
+options(shiny.error=traceback)
 
 ### load dependencies
 library(rgdal)
@@ -22,7 +22,7 @@ baseCol=unlist(Map(brewer.pal, brewer.pal.info[match(basePals, rownames(brewer.p
 editCol="#FFFB0E"
 selectCol="#00FFFF"
 markerCol="#FF0000"
-program_version="0.0.8"
+program_version="0.0.9"
 load("data/baselayers.RDATA")
 featureDefaultOptions=list(fillOpacity=0.5,opacity=1)
 baseDefaultOptions=list(fillOpacity=0.2,opacity=0.3)
@@ -32,7 +32,7 @@ emailWhiteList=read.table("other/emailwhitelist.csv", sep=",", header=TRUE, as.i
 emailBlockList=read.table("other/emailblocklist.csv", sep=",", header=TRUE, as.is=TRUE)[,1,drop=TRUE]
 fileExpiry=7
 google=GEOCODE$new()
-
+defaultZoom=6
 
 ### define functions
 # misc functions
@@ -49,7 +49,11 @@ baseColor=function(x) {
 }
 
 sanitise=function(x) {
-	return(gsub('"', "", gsub("\\", "", gsub('"', '', gsub("'", "", deparse(x), fixed=TRUE), fixed=TRUE), fixed=TRUE), fixed=TRUE))
+	x=deparse(x)
+	chars=c("\\", "/", "'", '"', "<-", "=", "<<-")
+	for (i in chars)
+		x=gsub(i, "", x, fixed=TRUE)
+	return(x)
 }
 
 geocode.google=function(placename) {
@@ -78,6 +82,50 @@ geocode.google=function(placename) {
 	}
 }
 
+extractCoordinates=function(x) {
+	splt=strsplit(gsub(" ", "", gsub("[a-zA-Z]","",x), fixed=TRUE), ",")
+	return(as.numeric(c(splt[[1]][[1]], splt[[1]][[2]])))
+}
+
+generateUserId=function(x) {
+	userId=paste0("user_",sample(1e+10,1))
+	while(file.exists(file.path(x,userId))) {
+		userId=paste0("user_",sample(1e+10,1))
+	}
+	return(userId)
+}
+
+# file management functions
+makeDirs=function(dname) {
+	dir.create(file.path("www/exports"), showWarnings=FALSE)
+	dir.create(file.path("www/exports",dname), showWarnings=FALSE)
+	dir.create(file.path("www/exports",dname,"temp"), showWarnings=FALSE)
+	dir.create(file.path("www/exports",dname,"zip"), showWarnings=FALSE)
+	dir.create(file.path("www/exports",dname,"data"), showWarnings=FALSE)
+}
+
+saveSpatialData=function(featureLST, expDir, attrVEC) {
+	# generate nested list of objects
+	tempLST=list(Point=list(), LineString=list(), Polygon=list())
+	for (i in seq_along(featureLST)) {
+		tempLST[[featureLST[[i]]$type]][[length(tempLST[[featureLST[[i]]$type]])+1]] = featureLST[[i]]
+	}
+	# save spatial objects
+	for (i in seq_along(tempLST)) {
+		if (length(tempLST[[i]])>0) {
+			currSp=do.call(paste0(names(tempLST)[i],"ToSp"), list(tempLST[[i]]))
+			for (j in seq_along(attrVEC))
+				currSp@data[[names(attrVEC)[j]]]=attrVEC[[j]]
+			writeOGR(
+				currSp,
+				expDir,
+				names(tempLST)[i],
+				overwrite=TRUE,
+				driver="ESRI Shapefile"
+			)
+		}
+	}
+}
 
 # json functions
 list2json=function(prefix,lst) {

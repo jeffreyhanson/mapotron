@@ -204,43 +204,38 @@ TOC = setRefClass("TOC",
 		addAnnotation=function(Id, text) {
 			featureLST[[as.character(Id)]]$annotation<<-sanitise(text)
 		},
-		export=function(firstname, lastname, emailaddress, emailtxt) {
+		download=function() {
 			## prepare directories
-			# create directories
-			dir.create(file.path("www/exports",emailaddress), showWarnings=FALSE)
-			dir.create(file.path("www/exports",emailaddress,"temp"), showWarnings=FALSE)
-			dir.create(file.path("www/exports",emailaddress,"zip"), showWarnings=FALSE)
-			dir.create(file.path("www/exports",emailaddress,"data"), showWarnings=FALSE)
-			# generate a user id
-			userId=paste0("user_",sample(1e+10,1))
-			while(file.exists(file.path("www/exports",emailaddress,"data",userId))) {
-				userId=paste0("user_",sample(1e+10,1))
-			}
-			dir.create(file.path("www/exports",emailaddress,"data",userId), showWarnings=FALSE)			
-			# generate file paths
-			zipPTH=file.path("www/exports",emailaddress,"zip","spatialdata.zip")
+			# create direcroties
+			# generate user 
+			userId=generateUserId(file.path("www","exports"))
+			makeDirs(userId)
+			dir.create(file.path("www","exports",userId,"data",userId), showWarnings=FALSE)
+			zipPTH=file.path("www","exports",userId,"zip","spatialdata.zip")
 			
 			## export data
-			# generate nested list of objects
-			tempLST=list(Point=list(), LineString=list(), Polygon=list())
-			for (i in seq_along(featureLST)) {
-				tempLST[[featureLST[[i]]$type]][[length(tempLST[[featureLST[[i]]$type]])+1]] = featureLST[[i]]
-			}
-			# save spatial objects
-			for (i in seq_along(tempLST)) {
-				if (length(tempLST[[i]])>0) {
-					currSp=do.call(paste0(names(tempLST)[i],"ToSp"), list(tempLST[[i]]))
-					currSp@data$firstname=firstname
-					currSp@data$lastname=lastname
-					writeOGR(
-						currSp,
-						file.path("www/exports",emailaddress,"data",userId),
-						names(tempLST)[i],
-						overwrite=TRUE,
-						driver="ESRI Shapefile"
-					)
-				}
-			}
+			saveSpatialData(featureLST,file.path("www","exports",userId,"data",userId),NULL)
+
+			# generate zip file
+			if (file.exists(zipPTH))
+				file.remove(zipPTH)
+			zip(zipPTH, list.files(file.path("www","exports",userId,"data",userId), full.names=TRUE), flags="-r9X -j -q")
+
+			# return command to parse
+			return(paste0(shinyurl,zipPTH))
+		},
+		
+		export=function(firstname, lastname, emailaddress, emailtxt) {
+			## prepare directories
+			# generate a user id
+			makeDirs(emailaddress)
+			userId=generateUserId(file.path("www","exports",emailaddress,"data"))
+			dir.create(file.path("www","exports",emailaddress,"data",userId), showWarnings=FALSE)			
+			zipPTH=file.path("www","exports",emailaddress,"zip","spatialdata.zip")
+			
+			## export data
+			saveSpatialData(featureLST,file.path("www","exports",emailaddress,"zip","spatialdata.zip"),c("firstname"=firstname,"lastname"=lastname))			
+			
 			# load spatial objects and combine them
 			for (i in c("Point", "LineString", "Polygon")) {
 				# get list of files
@@ -363,7 +358,7 @@ POINT=setRefClass("POINT",
 			options<<-options
 		},	
 		remove=function() {
-			return(paste0("map$removeMarker(",featureId, ")"))
+			return(paste0("map$removeMarker('",featureId, "')"))
 		},
 		plot=function(highlight=FALSE) {
 			currOpts=options
@@ -392,7 +387,7 @@ LINE=setRefClass("LINE",
 			options<<-options
 		},		
 		remove=function() {
-			return(paste0("map$removeGeoJSON(", featureId, ")"))
+			return(paste0("map$removeGeoJSON('", featureId, "')"))
 		},
 		plot=function(highlight=NULL) {
 			xyjson = RJSONIO::toJSON(coords)
@@ -430,7 +425,7 @@ POLYGON=setRefClass("POLYGON",
 			options<<-options
 		},
 		remove=function() {
-			return(paste0("map$removeGeoJSON(", featureId, ")"))
+			return(paste0("map$removeGeoJSON('", featureId, "')"))
 		},
 		plot=function(highlight=NULL) {
 			xyjson = RJSONIO::toJSON(matrix(as.character(c(coords[,1], coords[,2], markerId)), ncol=3))
