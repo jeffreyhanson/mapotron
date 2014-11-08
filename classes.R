@@ -222,7 +222,7 @@ TOC = setRefClass("TOC",
 			zip(zipPTH, list.files(file.path("www","exports",userId,"data",userId), full.names=TRUE), flags="-r9X -j -q")
 
 			# return command to parse
-			return(paste0(shinyurl,zipPTH))
+			return(paste0(shinyurl,file.path("exports",userId,"zip","spatialdata.zip")))
 		},
 		
 		export=function(firstname, lastname, emailaddress, emailtxt) {

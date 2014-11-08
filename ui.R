@@ -255,6 +255,7 @@ shinyUI(basicPage(
 					$("#sendEmailBtn").removeAttr("disabled");
 				}
 			);
+			
 			Shiny.addCustomMessageHandler("disable_email_button", 
 				function(message) {
 					$("#sendEmailBtn").prop(\"disabled\",true);
@@ -265,7 +266,7 @@ shinyUI(basicPage(
 				function(message) {
 					var link = document.createElement("a");
 					link.download = "spatialdata.zip";
-					link.href = message;
+					link.href = message.message;
 					link.click();
 				}
 			);

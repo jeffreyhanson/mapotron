@@ -366,7 +366,10 @@ shinyServer(function(input, output, session) {
 			toc$removeOldFiles()
 		
 			# main
-			session$sendCustomMessage("download_file",list(message=toc$download()))
+			x=toc$download()
+			print("url")
+			print(x)
+			session$sendCustomMessage("download_file",list(message=x))
 			# update button
 			session$sendCustomMessage("enable_download_button",list(message="downloadBtn"))		
 		})
