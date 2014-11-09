@@ -2,6 +2,8 @@ library(leaflet)
 library(ShinyDash)
 
 shinyUI(basicPage(
+	HTML('<script src="http://cdn-geoweb.s3.amazonaws.com/esri-leaflet/1.0.0-rc.3/esri-leaflet.js"></script>'),
+
 	# navbar
 	bsNavBar2("navBar", "brandBtn", brand="Mapotron", inverse=TRUE, fixed=TRUE,
 		bsNavDropDown("baseSel", label="Base Layer", choices=c("None"="-9999")),
@@ -30,12 +32,15 @@ shinyUI(basicPage(
 		)
 	),
 	
+	# http://server.arcgisonline.com/ArcGIS/rest/services/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}
+	# 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+	
 	# leaflet map
 	div(class="mapContainer",
 		leafletMap(
 			"map", "100%", "100%",
-			initialTileLayer = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-			initialTileLayerAttribution =  HTML('© OpenStreetMap contributors, CC-BY-SA'),
+			initialTileLayer = 'ESRI',
+			initialTileLayerAttribution =  HTML('© ESRI ArcGIS'),
 			options=list(
 				center = c(-26.335955, 134.614984),
 				zoom = 4,
@@ -281,6 +286,7 @@ shinyUI(basicPage(
 			  padding: 0;
 			}
 		"), tags$script(HTML('
+		
 			Shiny.addCustomMessageHandler("jsCode",
 				function(message) {
 				  console.log(message)
