@@ -16,7 +16,7 @@ ID = setRefClass("ID",
 
 # toc class
 TOC = setRefClass("TOC",
-	fields=list(featureLST="list", baseLST="list", featureId="ID", markerId="ID", activeId="character", activeBaseId="character", tool="numeric", emailOptions="list"),
+	fields=list(featureLST="list", baseLST="list", featureId="ID", markerId="ID", activeId="character", activeBaseId="character", tool="numeric", emailOptions="list", args="list", startup="logical"),
 	methods=list(
 		initialize=function() {
 			featureLST<<-list()
@@ -26,6 +26,8 @@ TOC = setRefClass("TOC",
 			activeId<<- "-9999"
 			activeBaseId<<-"-9999"
 			tool<<-1
+			startup<<-TRUE
+			args<<-list()
 		},
 		newPoint=function() {
 			activeId<<-featureId$new()
@@ -263,30 +265,30 @@ TOC = setRefClass("TOC",
 			zip(zipPTH, list.files(file.path("www/exports",emailaddress,"temp"), full.names=TRUE), flags="-r9X -j -q")
 			
 			## send email
-			txt1=ifelse(nchar(emailtxt)==0,"",paste0("They also left the following message: ",emailtxt))
-			txt2=ifelse(emailaddress %in% emailWhiteList,"",paste0("You have ",fileExpiry, "days to download this data before it is automatically deleted"))
-			send.mail(from = "mapotron@gmail.com",
+			txt1=ifelse(nchar(emailtxt)==0,"",paste0("<p>They also left the following message: ",emailtxt,"</p>"))
+			txt2=ifelse(emailaddress %in% emailWhiteList,"",paste0("<p><b>You have ",fileExpiry, "days to download this data before it is automatically deleted</b></p>"))
+			send.mail(from = "mapotron@gmail.com", html=TRUE,
 				to = emailaddress,
 				subject = paste0(firstname," ",lastname," made you some spatial data!"),
 				body = paste0("
-Hi,
+<p>Hi,</p>
 
-",firstname," ",lastname," generated some spatial data for you,
+<p>",capitalize(firstname)," ",capitalize(lastname)," generated some spatial data for you,</p>
 
 ",
 txt1
 ,
 "
 
-Download all the data people have sent you at: ", shinyurl,file.path("exports",emailaddress,"all_zip","spatialdata.zip"),"
+<p>Download all the data people have made for you <a href=\"", shinyurl,file.path("exports",emailaddress,"all_zip","spatialdata.zip"),"\">here</a>.</p>
 
 ",
 txt2
 ,"
 
-Cheers,
+<p>Cheers,</p>
 
-Mapotron Development Team (www.mapotron.com)
+<p><a href=\"",substr(shinyurl, 1, nchar(shinyurl)-1),"\">Mapotron</a></p>
 
 ")
 ,

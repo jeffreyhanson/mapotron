@@ -26,7 +26,7 @@ shinyUI(basicPage(
 			),
 			bsButton("helpBtn", img(src="icons/help_white.png", height=20, width=20), style="inverse"),
 			suppressWarnings(bsActionButton("downloadBtn", img(src="icons/download_white.png", height=20, width=20), style="inverse")),
-			bsButton("emailBtn", img(src="icons/email_white.png", height=20, width=20), style="inverse")
+			suppressWarnings(bsActionButton("emailBtn", img(src="icons/email_white.png", height=20, width=20), style="inverse"))
 		)
 	),
 	
@@ -53,8 +53,8 @@ shinyUI(basicPage(
 	bsTooltip("annotationTxt", "annotate feature", placement = "bottom", trigger = "hover"),
 	bsTooltip("toolBtn7", "remove feature", placement = "bottom", trigger = "hover"),
 	
-	# save modal
-	bsModal("saveMdl", "Send Data", trigger="emailBtn",
+	# email modal
+	bsModal("emailMdl", "Send Data", trigger="nonexistanBtn",
 	
 	  # tag head 
 		tagList(
@@ -167,15 +167,45 @@ shinyUI(basicPage(
 					bsActionButton("sendEmailBtn_help", label="Send Data", style="primary"),
 					")."
 				),
-				id="col7", value="helpPanel6"
+				id="col7", value="helpPanel7"
 			),
 			bsCollapsePanel(
-				"Some of the buttons don't work and the interface looks dumb!", 
+				"Some of the buttons don't work and/or the interface looks really stupid!", 
 				tags$div(class="row-fluid",HTML(
 					"<p>Mapotron was tested using <a href=\"https://www.google.com/chrome/\">Google Chrome</a>. Please use <a href=\"https://www.google.com/chrome/\">Google Chrome</a>.  We cannot guarantee that Mapotron will work with any other web browser; we do not plan to explicitly accommodate other web browser's in the near future.</p>
 					<p>If you are using Google Chrome and encounter issues, please <a href=\"mailto:&#109;&#097;&#112;&#111;&#116;&#114;&#111;&#110;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109\">contact us</a> </p>"
 				)),
-				id="col8", value="helpPanel6"
+				id="col8", value="helpPanel8"
+			),
+			bsCollapsePanel(
+				"How can I embed Mapotron in my survey?", 
+				tags$div(class="row-fluid",HTML(
+					paste0("<p> You can embed Mapotron in a web page using the following html code:</p>
+					<pre><code>&lt;iframe src=\"",shinyurl,"\" style=\"border: none; width: 440px; height: 500px\">&lt;/iframe></code></pre>
+					<p>You can change the <code>width</code> and <code>height</code> arguments to change the size of Mapotron in your web page.")
+				)),
+				id="col9", value="helpPanel9"
+			),
+			bsCollapsePanel(
+				"How can I customise Mapotron for my survey?", 
+				tags$div(class="row-fluid",HTML(
+					paste0(
+						"<p>You can modify the url to send commands to Mapotron.</p>
+						<ul>
+							<li>
+								<p>You can specify latitude, longitude and zoom level parameters to set the starting location.:</p>
+								<pre><code>",shinyurl,"?lng=-27.56&lat=140.5&zoom=5</code></pre>
+							</li>
+							<li>
+								<p>You can specify the first name, last name, and email address parameters that a user cannot override.
+								When these parameters are supplied, the email button (",suppressWarnings(bsActionButton("emailBtn_help", img(src="icons/email_white.png", height=20, width=20), style="inverse")),"), will automatically send the email. </p>
+								<pre><code>",shinyurl,"?firstname=Greg&lastname=McGreggorson&emailaddress=fakemcfakeerson@fakemail.com</code></pre>
+							</li>
+						</ul>
+						"
+					)
+				)),
+				id="col10", value="helpPanel10"
 			)
 		)
 	)), 
@@ -187,15 +217,15 @@ shinyUI(basicPage(
 				fluidRow(
 					wellPanel(
 						h4("Development Team"),
-						h6("Jeffrey Hanson"),
-						h6("Matthew Watts"),
-						h6("Megan Barnes"),
-						h6("Jeremy Ringma"),
-						h6("Jutta Beher")
+						HTML("<p style=\"font-size:17px\" align=\"center\">Jeffrey O. Hanson</p>"),
+						HTML("<p style=\"font-size:17px\" align=\"center\">Matthew E. Watts</p>"),
+						HTML("<p style=\"font-size:17px\" align=\"center\">Megan Barnes</p>"),
+						HTML("<p style=\"font-size:17px\" align=\"center\">Jeremy Ringma</p>"),
+						HTML("<p style=\"font-size:17px\" align=\"center\">Jutta Beher</p>")
 					),
 					wellPanel(
 						h4("Program Version"),
-						h5(textOutput("program_version"), align="center")
+						HTML(paste0("<p style=\"font-size:17px\" align=\"center\">",program_version,"</p>"))
 					)
 				),
 				width=5
@@ -207,17 +237,17 @@ shinyUI(basicPage(
 						<li>Agafonkin, V. (2014) <a href=\"http://leafletjs.com/\">leafet</a></li>
 						<li>Bailey, E. (2014) <a href=\"https://github.com/ebailey78/shinyBS\">shinyBS: Twitter Bootstrap Components for Shiny.</a> R package version 0.25.</li>
 						<li>Bivand, R., Keitt, T. and Rowlingson, B. (2014) <a href=\"http://CRAN.R-project.org/package=rgdal\">rgdal: Bindings for the Geospatial Data Abstraction Library.</a> R package version  0.8-16.</li>
-						<li>Cheng, J. (2013) <a href=\"leaflet: Interactive map component for Shiny, using Leaflet.\">https://github.com/jcheng5/leaflet-shiny</a> R package version 1.0.</li>
+						<li>Cheng, J. (2013) <a href=\"https://github.com/jcheng5/leaflet-shiny\">leaflet: Interactive map component for Shiny, using Leaflet.</a> R package version 1.0.</li>
 						<li>Friedman, A.B. (2014) <a href=\"http://CRAN.R-project.org/package=taRifx.geo\">taRifx.geo: Collection of various spatial functions.</a> R package version 1.0.6.</li>
-						<li>Google (2014) <a href=\"https://developers.google.com/maps/documentation/geocoding/\">Geocoding API</a>. Version 3. 
+						<li>Google (2014) <a href=\"https://developers.google.com/maps/documentation/geocoding/\">Geocoding API.</a> Version 3. 
+						<li>Harrell F.E., Dupont, C. and others. (2014) <a href=\"http://CRAN.R-project.org/package=Hmisc\">Hmisc: Harrell Miscellaneous.</a> R package version  3.14-4.</li>
 						<li>Icons made by <a href=\"http://www.google.com\" title=\"Google\">Google</a> from <a href=\"http://www.flaticon.com\" title=\"Flaticon\">www.flaticon.com</a> is licensed under <a href=\"http://creativecommons.org/licenses/by/3.0/\" title=\"Creative Commons BY 3.0\">CC BY 3.0</a></li>
 						<li>Mapbox (2014) <a href=\"https://www.mapbox.com/maki/\">MakiMarkers.</a> version 0.4.5.</li>
-						<li>Neuwirth, E. (2011) <a href=\"http://CRAN.R-project.org/package=RColorBrewer\">RColorBrewer: ColorBrewer palettes</a>. R package version 1.0-5.</li>
-						<li>Nychka, D., Furrer, R. and Sain, S. (2014) <a href=\"http://CRAN.R-project.org/package=fields\">fields: Tools for spatial data</a>. R package version 7.1.</li>
+						<li>Neuwirth, E. (2011) <a href=\"http://CRAN.R-project.org/package=RColorBrewer\">RColorBrewer: ColorBrewer palettes.</a> R package version 1.0-5.</li>
 						<li>Premraj, R. (2014) <a href=\"mailR: A utility to send emails from R.\">https://github.com/rpremraj/mailR</a> R package version 0.3.1.</li>
 						<li>R Core Team (2014) <a href=\"http://www.R-project.org/\"> R: A language and environment for statistical computing.</a> R Foundation for Statistical Computing, Vienna, Austria.</li>
 						<li>RStudio and Inc. (2014) <a href=\"http://CRAN.R-project.org/package=shiny\">shiny: Web Application Framework for R.</a> R package version 0.10.2.1</li>
-						<li>Seppi, J. (2014) <a href=\"https://github.com/jseppi/Leaflet.MakiMarkers\">Leaflet MakiMarkers</a></li>
+						<li>Seppi, J. (2014) <a href=\"https://github.com/jseppi/Leaflet.MakiMarkers\">Leaflet MakiMarkers.</a></li>
 					</ul>
 					")
 			), width=7)
@@ -227,6 +257,20 @@ shinyUI(basicPage(
 	# map container html tags
 	tags$head(
 		tags$style("
+				
+			pre  {
+				background-color: #FCFCFC;
+			}
+
+			pre code{
+				color: #FF1493;
+			}
+			
+			code {
+				color: #FF1493;
+				background-color: #FCFCFC;
+			}
+		
 			.mapContainer {
 			  position: fixed;
 			  top: 40px;
@@ -243,31 +287,19 @@ shinyUI(basicPage(
 				  eval(message.code);
 				}
 			  );
-
-			Shiny.addCustomMessageHandler("enable_download_button", 
+			
+			Shiny.addCustomMessageHandler("enable_button", 
 				function(message) {
-					$("#downloadBtn").removeAttr("disabled");
+					$("#" + message.btn).removeAttr("disabled");
 				}
 			);
 			
-			Shiny.addCustomMessageHandler("disable_download_button", 
+			Shiny.addCustomMessageHandler("disable_button", 
 				function(message) {
-					$("#downloadBtn").prop(\"disabled\",true);
+					$("#" + message.btn).prop(\"disabled\",true);
 				}
 			);
-
-			Shiny.addCustomMessageHandler("enable_email_button", 
-				function(message) {
-					$("#sendEmailBtn").removeAttr("disabled");
-				}
-			);
-			
-			Shiny.addCustomMessageHandler("disable_email_button", 
-				function(message) {
-					$("#sendEmailBtn").prop(\"disabled\",true);
-				}
-			);
-			
+									
 			Shiny.addCustomMessageHandler("download_file",
 				function(message) {
 					var link = document.createElement("a");

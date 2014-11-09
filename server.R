@@ -20,13 +20,23 @@ shinyServer(function(input, output, session) {
 	for (i in seq_along(baselayers)) {
 		toc$newBase(baselayers[[i]])
 	}
-
 	toc$emailOptions=list(host.name=emailDF$host.name, port=emailDF$port, user.name=emailDF$user.name, passwd=emailDF$password, ssl=TRUE)
-	# set widget styles
 	session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('disabled',true)"))	
-	
-	# generate program version number
-	output$program_version=renderText({program_version})
+
+	# get program arguments
+	observe({
+		if (!toc$startup)
+			return()
+		isolate({
+			toc$args<<-parseQueryString(session$clientData$url_search)
+			if (!is.null(toc$args$lat) & !is.null(toc$args$lng) & !is.null(toc$args$zoom)) {
+				if (toc$args$lat<90 & toc$args$lat>-90 & toc$args$lng<180 & toc$args$lng>-180) {
+					map$setView(toc$args$lat, toc$args$lng, toc$args$zoom)
+				}
+			}
+			toc$startup<<-FALSE
+		})
+	})
 	
 	# baselayer select widget
 	vec=c("-9999", names(toc$baseLST))
@@ -357,7 +367,7 @@ shinyServer(function(input, output, session) {
 			return()
 		isolate({
 			# init
-			session$sendCustomMessage("disable_download_button",list(message="downloadBtn"))
+			session$sendCustomMessage("disable_button",list(btn="downloadBtn"))
 			alert=NULL
 			if (toc$activeId!="-9999") {
 				eval(parse(text=toc$stopEditFeature()))
@@ -366,22 +376,48 @@ shinyServer(function(input, output, session) {
 			toc$removeOldFiles()
 		
 			# main
-			x=toc$download()
-			print("url")
-			print(x)
-			session$sendCustomMessage("download_file",list(message=x))
+			session$sendCustomMessage("download_file",list(message=toc$download()))
 			# update button
-			session$sendCustomMessage("enable_download_button",list(message="downloadBtn"))		
+			session$sendCustomMessage("enable_button",list(btn="downloadBtn"))		
 		})
 	})
 	
 	## email button observer
 	observe({
+		if (input$emailBtn==0)
+			return()
+		isolate({
+			### if custom email
+			if (!is.null(toc$args$firstname) & !is.null(toc$args$lastname) & !is.null(toc$args$emailaddress)) {
+				# init
+				session$sendCustomMessage("enable_button",list(btn="emailBtn"))
+						alert=NULL
+				if (toc$activeId!="-9999") {
+					eval(parse(text=toc$stopEditFeature()))
+				}
+				toc$garbageCleaner()
+				toc$removeOldFiles()
+			
+				# main
+				if (!toc$args$emailaddress %in% emailBlockList & length(toc$featureLST)>0) {
+					try(toc$export(toc$args$firstname, toc$args$lastname, toc$args$emailaddress, ""))
+				}
+				
+				# post
+				session$sendCustomMessage("disable_button",list(btn="emailBtn"))			 		 
+			} else {
+				toggleModal(session, "emailMdl")
+			}
+		})
+	})
+
+	## send email button observer
+	observe({
 		if (input$sendEmailBtn==0)
 			return()
 		isolate({
 			# init
-			session$sendCustomMessage("disable_email_button",list(message="sendEmailBtn"))
+			session$sendCustomMessage("disable_button",list(btn="sendEmailBtn"))
 			alert=NULL
 			if (toc$activeId!="-9999") {
 				eval(parse(text=toc$stopEditFeature()))
@@ -422,9 +458,11 @@ shinyServer(function(input, output, session) {
 				)
 			}
 			# update button
-			session$sendCustomMessage("enable_email_button",list(message="sendEmailBtn"))
+			session$sendCustomMessage("enable_button",list(btn="sendEmailBtn"))
 		})
 	})
 })
+
+
 
 
