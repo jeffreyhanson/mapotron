@@ -22,22 +22,16 @@ shinyServer(function(input, output, session) {
 	}
 	toc$emailOptions=list(host.name=emailDF$host.name, port=emailDF$port, user.name=emailDF$user.name, passwd=emailDF$password, ssl=TRUE)
 	session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('disabled',true)"))	
-
-	# get program arguments
-	observe({
-		if (!toc$startup)
-			return()
-		isolate({
-			toc$args<<-parseQueryString(session$clientData$url_search)
-			if (!is.null(toc$args$lat) & !is.null(toc$args$lng) & !is.null(toc$args$zoom)) {
-				if (toc$args$lat<90 & toc$args$lat>-90 & toc$args$lng<180 & toc$args$lng>-180) {
-					map$setView(toc$args$lat, toc$args$lng, toc$args$zoom)
-				}
+	# get program arguments and execute startup parameters
+	toc$args=parseQueryString(isolate(session$clientData$url_search))
+	session$onFlushed(once=TRUE, function() {
+		if (!is.null(toc$args$lat) & !is.null(toc$args$lng) & !is.null(toc$args$zoom)) {
+			if (toc$args$lat<90 & toc$args$lat>-90 & toc$args$lng<180 & toc$args$lng>-180) {
+				map$setView(as.numeric(toc$args$lat), as.numeric(toc$args$lng), as.numeric(toc$args$zoom), FALSE)
 			}
-			toc$startup<<-FALSE
-		})
+		}
 	})
-	
+
 	# baselayer select widget
 	vec=c("-9999", names(toc$baseLST))
 	names(vec)=c("None",names(baselayers))
@@ -154,7 +148,7 @@ shinyServer(function(input, output, session) {
 		}
 	})
 	# geocode text input observer
-	observe({	
+	observe({
 		if (input$geocodeTxt=="")
 			return()
 		isolate({
@@ -174,9 +168,8 @@ shinyServer(function(input, output, session) {
 				}
 			}
 		})
-		
-		
 	})
+	
 	# remove button observer
 	observe({
 		if (input$toolBtn7==0)
@@ -390,7 +383,7 @@ shinyServer(function(input, output, session) {
 			### if custom email
 			if (!is.null(toc$args$firstname) & !is.null(toc$args$lastname) & !is.null(toc$args$emailaddress)) {
 				# init
-				session$sendCustomMessage("enable_button",list(btn="emailBtn"))
+				session$sendCustomMessage("disable_button",list(btn="emailBtn"))
 						alert=NULL
 				if (toc$activeId!="-9999") {
 					eval(parse(text=toc$stopEditFeature()))
@@ -404,7 +397,7 @@ shinyServer(function(input, output, session) {
 				}
 				
 				# post
-				session$sendCustomMessage("disable_button",list(btn="emailBtn"))			 		 
+				session$sendCustomMessage("enable_button",list(btn="emailBtn"))			 		 
 			} else {
 				toggleModal(session, "emailMdl")
 			}

@@ -21,7 +21,7 @@ baseCol=unlist(Map(brewer.pal, brewer.pal.info[match(basePals, rownames(brewer.p
 editCol="#FFFB0E"
 selectCol="#00FFFF"
 markerCol="#FF0000"
-program_version="1.0.2"
+program_version="1.0.3"
 load("data/baselayers.RDATA")
 featureDefaultOptions=list(fillOpacity=0.5,opacity=1)
 baseDefaultOptions=list(fillOpacity=0.2,opacity=0.3)
@@ -31,7 +31,6 @@ emailWhiteList=read.table("other/emailwhitelist.csv", sep=",", header=TRUE, as.i
 emailBlockList=read.table("other/emailblocklist.csv", sep=",", header=TRUE, as.is=TRUE)[,1,drop=TRUE]
 fileExpiry=7
 google=GEOCODE$new()
-defaultZoom=6
 
 ### define functions
 # misc functions
