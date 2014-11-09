@@ -2,8 +2,6 @@ library(leaflet)
 library(ShinyDash)
 
 shinyUI(basicPage(
-	HTML('<script src="http://cdn-geoweb.s3.amazonaws.com/esri-leaflet/1.0.0-rc.3/esri-leaflet.js"></script>'),
-
 	# navbar
 	bsNavBar2("navBar", "brandBtn", brand="Mapotron", inverse=TRUE, fixed=TRUE,
 		bsNavDropDown("baseSel", label="Base Layer", choices=c("None"="-9999")),
