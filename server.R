@@ -273,7 +273,7 @@ shinyServer(function(input, output, session) {
 		event = input$map_geojson_click	
 		if (is.null(event) | grepl("base_",toc$activeId))
 			return()
-		if  (!(toc$tool %in% c(2:5) & toc$activeId!="-9999") | (toc$tool==2))
+		if  (!((toc$tool %in% c(2:5) & toc$activeId!="-9999") | (toc$tool==2)))
 			return()
 		isolate({
 			#  create new feature if point

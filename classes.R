@@ -280,7 +280,7 @@ txt1
 ,
 "
 
-<p>Download all the data people have made for you <a href=\"", shinyurl,file.path("exports",emailaddress,"all_zip","spatialdata.zip"),"\">here</a>.</p>
+<p>Download all the data people have made for you <a href=\"", shinyurl,file.path("exports",emailaddress,"zip","spatialdata.zip"),"\">here</a>.</p>
 
 ",
 txt2
