@@ -25,7 +25,7 @@ program_version="1.0.4"
 load("data/baselayers.RDATA")
 featureDefaultOptions=list(fillOpacity=0.5,opacity=1)
 baseDefaultOptions=list(fillOpacity=0.2,opacity=0.3)
-emailDF=try(read.table("other/emailaccount1.csv", sep=",", header=TRUE, as.is=TRUE))
+emailDF=try(read.table("other/emailaccount.csv", sep=",", header=TRUE, as.is=TRUE))
 shinyurl="https://paleo13.shinyapps.io/mapotron/"
 emailWhiteList=read.table("other/emailwhitelist.csv", sep=",", header=TRUE, as.is=TRUE)[,1,drop=TRUE]
 emailBlockList=read.table("other/emailblocklist.csv", sep=",", header=TRUE, as.is=TRUE)[,1,drop=TRUE]
