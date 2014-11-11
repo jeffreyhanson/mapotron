@@ -91,9 +91,10 @@ TOC = setRefClass("TOC",
 			}
 			if (tool==1) {
 				x=c(x,
+					
 					'session$sendInputMessage("annotationTxt", list(value=""))',
 					'updateButton(session, "toolBtn6", disabled=TRUE)',
-					"session$sendCustomMessage(type=\"jsCode\",list(code=\"$('#annotationTxt').prop('disabled',true)\"))"
+					'session$sendCustomMessage(\"disable_button\",list(btn=\"annotationTxt\"))'
 				)
 			}
 			if (length(x)>0) {

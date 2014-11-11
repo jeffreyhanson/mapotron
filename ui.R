@@ -30,15 +30,12 @@ shinyUI(basicPage(
 		)
 	),
 	
-	# http://server.arcgisonline.com/ArcGIS/rest/services/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}
-	# 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-	
 	# leaflet map
 	div(class="mapContainer",
 		leafletMap(
 			"map", "100%", "100%",
-			initialTileLayer = 'ESRI',
-			initialTileLayerAttribution =  HTML('© ESRI ArcGIS'),
+			initialTileLayer = 'GOOGLE',
+			initialTileLayerAttribution =  HTML(''),
 			options=list(
 				center = c(-26.335955, 134.614984),
 				zoom = 4,
@@ -237,20 +234,20 @@ shinyUI(basicPage(
 				h4("Attributions"),
 					HTML("
 						<ul>
-						<li>Agafonkin, V. (2014) <a href=\"http://leafletjs.com/\">leafet</a></li>
-						<li>Bailey, E. (2014) <a href=\"https://github.com/ebailey78/shinyBS\">shinyBS: Twitter Bootstrap Components for Shiny.</a> R package version 0.25.</li>
-						<li>Bivand, R., Keitt, T. and Rowlingson, B. (2014) <a href=\"http://CRAN.R-project.org/package=rgdal\">rgdal: Bindings for the Geospatial Data Abstraction Library.</a> R package version  0.8-16.</li>
-						<li>Cheng, J. (2013) <a href=\"https://github.com/jcheng5/leaflet-shiny\">leaflet: Interactive map component for Shiny, using Leaflet.</a> R package version 1.0.</li>
-						<li>Friedman, A.B. (2014) <a href=\"http://CRAN.R-project.org/package=taRifx.geo\">taRifx.geo: Collection of various spatial functions.</a> R package version 1.0.6.</li>
-						<li>Google (2014) <a href=\"https://developers.google.com/maps/documentation/geocoding/\">Geocoding API.</a> Version 3. 
-						<li>Harrell F.E., Dupont, C. and others. (2014) <a href=\"http://CRAN.R-project.org/package=Hmisc\">Hmisc: Harrell Miscellaneous.</a> R package version  3.14-4.</li>
-						<li>Icons made by <a href=\"http://www.google.com\" title=\"Google\">Google</a> from <a href=\"http://www.flaticon.com\" title=\"Flaticon\">www.flaticon.com</a> is licensed under <a href=\"http://creativecommons.org/licenses/by/3.0/\" title=\"Creative Commons BY 3.0\">CC BY 3.0</a></li>
-						<li>Mapbox (2014) <a href=\"https://www.mapbox.com/maki/\">MakiMarkers.</a> version 0.4.5.</li>
-						<li>Neuwirth, E. (2011) <a href=\"http://CRAN.R-project.org/package=RColorBrewer\">RColorBrewer: ColorBrewer palettes.</a> R package version 1.0-5.</li>
-						<li>Premraj, R. (2014) <a href=\"mailR: A utility to send emails from R.\">https://github.com/rpremraj/mailR</a> R package version 0.3.1.</li>
-						<li>R Core Team (2014) <a href=\"http://www.R-project.org/\"> R: A language and environment for statistical computing.</a> R Foundation for Statistical Computing, Vienna, Austria.</li>
-						<li>RStudio and Inc. (2014) <a href=\"http://CRAN.R-project.org/package=shiny\">shiny: Web Application Framework for R.</a> R package version 0.10.2.1</li>
-						<li>Seppi, J. (2014) <a href=\"https://github.com/jseppi/Leaflet.MakiMarkers\">Leaflet MakiMarkers.</a></li>
+							<li>Agafonkin, V. (2014) <a href=\"http://leafletjs.com/\">leafet</a></li>
+							<li>Bailey, E. (2014) <a href=\"https://github.com/ebailey78/shinyBS\">shinyBS: Twitter Bootstrap Components for Shiny.</a> R package version 0.25.</li>
+							<li>Bivand, R., Keitt, T. and Rowlingson, B. (2014) <a href=\"http://CRAN.R-project.org/package=rgdal\">rgdal: Bindings for the Geospatial Data Abstraction Library.</a> R package version  0.8-16.</li>
+							<li>Cheng, J. (2013) <a href=\"https://github.com/jcheng5/leaflet-shiny\">leaflet: Interactive map component for Shiny, using Leaflet.</a> R package version 1.0.</li>
+							<li>Friedman, A.B. (2014) <a href=\"http://CRAN.R-project.org/package=taRifx.geo\">taRifx.geo: Collection of various spatial functions.</a> R package version 1.0.6.</li>
+							<li>Google (2014) <a href=\"https://developers.google.com/maps/documentation/geocoding/\">Geocoding API.</a> Version 3. 
+							<li>Harrell F.E., Dupont, C. and others. (2014) <a href=\"http://CRAN.R-project.org/package=Hmisc\">Hmisc: Harrell Miscellaneous.</a> R package version  3.14-4.</li>
+							<li>Icons made by <a href=\"http://www.google.com\" title=\"Google\">Google</a> from <a href=\"http://www.flaticon.com\" title=\"Flaticon\">www.flaticon.com</a> is licensed under <a href=\"http://creativecommons.org/licenses/by/3.0/\" title=\"Creative Commons BY 3.0\">CC BY 3.0</a></li>
+							<li>Mapbox (2014) <a href=\"https://www.mapbox.com/maki/\">MakiMarkers.</a> version 0.4.5.</li>
+							<li>Neuwirth, E. (2011) <a href=\"http://CRAN.R-project.org/package=RColorBrewer\">RColorBrewer: ColorBrewer palettes.</a> R package version 1.0-5.</li>
+							<li>Premraj, R. (2014) <a href=\"mailR: A utility to send emails from R.\">https://github.com/rpremraj/mailR</a> R package version 0.3.1.</li>
+							<li>R Core Team (2014) <a href=\"http://www.R-project.org/\"> R: A language and environment for statistical computing.</a> R Foundation for Statistical Computing, Vienna, Austria.</li>
+							<li>RStudio and Inc. (2014) <a href=\"http://CRAN.R-project.org/package=shiny\">shiny: Web Application Framework for R.</a> R package version 0.10.2.1</li>
+							<li>Seppi, J. (2014) <a href=\"https://github.com/jseppi/Leaflet.MakiMarkers\">Leaflet MakiMarkers.</a></li>
 					</ul>
 					")
 			), width=7)
