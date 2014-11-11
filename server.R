@@ -75,7 +75,9 @@ shinyServer(function(input, output, session) {
 			updateButton(session, "toolBtn1", style="primary")
 			# set tool
 			toc$tool<<-1
-			
+			# set cursor
+			session$sendCustomMessage("set_cursor",list(cursor="hand"))
+
 		})
 	})
 	# add point button observer
@@ -389,7 +391,7 @@ shinyServer(function(input, output, session) {
 			session$sendCustomMessage("download_file",list(message=toc$download()))
 			# update button
 			session$sendCustomMessage("enable_button",list(btn="downloadBtn"))
-			session$sendCustomMessage("set_cursor",list(cursor="default"))
+			session$sendCustomMessage("set_cursor",list(cursor="pointer"))
 		})
 	})
 	
@@ -420,7 +422,7 @@ shinyServer(function(input, output, session) {
 			} else {
 				toggleModal(session, "emailMdl")
 			}
-			session$sendCustomMessage("set_cursor",list(cursor="default"))
+			session$sendCustomMessage("set_cursor",list(cursor="pointer"))
 		})
 	})
 
@@ -473,7 +475,7 @@ shinyServer(function(input, output, session) {
 			}
 			# update button
 			session$sendCustomMessage("enable_button",list(btn="sendEmailBtn"))
-			session$sendCustomMessage("set_cursor",list(cursor="default"))
+			session$sendCustomMessage("set_cursor",list(cursor="pointer"))
 		})
 	})
 })
