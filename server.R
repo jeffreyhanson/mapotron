@@ -91,6 +91,8 @@ shinyServer(function(input, output, session) {
 			updateButton(session, "toolBtn2", style = "primary")
 			# set tool
 			toc$tool<<-2
+			# set cursor
+			session$sendCustomMessage("set_cursor",list(cursor="crosshair"))
 		})
 	})
 	# add line button observer
@@ -106,6 +108,9 @@ shinyServer(function(input, output, session) {
 			updateButton(session, "toolBtn3", style = "primary")
 			# set tool
 			toc$tool<<-3
+			# set cursor
+			session$sendCustomMessage("set_cursor",list(cursor="crosshair"))
+			# make new line 
 			toc$newLine()
 		})
 	})
@@ -122,7 +127,10 @@ shinyServer(function(input, output, session) {
 			updateButton(session, "toolBtn4", style = "primary")
 			# set tool
 			toc$tool<<-4
+			# make new polygon
 			toc$newPolygon()
+			# set cursor
+			session$sendCustomMessage("set_cursor",list(cursor="crosshair"))
 		})
 	})
 	# edit button observer
@@ -138,6 +146,8 @@ shinyServer(function(input, output, session) {
 			updateButton(session, "toolBtn5", style = "primary")
 			# set status
 			toc$tool<<-5
+			# set cursor
+			session$sendCustomMessage("set_cursor",list(cursor="crosshair"))
 		})
 	})
 	# annotate text input observer 
@@ -187,6 +197,8 @@ shinyServer(function(input, output, session) {
 			updateButton(session, "toolBtn7", style = "primary")
 			# set status
 			toc$tool<<-7
+			# set cursor
+			session$sendCustomMessage("set_cursor",list(cursor="remove"))
 		})
 	})
 	
@@ -365,6 +377,7 @@ shinyServer(function(input, output, session) {
 		isolate({
 			# init
 			session$sendCustomMessage("disable_button",list(btn="downloadBtn"))
+			session$sendCustomMessage("set_cursor",list(cursor="wait"))
 			alert=NULL
 			if (toc$activeId!="-9999") {
 				eval(parse(text=toc$stopEditFeature()))
@@ -375,7 +388,8 @@ shinyServer(function(input, output, session) {
 			# main
 			session$sendCustomMessage("download_file",list(message=toc$download()))
 			# update button
-			session$sendCustomMessage("enable_button",list(btn="downloadBtn"))		
+			session$sendCustomMessage("enable_button",list(btn="downloadBtn"))
+			session$sendCustomMessage("set_cursor",list(cursor="default"))
 		})
 	})
 	
@@ -384,7 +398,8 @@ shinyServer(function(input, output, session) {
 		if (input$emailBtn==0)
 			return()
 		isolate({
-			### if custom email
+			### if custom email supplied
+			session$sendCustomMessage("set_cursor",list(cursor="wait"))
 			if (!is.null(toc$args$firstname) & !is.null(toc$args$lastname) & !is.null(toc$args$emailaddress)) {
 				# init
 				session$sendCustomMessage("disable_button",list(btn="emailBtn"))
@@ -405,6 +420,7 @@ shinyServer(function(input, output, session) {
 			} else {
 				toggleModal(session, "emailMdl")
 			}
+			session$sendCustomMessage("set_cursor",list(cursor="default"))
 		})
 	})
 
@@ -415,6 +431,7 @@ shinyServer(function(input, output, session) {
 		isolate({
 			# init
 			session$sendCustomMessage("disable_button",list(btn="sendEmailBtn"))
+			session$sendCustomMessage("set_cursor",list(cursor="wait"))
 			alert=NULL
 			if (toc$activeId!="-9999") {
 				eval(parse(text=toc$stopEditFeature()))
@@ -456,6 +473,7 @@ shinyServer(function(input, output, session) {
 			}
 			# update button
 			session$sendCustomMessage("enable_button",list(btn="sendEmailBtn"))
+			session$sendCustomMessage("set_cursor",list(cursor="default"))
 		})
 	})
 })

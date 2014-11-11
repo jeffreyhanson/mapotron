@@ -94,7 +94,8 @@ TOC = setRefClass("TOC",
 					
 					'session$sendInputMessage("annotationTxt", list(value=""))',
 					'updateButton(session, "toolBtn6", disabled=TRUE)',
-					'session$sendCustomMessage(\"disable_button\",list(btn=\"annotationTxt\"))'
+					'session$sendCustomMessage(\"disable_button\",list(btn=\"annotationTxt\"))',
+					'session$sendCustomMessage(\"set_cursor\",list(cursor=\"grab\"))'
 				)
 			}
 			if (length(x)>0) {

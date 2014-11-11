@@ -303,7 +303,17 @@ shinyUI(basicPage(
 					$("#" + message.btn).prop(\"disabled\",true);
 				}
 			);
-									
+
+			Shiny.addCustomMessageHandler("set_cursor", 
+				function(message) {
+					if (message.cursor!="remove") {
+						$("html,body").css("cursor",message.cursor);
+					} else {
+						$("html,body").css("cursor","url(icons/skull.png)");
+					}
+				}
+			);
+			
 			Shiny.addCustomMessageHandler("download_file",
 				function(message) {
 					var link = document.createElement("a");
