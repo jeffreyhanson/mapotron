@@ -20,7 +20,11 @@ shinyServer(function(input, output, session) {
 	for (i in seq_along(baselayers)) {
 		toc$newBase(baselayers[[i]])
 	}
-	toc$emailOptions=list(host.name=emailDF$host.name, port=emailDF$port, user.name=emailDF$user.name, passwd=emailDF$password, ssl=TRUE)
+	if (!inherits(emailDF, "try-error")) {
+		toc$emailOptions=list(host.name=emailDF$host.name, port=emailDF$port, user.name=emailDF$user.name, passwd=emailDF$password, ssl=TRUE)
+	} else {
+		warning("File containing email details failed to load, check \"emailDF\" in global.R")
+	}
 	session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('disabled',true)"))	
 	# get program arguments and execute startup parameters
 	toc$args=parseQueryString(isolate(session$clientData$url_search))
@@ -429,7 +433,7 @@ shinyServer(function(input, output, session) {
 					# save shapefiles
 					x=try(toc$export(x[[1]], x[[2]], x[[3]], input$emailtxt))
 					if (inherits(x,"try-error")) {
-						alert=list(text="Error processing data!",type="danger")
+						alert=list(text=paste("Error processing data!", x[1]),type="danger")
 					}
 				} else {
 					y=which(sapply(x, nchar)==0)

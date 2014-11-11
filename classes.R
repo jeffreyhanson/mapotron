@@ -225,10 +225,15 @@ TOC = setRefClass("TOC",
 			zip(zipPTH, list.files(file.path("www","exports",userId,"data",userId), full.names=TRUE), flags="-r9X -j -q")
 
 			# return command to parse
-			return(paste0(shinyurl,file.path("exports",userId,"zip","spatialdata.zip")))
+			return(gsub(" ", "%20", paste0(shinyurl,file.path("exports",userId,"zip","spatialdata.zip")), fixed=TRUE))
 		},
 		
 		export=function(firstname, lastname, emailaddress, emailtxt) {
+			## test if email settings loaded
+			if (length(emailOptions)==0) {
+				stop("Email settings failed to load. You cannot send emails!")
+			}
+			
 			## prepare directories
 			# generate a user id
 			makeDirs(emailaddress)
@@ -260,6 +265,7 @@ TOC = setRefClass("TOC",
 					)
 				}
 			}
+			
 			# generate zip file
 			if (file.exists(zipPTH))
 				file.remove(zipPTH)
@@ -281,7 +287,7 @@ txt1
 ,
 "
 
-<p>Download all the data people have made for you <a href=\"", shinyurl,file.path("exports",emailaddress,"zip","spatialdata.zip"),"\">here</a>.</p>
+<p>Download all the data people have made for you <a href=\"", gsub(" ", "%20", paste0(shinyurl,file.path("exports",emailaddress,"zip","spatialdata.zip")), fixed=TRUE),"\">here</a>.</p>
 
 ",
 txt2
