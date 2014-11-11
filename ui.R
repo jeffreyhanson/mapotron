@@ -312,19 +312,17 @@ shinyUI(basicPage(
 						$("#aboutMdl").css("cursor","-webkit-grab");
 						$("#helpMdl").css("cursor","-webkit-grab");
 						$("#emailMdl").css("cursor","-webkit-grab");
-
 						$("html,body").css("cursor","-moz-grab");
 						$("#map").css("cursor","-moz-grab");
 						$("#aboutMdl").css("cursor","-moz-grab");
 						$("#helpMdl").css("cursor","-moz-grab");
 						$("#emailMdl").css("cursor","-moz-grab");
-						
 					} else if (message.cursor=="remove") {
-						$("html,body").css("cursor","url(www/icons/skull-crossbones.ico),auto");
-						$("#map").css("cursor","url(www/icons/skull-crossbones.ico),auto");
-						$("#aboutMdl").css("cursor","url(www/icons/skull-crossbones.ico),auto");
-						$("#helpMdl").css("cursor","url(www/icons/skull-crossbones.ico),auto");
-						$("#emailMdl").css("cursor","url(www/icons/skull-crossbones.ico),auto");
+						$("html,body").css("cursor","url(icons/skull_white.png),auto");
+						$("#map").css("cursor","url(icons/skull_white.png),auto");
+						$("#aboutMdl").css("cursor","url(icons/skull_white.png),auto");
+						$("#helpMdl").css("cursor","url(icons/skull_white.png),auto");
+						$("#emailMdl").css("cursor","url(icons/skull_white.png),auto");
 					} else {
 						$("html,body").css("cursor",message.cursor);
 						$("#map").css("cursor",message.cursor);
