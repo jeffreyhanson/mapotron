@@ -197,9 +197,10 @@ shinyUI(basicPage(
 								<pre><code>",shinyurl,"?lng=-27.56&lat=140.5&zoom=5</code></pre>
 							</li>
 							<li>
-								<p>You can specify the first name, last name, and email address parameters that a user cannot override.
-								When these parameters are supplied, the email button (",suppressWarnings(bsActionButton("emailBtn_help", img(src="icons/email_white.png", height=20, width=20), style="inverse")),"), will automatically send the email. </p>
-								<pre><code>",shinyurl,"?firstname=Greg&lastname=McGreggorson&emailaddress=fakemcfakeerson@fakemail.com</code></pre>
+								<p>You can specify the first name, last name, email address, and message parameters that a user cannot override.
+								When these parameters are supplied, the email button (",suppressWarnings(bsActionButton("emailBtn_help", img(src="icons/email_white.png", height=20, width=20), style="inverse")),"), will automatically send the email. 
+								This is especially useful if you have multiple questions that each require a separate instance of Mapotron. You can set the message to have indicate the question number, so the question number be associated with features in the attribute table.</p>
+								<pre><code>",shinyurl,"?firstname=Greg&lastname=McGreggorson&emailaddress=fakemcfakeerson@fakemail.com&message=question1</code></pre>
 							</li>
 						</ul>
 						"
@@ -306,22 +307,56 @@ shinyUI(basicPage(
 
 			Shiny.addCustomMessageHandler("set_cursor", 
 				function(message) {
-					if (message.cursor=="reset") {
-						$("html,body").css("cursor","default");
-						$("#map").css("cursor","-webkit-grab");
-						$("#map").css("cursor","-moz-grab");
-						$(".leaflet-interactive").css("cursor", "pointer");
-					} else if (message.cursor=="remove") {
-						$("html,body").css("cursor","url(icons/skull_white.png),auto");
-						$("#map").css("cursor","url(icons/skull_white.png),auto");
-					}  else if (message.cursor=="hand") {
-						$("html,body").css("cursor","-webkit-grab");
-						$("html,body").css("cursor","-moz-grab");
-						$("#map").css("cursor","-webkit-grab");
-						$("#map").css("cursor","-moz-grab");
-					} else {
-						$("html,body").css("cursor",message.cursor);
-						$("#map").css("cursor",message.cursor);
+					if (message.scope=="all") {
+						if (message.cursor=="reset") {
+							$("html,body").css("cursor","default");
+							
+							$("#downloadBtn").css("cursor","default");
+							$("#emailBtn").css("cursor","default");
+							
+							$("#map").css("cursor","-webkit-grab");
+							$("#map").css("cursor","-moz-grab");
+							$("#aboutMdl").css("cursor","default");
+							
+							$("#saveMdl").css("cursor","default");
+							$("#firstName").css("cursor","default");
+							$("#lastName").css("cursor","default");
+							$("#emailAddress").css("cursor","default");
+							$("#sendEmailBtn").css("cursor","default");
+							$("#emailtxt").css("cursor","default");
+							
+							
+							$("#helpMdl").css("cursor","default");
+							$("#helpCollapse").css("cursor","default");					
+						} else {
+							$("html,body").css("cursor",message.cursor);
+							$("#map").css("cursor",message.cursor);
+							
+							$("#downloadBtn").css("cursor","default");
+							$("#emailBtn").css("cursor","default");						
+							
+							$("#aboutMdl").css("cursor",message.cursor);
+							
+							$("#saveMdl").css("cursor",message.cursor);
+							$("#firstName").css("cursor",message.cursor);
+							$("#lastName").css("cursor",message.cursor);
+							$("#emailAddress").css("cursor",message.cursor);
+							$("#sendEmailBtn").css("cursor",message.cursor);
+							$("#emailtxt").css("cursor",message.cursor);
+							
+							$("#helpMdl").css("cursor",message.cursor);
+							$("#helpCollapse").css("cursor",message.cursor);						
+						}
+					} else if (message.scope=="map") {
+						if (message.cursor=="hand") {
+							$("#map").css("cursor","-webkit-grab");
+							$("#map").css("cursor","-moz-grab");
+						} else if (message.cursor=="remove") {
+							$("#map").css("cursor","url(icons/skull_white.png),auto");					
+						} else {
+							$("#map").css("cursor",message.cursor);
+							$("#map").css("cursor",message.cursor);						
+						}
 					}
 				}
 			);

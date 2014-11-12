@@ -76,7 +76,7 @@ shinyServer(function(input, output, session) {
 			# set tool
 			toc$tool<<-1
 			# set cursor
-			session$sendCustomMessage("set_cursor",list(cursor="hand"))
+			session$sendCustomMessage("set_cursor",list(cursor="hand", scope="map"))
 
 		})
 	})
@@ -94,7 +94,7 @@ shinyServer(function(input, output, session) {
 			# set tool
 			toc$tool<<-2
 			# set cursor
-			session$sendCustomMessage("set_cursor",list(cursor="crosshair"))
+			session$sendCustomMessage("set_cursor",list(cursor="crosshair", scope="map"))
 		})
 	})
 	# add line button observer
@@ -111,7 +111,7 @@ shinyServer(function(input, output, session) {
 			# set tool
 			toc$tool<<-3
 			# set cursor
-			session$sendCustomMessage("set_cursor",list(cursor="crosshair"))
+			session$sendCustomMessage("set_cursor",list(cursor="crosshair", scope="map"))
 			# make new line 
 			toc$newLine()
 		})
@@ -132,7 +132,7 @@ shinyServer(function(input, output, session) {
 			# make new polygon
 			toc$newPolygon()
 			# set cursor
-			session$sendCustomMessage("set_cursor",list(cursor="crosshair"))
+			session$sendCustomMessage("set_cursor",list(cursor="crosshair", scope="map"))
 		})
 	})
 	# edit button observer
@@ -198,7 +198,7 @@ shinyServer(function(input, output, session) {
 			# set status
 			toc$tool<<-7
 			# set cursor
-			session$sendCustomMessage("set_cursor",list(cursor="remove"))
+			session$sendCustomMessage("set_cursor",list(cursor="remove", scope="map"))
 		})
 	})
 	
@@ -336,7 +336,7 @@ shinyServer(function(input, output, session) {
 					# update feature
 					eval(parse(text=toc$plotFeature(event$id, highlight=editCol)))
 					# set cursor
-					session$sendCustomMessage("set_cursor",list(cursor="crosshair"))
+					session$sendCustomMessage("set_cursor",list(cursor="crosshair", scope="map"))
 				})
 			}
 		}
@@ -353,7 +353,7 @@ shinyServer(function(input, output, session) {
 					# update feature
 					eval(parse(text=toc$plotFeature(event$id, highlight=editCol)))
 					# set cursor
-					session$sendCustomMessage("set_cursor",list(cursor="crosshair"))					
+					session$sendCustomMessage("set_cursor",list(cursor="crosshair", scope="map"))					
 				})
 			}
 		}
@@ -381,7 +381,7 @@ shinyServer(function(input, output, session) {
 		isolate({
 			# init
 			session$sendCustomMessage("disable_button",list(btn="downloadBtn"))
-			session$sendCustomMessage("set_cursor",list(cursor="wait"))
+			session$sendCustomMessage("set_cursor",list(cursor="wait", scope="all"))
 			alert=NULL
 			if (toc$activeId!="-9999") {
 				eval(parse(text=toc$stopEditFeature()))
@@ -393,7 +393,7 @@ shinyServer(function(input, output, session) {
 			session$sendCustomMessage("download_file",list(message=toc$download()))
 			# update button
 			session$sendCustomMessage("enable_button",list(btn="downloadBtn"))
-			session$sendCustomMessage("set_cursor",list(cursor="pointer"))
+			session$sendCustomMessage("set_cursor",list(cursor="reset", scope="all"))
 		})
 	})
 	
@@ -403,7 +403,7 @@ shinyServer(function(input, output, session) {
 			return()
 		isolate({
 			### if custom email supplied
-			session$sendCustomMessage("set_cursor",list(cursor="wait"))
+			session$sendCustomMessage("set_cursor",list(cursor="wait", scope="all"))
 			if (!is.null(toc$args$firstname) & !is.null(toc$args$lastname) & !is.null(toc$args$emailaddress)) {
 				# init
 				session$sendCustomMessage("disable_button",list(btn="emailBtn"))
@@ -424,7 +424,7 @@ shinyServer(function(input, output, session) {
 			} else {
 				toggleModal(session, "emailMdl")
 			}
-			session$sendCustomMessage("set_cursor",list(cursor="pointer"))
+			session$sendCustomMessage("set_cursor",list(cursor="reset", scope="all"))
 		})
 	})
 
@@ -435,7 +435,7 @@ shinyServer(function(input, output, session) {
 		isolate({
 			# init
 			session$sendCustomMessage("disable_button",list(btn="sendEmailBtn"))
-			session$sendCustomMessage("set_cursor",list(cursor="wait"))
+			session$sendCustomMessage("set_cursor",list(cursor="wait", scope="all"))
 			alert=NULL
 			if (toc$activeId!="-9999") {
 				eval(parse(text=toc$stopEditFeature()))
@@ -477,7 +477,7 @@ shinyServer(function(input, output, session) {
 			}
 			# update button
 			session$sendCustomMessage("enable_button",list(btn="sendEmailBtn"))
-			session$sendCustomMessage("set_cursor",list(cursor="pointer"))
+			session$sendCustomMessage("set_cursor",list(cursor="reset", scope="all"))
 		})
 	})
 })

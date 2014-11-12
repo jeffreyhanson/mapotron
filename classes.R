@@ -81,7 +81,7 @@ TOC = setRefClass("TOC",
 			}
 		},
 		reset=function() {
-			x=c('session$sendCustomMessage(\"set_cursor\",list(cursor=\"reset\"))')
+			x=c('session$sendCustomMessage(\"set_cursor\",list(cursor=\"reset\", scope=\"all\"))')
 			if (activeId!="-9999") {
 				if (tool==1)
 					x=deselectLayer()
