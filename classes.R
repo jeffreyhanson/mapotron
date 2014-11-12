@@ -278,9 +278,11 @@ TOC = setRefClass("TOC",
 			txt1=ifelse(nchar(emailtxt)==0,"",paste0("<p>They also left the following message: ",emailtxt,"</p>"))
 			txt2=ifelse(emailaddress %in% emailWhiteList,"",paste0("<p><b>You have ",fileExpiry, "days to download this data before it is automatically deleted</b></p>"))
 			send.mail(from = "mapotron@gmail.com", html=TRUE,
-				to = emailaddress,
+				to = paste0(firstname, " ", lastname, " <", emailaddress, ">"),
 				subject = paste0(firstname," ",lastname," made you some spatial data!"),
 				body = paste0("
+				
+<body>
 <p>Hi,</p>
 
 <p>",capitalize(firstname)," ",capitalize(lastname)," generated some spatial data for you,</p>
@@ -300,6 +302,11 @@ txt2
 
 <p><a href=\"",substr(shinyurl, 1, nchar(shinyurl)-1),"\">Mapotron</a></p>
 
+<p>------------------</p>",
+paste(paste0("<p>",capture.output(fortune()),"</p>"),collapse="\n"),
+"
+
+</body>
 ")
 ,
 				smtp = emailOptions,

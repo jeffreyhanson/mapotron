@@ -9,6 +9,7 @@ library(shinyBS)
 library(mailR)
 library(taRifx.geo)
 library(Hmisc)
+library(fortunes)
 
 ### load classes
 source("classes.R")
