@@ -148,8 +148,6 @@ shinyServer(function(input, output, session) {
 			updateButton(session, "toolBtn5", style = "primary")
 			# set status
 			toc$tool<<-5
-			# set cursor
-			session$sendCustomMessage("set_cursor",list(cursor="crosshair"))
 		})
 	})
 	# annotate text input observer 
@@ -282,7 +280,7 @@ shinyServer(function(input, output, session) {
 			# add coordinate and marker
 			eval(parse(text=toc$addCoordinate(toc$activeId, c(event$lng, event$lat))))
 			# update feature
-			eval(parse(text=toc$plotFeature(toc$activeId, highlight=editCol)))
+			eval(parse(text=toc$plotFeature(toc$activeId, highlight=editCol)))			
 		})
 	})
 	
@@ -337,6 +335,8 @@ shinyServer(function(input, output, session) {
 					eval(parse(text=toc$startEditFeature(event$id)))
 					# update feature
 					eval(parse(text=toc$plotFeature(event$id, highlight=editCol)))
+					# set cursor
+					session$sendCustomMessage("set_cursor",list(cursor="crosshair"))
 				})
 			}
 		}
@@ -352,6 +352,8 @@ shinyServer(function(input, output, session) {
 					eval(parse(text=toc$startEditFeature(event$id)))
 					# update feature
 					eval(parse(text=toc$plotFeature(event$id, highlight=editCol)))
+					# set cursor
+					session$sendCustomMessage("set_cursor",list(cursor="crosshair"))					
 				})
 			}
 		}
@@ -414,11 +416,11 @@ shinyServer(function(input, output, session) {
 			
 				# main
 				if (!toc$args$emailaddress %in% emailBlockList & length(toc$featureLST)>0) {
-					try(toc$export(toc$args$firstname, toc$args$lastname, toc$args$emailaddress, ""))
+					try(toc$export(toc$args$firstname, toc$args$lastname, toc$args$emailaddress, toc$args$message))
 				}
 				
 				# post
-				session$sendCustomMessage("enable_button",list(btn="emailBtn"))			 		 
+				session$sendCustomMessage("enable_button",list(btn="emailBtn"))		 		 
 			} else {
 				toggleModal(session, "emailMdl")
 			}

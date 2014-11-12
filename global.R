@@ -121,6 +121,7 @@ saveSpatialData=function(featureLST, expDir, attrVEC) {
 			currSp=do.call(paste0(names(tempLST)[i],"ToSp"), list(tempLST[[i]]))
 			for (j in seq_along(attrVEC))
 				currSp@data[[names(attrVEC)[j]]]=attrVEC[[j]]
+			currSp@data$created	= as.character(Sys.time())
 			writeOGR(
 				currSp,
 				expDir,

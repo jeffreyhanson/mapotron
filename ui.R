@@ -306,29 +306,22 @@ shinyUI(basicPage(
 
 			Shiny.addCustomMessageHandler("set_cursor", 
 				function(message) {
-					if (message.cursor=="hand") {
-						$("html,body").css("cursor","-webkit-grab");
+					if (message.cursor=="reset") {
+						$("html,body").css("cursor","default");
 						$("#map").css("cursor","-webkit-grab");
-						$("#aboutMdl").css("cursor","-webkit-grab");
-						$("#helpMdl").css("cursor","-webkit-grab");
-						$("#emailMdl").css("cursor","-webkit-grab");
-						$("html,body").css("cursor","-moz-grab");
 						$("#map").css("cursor","-moz-grab");
-						$("#aboutMdl").css("cursor","-moz-grab");
-						$("#helpMdl").css("cursor","-moz-grab");
-						$("#emailMdl").css("cursor","-moz-grab");
+						$(".leaflet-interactive").css("cursor", "pointer");
 					} else if (message.cursor=="remove") {
 						$("html,body").css("cursor","url(icons/skull_white.png),auto");
 						$("#map").css("cursor","url(icons/skull_white.png),auto");
-						$("#aboutMdl").css("cursor","url(icons/skull_white.png),auto");
-						$("#helpMdl").css("cursor","url(icons/skull_white.png),auto");
-						$("#emailMdl").css("cursor","url(icons/skull_white.png),auto");
+					}  else if (message.cursor=="hand") {
+						$("html,body").css("cursor","-webkit-grab");
+						$("html,body").css("cursor","-moz-grab");
+						$("#map").css("cursor","-webkit-grab");
+						$("#map").css("cursor","-moz-grab");
 					} else {
 						$("html,body").css("cursor",message.cursor);
 						$("#map").css("cursor",message.cursor);
-						$("#aboutMdl").css("cursor",message.cursor);
-						$("#helpMdl").css("cursor",message.cursor);
-						$("#emailMdl").css("cursor",message.cursor);
 					}
 				}
 			);

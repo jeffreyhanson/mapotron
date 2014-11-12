@@ -81,7 +81,7 @@ TOC = setRefClass("TOC",
 			}
 		},
 		reset=function() {
-			x=c()
+			x=c('session$sendCustomMessage(\"set_cursor\",list(cursor=\"reset\"))')
 			if (activeId!="-9999") {
 				if (tool==1)
 					x=deselectLayer()
@@ -94,8 +94,7 @@ TOC = setRefClass("TOC",
 					
 					'session$sendInputMessage("annotationTxt", list(value=""))',
 					'updateButton(session, "toolBtn6", disabled=TRUE)',
-					'session$sendCustomMessage(\"disable_button\",list(btn=\"annotationTxt\"))',
-					'session$sendCustomMessage(\"set_cursor\",list(cursor=\"grab\"))'
+					'session$sendCustomMessage(\"disable_button\",list(btn=\"annotationTxt\"))'
 				)
 			}
 			if (length(x)>0) {
@@ -234,6 +233,9 @@ TOC = setRefClass("TOC",
 			if (length(emailOptions)==0) {
 				stop("Email settings failed to load. You cannot send emails!")
 			}
+			## replace emailTxt with NA if NULL
+			if (is.null(emailtxt))
+				emailtxt=NA
 			
 			## prepare directories
 			# generate a user id
@@ -243,7 +245,7 @@ TOC = setRefClass("TOC",
 			zipPTH=file.path("www","exports",emailaddress,"zip","spatialdata.zip")
 			
 			## export data
-			saveSpatialData(featureLST,file.path("www","exports",emailaddress,"data",userId),c("firstname"=firstname,"lastname"=lastname))			
+			saveSpatialData(featureLST,file.path("www","exports",emailaddress,"data",userId),c("firstname"=firstname,"lastname"=lastname, "message"=emailtxt))			
 			
 			# load spatial objects and combine them
 			for (i in c("Point", "LineString", "Polygon")) {
