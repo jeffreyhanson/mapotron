@@ -281,7 +281,7 @@ TOC = setRefClass("TOC",
 				to = paste0(firstname, " ", lastname, " <", emailaddress, ">"),
 				subject = paste0(firstname," ",lastname," made you some spatial data!"),
 				body = paste0("
-				
+<html>		
 <body>
 <p>Hi,</p>
 
@@ -307,6 +307,7 @@ paste(paste0("<p>",capture.output(fortune()),"</p>"),collapse="\n"),
 "
 
 </body>
+</html>
 ")
 ,
 				smtp = emailOptions,
