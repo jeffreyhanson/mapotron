@@ -16,6 +16,8 @@ $RECYCLE.BIN/
 
 # email details file
 emailaccount.csv
+gmail_emailaccount.csv
+mandrill_emailaccount.csv
 
 # shiny apps secret key
 shinyapps.txt

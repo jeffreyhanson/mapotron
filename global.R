@@ -26,7 +26,7 @@ program_version="1.0.5"
 load("data/baselayers.RDATA")
 featureDefaultOptions=list(fillOpacity=0.5,opacity=1)
 baseDefaultOptions=list(fillOpacity=0.2,opacity=0.3)
-emailDF=try(read.table("other/emailaccount.csv", sep=",", header=TRUE, as.is=TRUE))
+emailDF=try(read.table("other/mandrill_emailaccount.csv", sep=",", header=TRUE, as.is=TRUE))
 shinyurl="https://paleo13.shinyapps.io/mapotron/"
 emailWhiteList=read.table("other/emailwhitelist.csv", sep=",", header=TRUE, as.is=TRUE)[,1,drop=TRUE]
 emailBlockList=read.table("other/emailblocklist.csv", sep=",", header=TRUE, as.is=TRUE)[,1,drop=TRUE]
@@ -35,6 +35,58 @@ google=GEOCODE$new()
 
 ### define functions
 # misc functions
+parseFortune=function(x, width=100) {
+    if (is.null(width)) 
+        width <- getOption("width")
+    if (width < 10) 
+        stop("'width' must be greater than 10")
+    if (is.na(x$context)) {
+        x$context <- ""
+    }
+    else {
+        x$context <- paste(" (", x$context, ")", sep = "")
+    }
+    if (is.na(x$source)) {
+        x$source <- ""
+    }
+    if (is.na(x$date)) {
+        x$date <- ""
+    }
+    else {
+        x$date <- paste(" (", x$date, ")", sep = "")
+    }
+    if (any(is.na(x))) 
+        stop("'quote' and 'author' are required")
+    line1 <- x$quote
+    line2 <- paste("   -- ", x$author, x$context, sep = "")
+    line3 <- paste("      ", x$source, x$date, sep = "")
+    linesplit <- function(line, width, gap = "      ") {
+        if (nchar(line) < width) 
+            return(line)
+        rval <- NULL
+        while (nchar(line) > width) {
+            line <- strsplit(line, " ")[[1]]
+            if (any((nchar(line) + 1 + nchar(gap)) > width)) 
+                stop("'width' is too small for fortune")
+            breakat <- which.max(cumsum(nchar(line) + 1) > width) - 
+                1L
+            rval <- paste(rval, paste(line[1:breakat], collapse = " "), 
+                "\n", sep = "")
+            line <- paste(gap, paste(line[-(1:breakat)], collapse = " "), 
+                sep = "")
+        }
+        rval <- paste(rval, line, sep = "")
+        return(rval)
+    }
+    line1 <- strsplit(line1, "<x>")[[1]]
+    for (i in 1:length(line1)) line1[i] <- linesplit(line1[i], 
+        width, gap = "")
+    line1 <- paste(line1, collapse = "\n")
+    line2 <- linesplit(line2, width)
+    line3 <- linesplit(line3, width)
+    return(paste0("\n", line1, "\n", line2, "\n", line3, "\n\n"))
+}
+
 parseOpts=function(x) {
 	return(unlist(x, recursive=FALSE))
 }
@@ -122,7 +174,7 @@ saveSpatialData=function(featureLST, expDir, attrVEC) {
 			currSp=do.call(paste0(names(tempLST)[i],"ToSp"), list(tempLST[[i]]))
 			for (j in seq_along(attrVEC))
 				currSp@data[[names(attrVEC)[j]]]=attrVEC[[j]]
-			currSp@data$created	= as.character(Sys.time())
+			currSp@data$created	= as.character(format(Sys.time(), tz="Australia/Brisbane"))
 			writeOGR(
 				currSp,
 				expDir,

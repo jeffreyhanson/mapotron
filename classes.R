@@ -276,38 +276,37 @@ TOC = setRefClass("TOC",
 			
 			## send email
 			txt1=ifelse(nchar(emailtxt)==0,"",paste0("<p>They also left the following message: ",emailtxt,"</p>"))
-			txt2=ifelse(emailaddress %in% emailWhiteList,"",paste0("<p><b>You have ",fileExpiry, "days to download this data before it is automatically deleted</b></p>"))
-			send.mail(from = "mapotron@gmail.com", html=TRUE,
+			txt2=ifelse(emailaddress %in% emailWhiteList,"",paste0("You have ",fileExpiry, " days to download this data before it is automatically deleted."))
+			send.mail(from = "mapotron@gmail.com", html=FALSE,
 				to = paste0(firstname, " ", lastname, " <", emailaddress, ">"),
 				subject = paste0(firstname," ",lastname," made you some spatial data!"),
 				body = paste0("
-<html>		
-<body>
-<p>Hi,</p>
+Hi,
 
-<p>",capitalize(firstname)," ",capitalize(lastname)," generated some spatial data for you,</p>
+",capitalize(firstname)," ",capitalize(lastname)," generated some spatial data for you,
 
 ",
 txt1
 ,
 "
 
-<p>Download all the data people have made for you <a href=\"", gsub(" ", "%20", paste0(shinyurl,file.path("exports",emailaddress,"zip","spatialdata.zip")), fixed=TRUE),"\">here</a>.</p>
+Download all the data people have made for you here:
+
+", gsub(" ", "%20", paste0(shinyurl,file.path("exports",emailaddress,"zip","spatialdata.zip")), fixed=TRUE),"
 
 ",
 txt2
 ,"
 
-<p>Cheers,</p>
+Cheers,
 
-<p><a href=\"",substr(shinyurl, 1, nchar(shinyurl)-1),"\">Mapotron</a></p>
+Mapotron (",substr(shinyurl, 1, nchar(shinyurl)-1),")
 
-<p>------------------</p>",
-paste(paste0("<p>",capture.output(fortune()),"</p>"),collapse="\n"),
-"
+------------------",
+parseFortune(fortune())
 
-</body>
-</html>
+,"
+
 ")
 ,
 				smtp = emailOptions,

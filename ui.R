@@ -311,8 +311,8 @@ shinyUI(basicPage(
 						if (message.cursor=="reset") {
 							$("html,body").css("cursor","default");
 							
-							$("#downloadBtn").css("cursor","default");
-							$("#emailBtn").css("cursor","default");
+							$("#downloadBtn").css("cursor","pointer");
+							$("#emailBtn").css("cursor","pointer");
 							
 							$("#map").css("cursor","-webkit-grab");
 							$("#map").css("cursor","-moz-grab");
@@ -332,8 +332,8 @@ shinyUI(basicPage(
 							$("html,body").css("cursor",message.cursor);
 							$("#map").css("cursor",message.cursor);
 							
-							$("#downloadBtn").css("cursor","default");
-							$("#emailBtn").css("cursor","default");						
+							$("#downloadBtn").css("cursor",message.cursor);
+							$("#emailBtn").css("cursor",message.cursor);						
 							
 							$("#aboutMdl").css("cursor",message.cursor);
 							

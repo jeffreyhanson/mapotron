@@ -1,0 +1,39 @@
+<html>
+<body>
+
+<script>
+	function updateURL() {
+		var url="https://paleo13.shinyapps.io/mapotron/";
+		url=url.concat("?", "firstname=",firstnameInput.value,"&lastname=",lastnameInput.value,"&message=",messageInput.value);
+		url=url.concat("&emailaddress=jeffrey.hanson@uqconnect.edu.au");
+		mapotronFrame.src = url;
+	}
+
+</script>
+
+<!-- first name entry widget -->
+<div class="row">
+	<b>First name<b>
+	<input id= "firstnameInput" type="text"  onchange="updateURL();"/>
+</div>
+
+<!-- last name entry widget -->
+<div class="row">
+	<b>Last name<b>
+	<input id="lastnameInput" type="text" onchange="updateURL();"/>
+</div>
+
+<!-- message entry widget -->
+<div class="row">
+	<b>Message<b>
+	<input id="messageInput" type="text" onchange="updateURL();"/>
+</div>
+
+
+
+<!-- mapotron -->
+<iframe id="mapotronFrame" src="https://paleo13.shinyapps.io/mapotron/" style="border: none; width: 1400px; height: 700px"></iframe>
+
+
+</body>
+</html>
