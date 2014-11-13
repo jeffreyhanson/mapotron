@@ -390,7 +390,10 @@ shinyServer(function(input, output, session) {
 			toc$removeOldFiles()
 		
 			# main
-			session$sendCustomMessage("download_file",list(message=toc$download()))
+			if (length(toc$featureLST)>0) {
+				session$sendCustomMessage("download_file",list(message=toc$download()))
+			}
+			
 			# update button
 			session$sendCustomMessage("enable_button",list(btn="downloadBtn"))
 			session$sendCustomMessage("set_cursor",list(cursor="reset", scope="all"))
@@ -407,7 +410,7 @@ shinyServer(function(input, output, session) {
 			if (!is.null(toc$args$firstname) & !is.null(toc$args$lastname) & !is.null(toc$args$emailaddress)) {
 				# init
 				session$sendCustomMessage("disable_button",list(btn="emailBtn"))
-						alert=NULL
+				alert=NULL
 				if (toc$activeId!="-9999") {
 					eval(parse(text=toc$stopEditFeature()))
 				}
@@ -415,7 +418,7 @@ shinyServer(function(input, output, session) {
 				toc$removeOldFiles()
 			
 				# main
-				if (!toc$args$emailaddress %in% emailBlockList & length(toc$featureLST)>0) {
+				if ((!toc$args$emailaddress %in% emailBlockList) & length(toc$featureLST)>0) {
 					try(toc$export(toc$args$firstname, toc$args$lastname, toc$args$emailaddress, toc$args$message))
 				}
 				

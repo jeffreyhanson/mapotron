@@ -4,8 +4,7 @@
 <script>
 	function updateURL() {
 		var url="https://paleo13.shinyapps.io/mapotron/";
-		url=url.concat("?", "firstname=",firstnameInput.value,"&lastname=",lastnameInput.value,"&message=",messageInput.value);
-		url=url.concat("&emailaddress=jeffrey.hanson@uqconnect.edu.au");
+		url=url.concat("?", "firstname=",firstnameInput.value,"&lastname=",lastnameInput.value,"&message=",messageInput.value,"&emailaddress=",emailInput.value);
 		mapotronFrame.src = url;
 	}
 
@@ -27,6 +26,12 @@
 <div class="row">
 	<b>Message<b>
 	<input id="messageInput" type="text" onchange="updateURL();"/>
+</div>
+
+<!-- email entry widget -->
+<div class="row">
+	<b>Email address<b>
+	<input id="emailInput" type="text" onchange="updateURL();"/>
 </div>
 
 

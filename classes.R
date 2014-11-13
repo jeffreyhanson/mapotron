@@ -275,7 +275,7 @@ TOC = setRefClass("TOC",
 			zip(zipPTH, list.files(file.path("www/exports",emailaddress,"temp"), full.names=TRUE), flags="-r9X -j -q")
 			
 			## send email
-			txt1=ifelse(nchar(emailtxt)==0,"",paste0("<p>They also left the following message: ",emailtxt,"</p>"))
+			txt1=ifelse(nchar(emailtxt)==0,"",paste0("They also left the following message: ",emailtxt))
 			txt2=ifelse(emailaddress %in% emailWhiteList,"",paste0("You have ",fileExpiry, " days to download this data before it is automatically deleted."))
 			send.mail(from = "mapotron@gmail.com", html=FALSE,
 				to = paste0(firstname, " ", lastname, " <", emailaddress, ">"),
@@ -287,8 +287,7 @@ Hi,
 
 ",
 txt1
-,
-"
+,"
 
 Download all the data people have made for you here:
 
