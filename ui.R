@@ -285,7 +285,8 @@ shinyUI(basicPage(
 			  padding: 0;
 			}
 		"), tags$script(HTML('
-		
+			
+			
 			Shiny.addCustomMessageHandler("jsCode",
 				function(message) {
 				  console.log(message)
@@ -304,7 +305,26 @@ shinyUI(basicPage(
 					$("#" + message.btn).prop(\"disabled\",true);
 				}
 			);
-
+			
+			var page_state_isDirty=false;
+			function exit_page(event) {
+				if (page_state_isDirty) {
+					return \'You have made changes to the data without downloading or emailing it -- if you leave before performing either of these actions all data will be lost.\'
+				} 
+			}
+			window.onbeforeunload= exit_page;
+						
+			Shiny.addCustomMessageHandler("page_state", 
+				function(message) {
+					if (message.type=="clean") {
+						page_state_isDirty=false;
+					}
+					if (message.type=="dirty") {
+						page_state_isDirty=true;
+					}
+				}
+			);
+			
 			Shiny.addCustomMessageHandler("set_cursor", 
 				function(message) {
 					if (message.scope=="all") {

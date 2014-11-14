@@ -35,6 +35,8 @@ shinyServer(function(input, output, session) {
 			}
 		}
 	})
+	# set clean
+	session$sendCustomMessage("page_state",list(type="clean"))
 
 	# baselayer select widget
 	vec=c("-9999", names(toc$baseLST))
@@ -280,7 +282,9 @@ shinyServer(function(input, output, session) {
 			# add coordinate and marker
 			eval(parse(text=toc$addCoordinate(toc$activeId, c(event$lng, event$lat))))
 			# update feature
-			eval(parse(text=toc$plotFeature(toc$activeId, highlight=editCol)))			
+			eval(parse(text=toc$plotFeature(toc$activeId, highlight=editCol)))
+			# set dirty
+			session$sendCustomMessage("page_state",list(type="dirty"))			
 		})
 	})
 	
@@ -301,6 +305,9 @@ shinyServer(function(input, output, session) {
 			eval(parse(text=toc$addCoordinate(toc$activeId, c(event$clicklng, event$clicklat))))
 			# update feature
 			eval(parse(text=toc$plotFeature(toc$activeId, highlight=editCol)))
+			# set dirty
+			session$sendCustomMessage("page_state",list(type="dirty"))
+			
 		})
 	})
 	
@@ -320,6 +327,8 @@ shinyServer(function(input, output, session) {
 						# if line or polygon remove coordinate and marker
 						eval(parse(text=toc$plotFeature(toc$activeId, highlight=editCol)))
 					}
+					# set dirty
+					session$sendCustomMessage("page_state",list(type="dirty"))					
 				})
 			}
 		}
@@ -337,6 +346,8 @@ shinyServer(function(input, output, session) {
 					eval(parse(text=toc$plotFeature(event$id, highlight=editCol)))
 					# set cursor
 					session$sendCustomMessage("set_cursor",list(cursor="crosshair", scope="map"))
+					# set dirty
+					session$sendCustomMessage("page_state",list(type="dirty"))					
 				})
 			}
 		}
@@ -353,7 +364,7 @@ shinyServer(function(input, output, session) {
 					# update feature
 					eval(parse(text=toc$plotFeature(event$id, highlight=editCol)))
 					# set cursor
-					session$sendCustomMessage("set_cursor",list(cursor="crosshair", scope="map"))					
+					session$sendCustomMessage("set_cursor",list(cursor="crosshair", scope="map"))
 				})
 			}
 		}
@@ -370,6 +381,8 @@ shinyServer(function(input, output, session) {
 			if (!grepl("base_",event$id) & !grepl("base_",toc$activeId)) {
 				# update polygons
 				eval(parse(text=toc$removeFeature(as.character(event$id))))
+				# set dirty
+				session$sendCustomMessage("page_state",list(type="dirty"))				
 			}
 		})
 	})
@@ -397,6 +410,8 @@ shinyServer(function(input, output, session) {
 			# update button
 			session$sendCustomMessage("enable_button",list(btn="downloadBtn"))
 			session$sendCustomMessage("set_cursor",list(cursor="reset", scope="all"))
+			# set clean
+			session$sendCustomMessage("page_state",list(type="clean"))
 		})
 	})
 	
@@ -427,7 +442,10 @@ shinyServer(function(input, output, session) {
 			} else {
 				toggleModal(session, "emailMdl")
 			}
+			# update buttons
 			session$sendCustomMessage("set_cursor",list(cursor="reset", scope="all"))
+			# set clean
+			session$sendCustomMessage("page_state",list(type="clean"))
 		})
 	})
 
@@ -481,6 +499,8 @@ shinyServer(function(input, output, session) {
 			# update button
 			session$sendCustomMessage("enable_button",list(btn="sendEmailBtn"))
 			session$sendCustomMessage("set_cursor",list(cursor="reset", scope="all"))
+			# set clean
+			session$sendCustomMessage("page_state",list(type="clean"))
 		})
 	})
 })
