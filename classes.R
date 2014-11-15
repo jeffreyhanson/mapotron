@@ -1,211 +1,47 @@
 ### define classes
-# id class
-ID = setRefClass("ID", 
-	fields=list(Id="numeric"),
-	methods=list(
-		initialize=function() {
-			Id<<-0
-		},
-		new=function(n=1) {
-			ret=as.character(seq(Id, Id+n-1))
-			Id<<-Id+n
-			return(ret)
-		}
-	)
-)
-
 # toc class
 TOC = setRefClass("TOC",
-	fields=list(featureLST="list", baseLST="list", featureId="ID", markerId="ID", activeId="character", activeBaseId="character", tool="numeric", emailOptions="list", args="list", startup="logical"),
+	fields=list(features="list", email="list", args="list"),
 	methods=list(
 		initialize=function() {
-			featureLST<<-list()
-			baseLST<<-list()
-			featureId<<-ID$new()
-			markerId<<-ID$new()
-			activeId<<- "-9999"
-			activeBaseId<<-"-9999"
-			tool<<-1
-			startup<<-TRUE
+			features<<-list()
+			email<<-list()
 			args<<-list()
 		},
-		newPoint=function() {
-			activeId<<-featureId$new()
-			featureLST[[activeId]]<<-POINT$new(activeId, parseOpts(list(featureDefaultOptions, list(color=featureColor(activeId),fillColor=featureColor(activeId)))))
-		},
-		newLine=function() {
-			activeId<<-featureId$new()
-			featureLST[[activeId]]<<-LINE$new(activeId, parseOpts(list(featureDefaultOptions, list(color=featureColor(activeId),fillColor=featureColor(activeId)))))
-		},
-		newPolygon=function() {
-			activeId<<-featureId$new()
-			featureLST[[activeId]]<<-POLYGON$new(activeId, parseOpts(list(featureDefaultOptions, list(color=featureColor(activeId),fillColor=featureColor(activeId)))))
-		},
-		newBase=function(x) {
-			if (inherits(x,"SpatialPolygonsDataFrame")) {
-				newBaseId=featureId$new()
-				baseLST[[newBaseId]]<<-list()
-				for (i in seq_along(x@polygons)) {
-					newSubId=featureId$new()
-					for (j in seq_along(x@polygons[[i]]@Polygons)) {
-						newSubSubId=paste0("base_",newBaseId,"_",featureId$new())
-						baseLST[[newBaseId]][[newSubSubId]]<<-POLYGON$new(newSubSubId, parseOpts(list(baseDefaultOptions, list(color=baseColor(newSubId),fillcolor=baseColor(newSubId)))))
-						baseLST[[newBaseId]][[newSubSubId]]$coords<<-x@polygons[[i]]@Polygons[[j]]@coords
-						baseLST[[newBaseId]][[newSubSubId]]$annotation<<-as.character(x@data[[1]][i])
-						baseLST[[newBaseId]][[newSubSubId]]$markerId<<-markerId$new(nrow(x@polygons[[i]]@Polygons[[j]]@coords))
-					}
-				}
-			} else if (inherits(x, "SpatialLinesDataFrame")) {
-				newBaseId=featureId$new()
-				baseLST[[newBaseId]]<<-list()
-				for (i in seq_along(x@lines)) {
-					newSubId=featureId$new()
-					for (j in seq_along(x@lines[[i]]@Lines)) {
-						newSubId=paste0("base_",newBaseId,"_",featureId$new())
-						baseLST[[newBaseId]][[newSubId]]<<-LINE$new(newSubId, parseOpts(list(baseDefaultOptions, list(color=baseColor(newSubId),fillcolor=baseColor(newSubId)))))
-						baseLST[[newBaseId]][[newSubId]]$coords<<-x@lines[[i]]@Lines[[j]]@coords
-						baseLST[[newBaseId]][[newSubId]]$annotation<<-as.character(x@data[[1]][i])
-						baseLST[[newBaseId]][[newSubId]]$markerId<<-markerId$new(nrow(x@lines[[i]]@Lines[[j]]@coords))
-					}
-				}
-			} else if (inherits(x, "SpatialPointsDataFrame")) {
-				newBaseId=featureId$new()
-				baseLST[[newBaseId]]<<-list()
-				for (i in seq_len(nrow(x@coords))) {
-					newSubId=paste0("base_",newBaseId,"_",featureId$new())
-					baseLST[[newBaseId]][[newSubId]]<<-POINT$new(newSubSubId, parseOpts(list(baseDefaultOptions, list(color=featureColor(newSubId),fillcolor=featureColor(newSubId)))))
-					baseLST[[newBaseId]][[newSubId]]$coords<<-x@coords[i,,drop=FALSE]
-					baseLST[[newBaseId]][[newSubId]]$annotation<<-as.character(x@data[[1]][i])
-					baseLST[[newBaseId]][[newSubId]]$markerId<<-markerId$new()
-				}
-			}
-		},
-		reset=function() {
-			x=c('session$sendCustomMessage(\"set_cursor\",list(cursor=\"reset\", scope=\"all\"))')
-			if (activeId!="-9999") {
-				if (tool==1)
-					x=deselectLayer()
-				if (tool %in% 2:5)
-					x=stopEditFeature()
-				activeId<<- "-9999"
-			}
-			if (tool==1) {
-				x=c(x,
-					
-					'session$sendInputMessage("annotationTxt", list(value=""))',
-					'updateButton(session, "toolBtn6", disabled=TRUE)',
-					'session$sendCustomMessage(\"disable_button\",list(btn=\"annotationTxt\"))'
-				)
-			}
-			if (length(x)>0) {
-				return(x)
-			} else {
-				return("")
-			}
-		},
-		plotBase=function(Id) {
-			return(sapply(baseLST[[as.character(Id)]], function(x) {
-				return(x$plot())
-			}))
-		},
-		removeBase=function(Id) {
-			return(sapply(baseLST[[as.character(Id)]], function(x) {
-				return(x$remove())
-			}))
-		},
-		removeFeature=function(Id) {
-			Id=as.character(Id)
-			x=featureLST[[Id]]$remove()
-			featureLST<<-featureLST[which(names(featureLST)!=Id)]
-			return(x)
-		},
-		selectFeature=function(Id) {
-			activeId<<-as.character(Id)
-			return(c(
-				featureLST[[activeId]]$plot(highlight=selectCol),
-				featureLST[[activeId]]$addAnnotation()
-			))
-		},
-		deselectFeature=function() {
-			return(c(
-				featureLST[[activeId]]$removeAnnotation(),
-				featureLST[[activeId]]$plot())
+		newFeature=function(id, json) {
+			json=RJSONIO::fromJSON(json)
+			switch(json$geometry$type,
+				"Point"={newPoint(as.character(id), json)},
+				"LineString"={newLineString(as.character(id), json)},
+				"Polygon"={newPolygon(as.character(id), json)}
 			)
 		},
-		startEditFeature=function(Id) {
-			activeId<<-as.character(Id)
-			return(c(
-				featureLST[[activeId]]$plot(highlight=editCol),
-				featureLST[[activeId]]$addAllMarkers()
-			))
+		updateFeature=function(id, json) {
+			features[[as.character(id)]]$update(RJSONIO::fromJSON(json))
 		},
-		stopEditFeature=function() {
-			return(c(
-				featureLST[[activeId]]$removeAllMarkers(),
-				featureLST[[activeId]]$plot()
-			))
+		deleteFeature=function(id) {
+			features<<-features[setdiff(names(features),id)]
 		},
-		plotFeature=function(Id, highlight=NULL) {
-			return(featureLST[[as.character(Id)]]$plot(highlight))
+		newPoint=function(id, jsonlst) {
+			features[[id]]<<-POINT$new(id, jsonlst)
 		},
-		plotAllFeatures=function() {
-			currCol=NULL
-			if (tool==1)
-				currCol=selectCol
-			if (tool %in% 2:5)
-				currCol=editCol
-			return(sapply(featureLST, function(x) {
-				if (x$featureId==activeId) {
-					return(x$plot(currCol))
-				} else {
-					return(x$plot(NULL))
-				}
-			}))
+		newLineString=function(id, jsonlst) {
+			features[[id]]<<-LINESTRING$new(id, jsonlst)
 		},
-		removeAllFeatures=function() {
-			return(sapply(featureLST, function(x) {
-				return(x$remove())
-			}))
+		newPolygon=function(id, jsonlst) {
+			features[[id]]<<-POLYGON$new(id, jsonlst)
 		},
-		selectLayer=function(Id) {
-			if (grepl("base_",Id) | grepl("sub_",Id)) {
-				return(selectBase(Id))
-			} else {
-				return(selectFeature(Id))
-			}
+		newMultiPoint=function() {
+			return()
 		},
-		deselectLayer=function() {
-			if (grepl("base_",activeId)) {
-				return(deselectBase())
-			} else {
-				return(deselectFeature())
-			}
+		newMultiLine=function() {
+			return()		
 		},
-		selectBase=function(Id) {
-			activeId<<-as.character(Id)
-			return(c(
-				baseLST[[strsplit(activeId, "_")[[1]][[2]]]][[activeId]]$plot(highlight=selectCol),
-				baseLST[[strsplit(activeId, "_")[[1]][[2]]]][[activeId]]$addAnnotation()
-			))
+		newMultiPolygon=function() {
+			return()
 		},
-		deselectBase=function() {
-			return(c(
-				baseLST[[strsplit(activeId, "_")[[1]][[2]]]][[activeId]]$removeAnnotation(),
-				baseLST[[strsplit(activeId, "_")[[1]][[2]]]][[activeId]]$plot()
-			))
-		},
-		
-		addCoordinate=function(Id, coord) {
-			newCoordId=markerId$new()
-			featureLST[[as.character(Id)]]$addCoordinate(coord, newCoordId)
-			featureLST[[as.character(Id)]]$addMarker(newCoordId)
-		},
-		removeCoordinate=function(Id, coordId) {
-			featureLST[[as.character(Id)]]$removeCoordinate(coordId)
-			featureLST[[as.character(Id)]]$removeMarker(coordId)
-		},
-		addAnnotation=function(Id, text) {
-			featureLST[[as.character(Id)]]$annotation<<-sanitise(text)
+		reset=function() {
+			features<<-list()
 		},
 		download=function() {
 			## prepare directories
@@ -217,7 +53,7 @@ TOC = setRefClass("TOC",
 			zipPTH=file.path("www","exports",userId,"zip","spatialdata.zip")
 			
 			## export data
-			saveSpatialData(featureLST,file.path("www","exports",userId,"data",userId),NULL)
+			saveSpatialData(features,file.path("www","exports",userId,"data",userId),NULL)
 
 			# generate zip file
 			if (file.exists(zipPTH))
@@ -230,7 +66,7 @@ TOC = setRefClass("TOC",
 		
 		export=function(firstname, lastname, emailaddress, emailtxt) {
 			## test if email settings loaded
-			if (length(emailOptions)==0) {
+			if (length(email)==0) {
 				stop("Email settings failed to load. You cannot send emails!")
 			}
 			## replace emailTxt with NA if NULL
@@ -241,11 +77,11 @@ TOC = setRefClass("TOC",
 			# generate a user id
 			makeDirs(emailaddress)
 			userId=generateUserId(file.path("www","exports",emailaddress,"data"))
-			dir.create(file.path("www","exports",emailaddress,"data",userId), showWarnings=FALSE)			
+			dir.create(file.path("www","exports",emailaddress,"data",userId), showWarnings=FALSE)		
 			zipPTH=file.path("www","exports",emailaddress,"zip","spatialdata.zip")
 			
 			## export data
-			saveSpatialData(featureLST,file.path("www","exports",emailaddress,"data",userId),c("firstname"=firstname,"lastname"=lastname, "message"=emailtxt))			
+			saveSpatialData(features,file.path("www","exports",emailaddress,"data",userId),c("firstname"=firstname,"lastname"=lastname, "message"=emailtxt))			
 			
 			# load spatial objects and combine them
 			for (i in c("Point", "LineString", "Polygon")) {
@@ -308,27 +144,31 @@ parseFortune(fortune())
 
 ")
 ,
-				smtp = emailOptions,
+				smtp = email,
 				authenticate = TRUE,
 				send = TRUE
 			)
 		},
 		garbageCleaner=function() {
-			if (length(featureLST)>0) {
-				featureLST<<-featureLST[which(sapply(featureLST, function(x) {
-					return(nrow(x$coords)>0)
+			memoryGarbageCleaner()
+			diskGarbageCleaner()
+		},
+		memoryGarbageCleaner=function() {
+			if (length(features)>0) {
+				features<<-features[which(sapply(features, function(x) {
+					return(nrow(x$.coords)>0)
 				}))]
 			}
 		},
-		removeOldFiles=function() {
+		diskGarbageCleaner=function() {
 			# get date modified info for dirs
-			dirVEC=setdiff(list.dirs(file.path("www","exports"),recursive=FALSE), emailWhiteList)
-			if (length(dirVEC)>0) {
+			dirs=setdiff(list.dirs(file.path("www","exports"),recursive=FALSE), emailWhiteList)
+			if (length(dirs)>0) {
 				# get modified date times for dirs
-				dirVEC=dirVEC[which(difftime(Sys.time(),file.info(dirVEC)$mtime,units="days")>fileExpiry)]
+				dirs=dirs[which(difftime(Sys.time(),file.info(dirs)$mtime,units="days")>fileExpiry)]
 				# delete dirs that haven't been modified in a while
-				if (length(dirVEC)>0) {
-					unlink(dirVEC, recursive=TRUE)
+				if (length(dirs)>0) {
+					unlink(dirs, recursive=TRUE)
 				}
 			}
 		}
@@ -337,30 +177,10 @@ parseFortune(fortune())
 
 # feature class
 FEATURE=setRefClass("FEATURE",
-	fields=list(featureId="character", markerId="character", coords="matrix", annotation="character", type="character", options="list"),
+	fields=list(.id="character", .annotation="character", .coords="matrix"),
 	methods=list(
-		addMarker=function(Id) {
-			return(paste0("map$addMarker(", coords[which(markerId==Id),2] , ",", coords[which(markerId==Id),1], ",'marker_", Id, "')"))
-		},
-		addAllMarkers=function(Id) {
-			return(paste0("map$addMarker(", coords[,2] , ",", coords[,1], ",'marker_", markerId, "')"))
-		},
-		removeMarker=function(Id) {
-			return(paste0("map$removeMarker('marker_", Id, "')"))
-		},
-		removeAllMarkers=function() {
-			return(paste0("map$removeMarker('marker_", markerId, "')"))
-		},
-		removeAnnotation=function() {
-			return(paste0("map$removePopup('popup_", featureId, "')"))
-		},
-		addCoordinate=function(coord, Id) {
-			coords<<-rbind(coords, coord)
-			markerId<<-c(markerId, Id)
-		},
-		removeCoordinate=function(Id) {
-			coords<<-coords[which(markerId!=Id),,drop=FALSE]
-			markerId<<-markerId[which(markerId!=Id)]
+		update=function(jsonlst) {
+			.coords<<-matrix(.Internal(unlist(jsonlst$geometry$coordinates[[1]], FALSE, FALSE)),ncol=2,byrow=TRUE)	
 		}
 	)
 )
@@ -368,66 +188,55 @@ FEATURE=setRefClass("FEATURE",
 POINT=setRefClass("POINT",
 	contains="FEATURE",
 	methods=list(
-		initialize=function(Id, options) {
-			featureId<<-Id
-			coords<<-matrix(nrow=0, ncol=2)
-			annotation<<-"NA"
-			type<<-"Point"
-			options<<-options
-		},	
-		remove=function() {
-			return(paste0("map$removeMarker('",featureId, "')"))
+		initialize=function(id,jsonlst=NULL) {
+			.id<<-id
+			.coords<<-matrix(nrow=0, ncol=2)
+			.annotation<<-""
+			if (!is.null(jsonlst))
+				update(jsonlst)
 		},
-		plot=function(highlight=FALSE) {
-			currOpts=options
-			if (!is.null(highlight))
-				currOpts$color=highlight
-			currArgs=paste0("list(",paste(paste0('"',names(currOpts),'"', '="', unlist(currOpts, use.names=FALSE), '"'), collapse=","),")")
-			return(paste0("map$addCircleMarker(", coords[,2], ", ", coords[,1],", 5, ", featureId, ", options=",currArgs,")"))
+		toGeoJSON=function() {
+			return(paste0(
+			   '{"type":"Feature",
+				"properties":{},
+				"geometry":{"type":"LineString","coordinates":  ',xyjson,' }
+				}
+			'))		
 		},
-		addAnnotation=function() {
-			return(paste0("map$showPopup(",
-				coords[,2],",",coords[,1],
-				",content='",annotation,
-				"',layerId='popup_",featureId,"')"))
-		}		
+		toSp=function() {
+			return(SpatialPointsDataFrame(coords=.coords, data=data.frame(id=.id,annotation=.annotation, row.names=.id), proj4stirng=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")))
+		}
 	)
 )
 
-LINE=setRefClass("LINE",
+LINESTRING=setRefClass("LINESTRING",
 	contains="FEATURE",
 	methods=list(
-		initialize=function(Id, options) {
-			featureId<<-Id
-			coords<<-matrix(nrow=0, ncol=2)
-			annotation<<-"NA"
-			type<<-"LineString"
-			options<<-options
-		},		
-		remove=function() {
-			return(paste0("map$removeGeoJSON('", featureId, "')"))
+		initialize=function(id,jsonlst=NULL) {
+			.id<<-id
+			.coords<<-matrix(nrow=0, ncol=2)
+			.annotation<<-""
+			if (!is.null(jsonlst))
+				update(jsonlst)
 		},
-		plot=function(highlight=NULL) {
-			xyjson = RJSONIO::toJSON(coords)
-			currOpts=options
-			if (!is.null(highlight))
-				currOpts$color=highlight
-			jsonX = RJSONIO::fromJSON(paste0(
+		toGeoJSON=function() {
+			return(paste0(
 			   '{"type":"Feature",
-				"properties":{"region_id":1, "region_name":"My Region"},
-				"geometry":{"type":"LineString","coordinates":  ',xyjson,' },
-				',list2json('"style":',currOpts),'
+				"properties":{},
+				"geometry":{"type":"LineString","coordinates":  ',xyjson,' }
 				}
-			'
-			))
-			return(paste0("map$addGeoJSON(",paste(deparse(jsonX), collapse=""),", '", featureId, "')"))
+			'))	
 		},
-		addAnnotation=function() {
-			pos=ceiling(nrow(coords)/2)
-			return(paste0("map$showPopup(",
-				coords[pos,2],",",coords[pos,1],
-				",content='",annotation,
-				"',layerId='popup_",featureId,"')"))
+		toSp=function() {
+			return(
+				SpatialLinesDataFrame(
+					sl=SpatialLines(
+						list(Lines(list(Line(.coords)), .id)),
+						proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")
+					),
+					data=data.frame(id=.id, annotation=.annotation, row.names=.id)
+				)
+			)
 		}
 	)
 )
@@ -435,58 +244,32 @@ LINE=setRefClass("LINE",
 POLYGON=setRefClass("POLYGON",
 	contains="FEATURE",
 	methods=list(
-		initialize=function(Id, options) {
-			featureId<<-Id
-			coords<<-matrix(nrow=0, ncol=2)
-			annotation<<-"NA"
-			type<<-"Polygon"
-			options<<-options
+		initialize=function(id,jsonlst=NULL) {
+			.id<<-id
+			.coords<<-matrix(nrow=0, ncol=2)
+			.annotation<<-""
+			if (!is.null(jsonlst))
+				update(jsonlst)
 		},
-		remove=function() {
-			return(paste0("map$removeGeoJSON('", featureId, "')"))
-		},
-		plot=function(highlight=NULL) {
-			xyjson = RJSONIO::toJSON(matrix(as.character(c(coords[,1], coords[,2], markerId)), ncol=3))
-			currOpts=options
-			if (!is.null(highlight))
-				currOpts$color=highlight
-			jsonX = RJSONIO::fromJSON(paste0(
+		toGeoJSON=function() {
+			return(paste0(
 			   '{"type":"Feature",
-				 "properties":{"region_id":1, "region_name":"My Region"},
-				 "geometry":{"type":"Polygon","coordinates": [ ',xyjson,' ]},
-				 ',list2json('"style":',currOpts),'
+				"properties":{},
+				"geometry":{"type":"Polygon","coordinates":  ',xyjson,' }
 				}
-				'
-			))
-			return(paste0("map$addGeoJSON(",paste(deparse(jsonX), collapse=""),", '", featureId, "')"))
+			'))
 		},
-		addAnnotation=function() {
-			return(paste0("map$showPopup(",
-				mean(coords[,2],na.rm=TRUE),",",mean(coords[,1],an.rm=TRUE),
-				",content='",annotation,
-				"',layerId='popup_",featureId,"')"))
-		}		
-	)
-)
-
-# geocoding class
-GEOCODE=setRefClass("GEOCODE",
-	fields=list(cache="list"),
-	methods=list(
-		initialize=function() {
-			cache<<-list()
-		},
-		find=function(place) {
-			place=tolower(place)
-			pos=which(names(cache)==place)
-			if (length(pos)==0) {
-				ret=geocode.google(place)
-				cache[[place]]<<-ret
-				return(ret)
-			} else {
-				return(cache[[pos]])
-			}
+		toSp=function() {
+			return(
+				SpatialPolygonsDataFrame(
+					Sr=SpatialPolygons(
+						list(Polygons(list(Polygon(.coords)), .id)),
+						proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")
+					),
+					data=data.frame(id=.id, annotation=.annotation, row.names=.id)
+				)
+			)
 		}
 	)
 )
-	
+

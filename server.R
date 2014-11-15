@@ -13,19 +13,15 @@ bindEvent <- function(eventExpr, callback, env=parent.frame(), quoted=FALSE) {
 
 ### shiny server function
 shinyServer(function(input, output, session) {
-	### initialization
+	## initialization
 	# prepare toc
 	map=createLeafletMap(session, 'map')
 	toc=TOC$new()
-	for (i in seq_along(baselayers)) {
-		toc$newBase(baselayers[[i]])
-	}
 	if (!inherits(emailDF, "try-error")) {
-		toc$emailOptions=list(host.name=emailDF$host.name, port=emailDF$port, user.name=emailDF$user.name, passwd=emailDF$password, ssl=TRUE)
+		toc$email=list(host.name=emailDF$host.name, port=emailDF$port, user.name=emailDF$user.name, passwd=emailDF$password, ssl=TRUE)
 	} else {
 		warning("File containing email details failed to load, check \"emailDF\" in global.R")
 	}
-	session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('disabled',true)"))	
 	# get program arguments and execute startup parameters
 	toc$args=parseQueryString(isolate(session$clientData$url_search))
 	session$onFlushed(once=TRUE, function() {
@@ -34,409 +30,95 @@ shinyServer(function(input, output, session) {
 				map$setView(as.numeric(toc$args$lat), as.numeric(toc$args$lng), as.numeric(toc$args$zoom), FALSE)
 			}
 		}
-	})
-	# set clean
-	session$sendCustomMessage("page_state",list(type="clean"))
-
-	# baselayer select widget
-	vec=c("-9999", names(toc$baseLST))
-	names(vec)=c("None",names(baselayers))
-	updateDropDown(session, "baseSel", label="Base Layer", choices=vec)
-		
-	### observers
-	## baselayer observer
-	observe({
-		Id=input$baseSel
-		if (is.null(Id))
-			return()
-		isolate({		
-			# remove basemap
-			if (toc$activeBaseId!="-9999") {
-				eval(parse(text=toc$removeBase(toc$activeBaseId)))
-			}
-			# add new basemap
-			toc$activeBaseId<<-Id
-			if (Id!="-9999") {
-				eval(parse(text=toc$plotBase(Id)))
-			}
-			# replot features
-			toc$removeAllFeatures()
-			toc$plotAllFeatures()
-		})
-	})
-	## map click button observer
-	observe({
-		if (input$toolBtn1==0)
-			return()
-		isolate({
-			# reset
-			eval(parse(text=toc$reset()))
-			# reset previous tool button
-			suppressWarnings(updateButton(session, paste0("toolBtn",toc$tool), style="inverse"))
-			# highlight current tool button
-			updateButton(session, "toolBtn1", style="primary")
-			# set tool
-			toc$tool<<-1
-			# set cursor
-			session$sendCustomMessage("set_cursor",list(cursor="hand", scope="map"))
-
-		})
-	})
-	# add point button observer
-	observe({
-		if (input$toolBtn2==0)
-			return()
-		isolate({
-			# reset
-			eval(parse(text=toc$reset()))
-			# reset previous tool button
-			suppressWarnings(updateButton(session, paste0("toolBtn",toc$tool), style="inverse"))
-			# highlight current tool button
-			updateButton(session, "toolBtn2", style = "primary")
-			# set tool
-			toc$tool<<-2
-			# set cursor
-			session$sendCustomMessage("set_cursor",list(cursor="crosshair", scope="map"))
-		})
-	})
-	# add line button observer
-	observe({
-		if (input$toolBtn3==0)
-			return()
-		isolate({
-			# reset
-			eval(parse(text=toc$reset())) 
-			# reset previous tool button
-			suppressWarnings(updateButton(session, paste0("toolBtn",toc$tool), style="inverse"))
-			# highlight current tool button
-			updateButton(session, "toolBtn3", style = "primary")
-			# set tool
-			toc$tool<<-3
-			# set cursor
-			session$sendCustomMessage("set_cursor",list(cursor="crosshair", scope="map"))
-			# make new line 
-			toc$newLine()
-		})
-	})
-	# add polygon button observer
-	observe({
-		if (input$toolBtn4==0)
-			return()
-		isolate({
-			# reset
-			eval(parse(text=toc$reset()))
-			# reset previous tool button
-			suppressWarnings(updateButton(session, paste0("toolBtn",toc$tool), style="inverse"))
-			# highlight current tool button
-			updateButton(session, "toolBtn4", style = "primary")
-			# set tool
-			toc$tool<<-4
-			# make new polygon
-			toc$newPolygon()
-			# set cursor
-			session$sendCustomMessage("set_cursor",list(cursor="crosshair", scope="map"))
-		})
-	})
-	# edit button observer
-	observe({
-		if (input$toolBtn5==0)
-			return()
-		isolate({
-			# reset
-			eval(parse(text=toc$reset()))
-			# reset previous tool button
-			suppressWarnings(updateButton(session, paste0("toolBtn",toc$tool), style="inverse"))
-			# highlight current tool button
-			updateButton(session, "toolBtn5", style = "primary")
-			# set status
-			toc$tool<<-5
-		})
-	})
-	# annotate text input observer 
-	observe({
-		if (nchar(input$annotationTxt)>0 & toc$tool==1) {
-			isolate({
-				# update annotation
-				toc$addAnnotation(toc$activeId,input$annotationTxt)			
-				# update popup
-				eval(parse(text=toc$featureLST[[toc$activeId]]$addAnnotation()))
+		if (!is.null(toc$args$firstname) & !is.null(toc$args$lastname) & !is.null(toc$args$emailaddress)) {
+			# set auto_send variable
+			session$sendCustomMessage("update_var",list(var="auto_send", val="true"))
+			# set app to automatically send email on close if details are supplied
+			session$onSessionEnded(function() {			
+				toc$garbageCleaner()
+				try(toc$export(toc$args$firstname, toc$args$lastname, toc$args$emailaddress, toc$args$message))			
 			})
 		}
 	})
-	# geocode text input observer
+	# set clean
+	session$sendCustomMessage("update_var",list(var="is_dirty", val="false"))
+	
+	## new feature
 	observe({
-		if (input$geocodeTxt=="")
+		if (is.null(input$map_create))
 			return()
 		isolate({
-			coords=try(extractCoordinates(sanitise(input$geocodeTxt)),silent=TRUE)
-			if (!inherits(coords,"try-error")) {
-				if (coords[1]<90 & coords[1]>-90 & coords[2]<180 & coords[2]>-180) {
-					map$setView(coords[1], coords[2], defaultZoom)
-					map$showPopup(coords[1], coords[2], input$geocodeTxt, "geocode_marker")
-				} else {
-					return()
-				}
-			} else {
-				ret=google$find(sanitise(input$geocodeTxt))
-				if (ret$status) {
-					map$fitBounds(ret$bbox[1], ret$bbox[4], ret$bbox[3], ret$bbox[2])
-					map$showPopup(ret$lat, ret$lng, ret$name, "geocode_marker")
-				}
-			}
+			toc$newFeature(input$map_create$id, input$map_create$geojson)
+			session$sendCustomMessage("update_var",list(var="is_dirty", val="true"))
 		})
 	})
 	
-	# remove button observer
+	## update existing features
 	observe({
-		if (input$toolBtn7==0)
+		if (is.null(input$map_edit))
 			return()
 		isolate({
-			# reset
-			eval(parse(text=toc$reset()))
-			# reset previous tool button
-			suppressWarnings(updateButton(session, paste0("toolBtn",toc$tool), style="inverse"))
-			# highlight current tool button
-			updateButton(session, "toolBtn7", style = "primary")
-			# set status
-			toc$tool<<-7
-			# set cursor
-			session$sendCustomMessage("set_cursor",list(cursor="remove", scope="map"))
+			for (i in seq_along(input$map_edit$list)) {
+				toc$updateFeature(input$map_edit$list[[i]]$id, input$map_edit$list[[i]]$geojson)
+			}
+			session$sendCustomMessage("update_var",list(var="is_dirty", val="true"))
 		})
 	})
 	
-	## select layer
-	# marker click
 	observe({
-		event = input$map_marker_click
-		if (is.null(event) | toc$tool!=1)
+		print("input$map_note")
+		print(input$map_note)
+	
+		if (is.null(input$map_note))
 			return()
 		isolate({
-			# reset
-			eval(parse(text=toc$reset()))
-			# select layer
-			eval(parse(text=toc$selectLayer(event$id)))
-			session$sendInputMessage("annotationTxt", list(value=toc$featureLST[[toc$activeId]]$annotation))
-			# update widgets
-			if (!grepl("base_",event$id)) {
-				updateButton(session, "toolBtn6", disabled=FALSE)
-				session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('disabled',false)"))
-				session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('readonly',false)"))
-			} else {
-				updateButton(session, "toolBtn6", disabled=TRUE)
-				session$sendInputMessage("annotationTxt", list(value=toc$baseLST[[strsplit(toc$activeId, "_")[[1]][[2]]]][[toc$activeId]]$annotation))
-				session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('disabled',true)"))	
-				session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('readonly',true)"))
-			}
-		})
-	})	
-	# geojson click
-	observe({
-		event = input$map_geojson_click
-		if (is.null(event) | toc$tool!=1)
-			return()
-		isolate({
-			# reset
-			eval(parse(text=toc$reset()))
-			if (!grepl("base_",event$id)) {
-				## if feature layer			
-				# add popup
-				eval(parse(text=toc$selectFeature(event$id)))
-				session$sendInputMessage("annotationTxt", list(value=toc$featureLST[[toc$activeId]]$annotation))
-				# enable annotation widgets
-				updateButton(session, "toolBtn6", disabled=FALSE)
-				session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('disabled',false)"))
-				session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('readonly',false)"))				
-			} else {
-				## if base layer
-				# add popup
-				eval(parse(text=toc$selectBase(event$id)))
-				session$sendInputMessage("annotationTxt", list(value=toc$baseLST[[strsplit(toc$activeId, "_")[[1]][[2]]]][[toc$activeId]]$annotation))
-				session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('disabled',true)"))	
-				session$sendCustomMessage(type="jsCode",list(code="$('#annotationTxt').prop('readonly',true)"))
-			}
-		})
-	})
-	## deselect layer
-	observe({
-		event=input$map_click
-		if (is.null(event) | toc$tool!=1)
-			return()
-		isolate({
-			# reset
-			eval(parse(text=toc$reset()))
+			x=1
 		})
 	})
 	
-	## edit layer observer
-	# add a coordinate on map click
 	observe({
-		event=input$map_click
-		if  (!(!is.null(event) & ((toc$tool %in% c(2:5) &  toc$activeId!="-9999") | (toc$tool==2))))
+		print("input$debug")
+		print(input$debug)
+	})
+	
+	## delete existing feature
+	observe({
+		if (is.null(input$map_delete))
 			return()
 		isolate({
-			#  create new feature if point
-			if (toc$tool==2) {
-				eval(parse(text=toc$reset()))
-				toc$newPoint()
+			for (i in seq_along(input$map_delete$id)) {
+				toc$deleteFeature(input$map_delete$id[[i]])
 			}
-			# add coordinate and marker
-			eval(parse(text=toc$addCoordinate(toc$activeId, c(event$lng, event$lat))))
-			# update feature
-			eval(parse(text=toc$plotFeature(toc$activeId, highlight=editCol)))
-			# set dirty
-			session$sendCustomMessage("page_state",list(type="dirty"))			
+			session$sendCustomMessage("update_var",list(var="is_dirty", val="true"))
 		})
 	})
 	
-	# add a coordinate on geojson click
+	## download data
 	observe({
-		event = input$map_geojson_click	
-		if (is.null(event) | grepl("base_",toc$activeId))
-			return()
-		if  (!((toc$tool %in% c(2:5) & toc$activeId!="-9999") | (toc$tool==2)))
+		if (is.null(input$downloadBtn))
 			return()
 		isolate({
-			#  create new feature if point
-			if (toc$tool==2) {
-				eval(parse(text=toc$reset()))
-				toc$newPoint()
-			}
-			# add coordinate and marker
-			eval(parse(text=toc$addCoordinate(toc$activeId, c(event$clicklng, event$clicklat))))
-			# update feature
-			eval(parse(text=toc$plotFeature(toc$activeId, highlight=editCol)))
-			# set dirty
-			session$sendCustomMessage("page_state",list(type="dirty"))
-			
-		})
-	})
-	
-	# remove a coordinate
-	observe({
-		event = input$map_marker_click
-		if (!is.null(event) & toc$tool %in% 2:5 & toc$activeId!="-9999") {
-			if (grepl("marker_", event$id) & !grepl("base_",event$id)) {
-				isolate({
-					# remove coordinate
-					eval(parse(text=toc$removeCoordinate(toc$activeId, sub("marker_","",event$id))))
-					if (toc$featureLST[[as.character(toc$activeId)]]$type=="Point") {
-						# if point remove point	
-						eval(parse(text=toc$removeFeature(toc$activeId)))
-						toc$activeId<<-"-9999"
-					} else {
-						# if line or polygon remove coordinate and marker
-						eval(parse(text=toc$plotFeature(toc$activeId, highlight=editCol)))
-					}
-					# set dirty
-					session$sendCustomMessage("page_state",list(type="dirty"))					
-				})
-			}
-		}
-	})
-	# start editing a point feature
-	observe({
-		event = input$map_marker_click
-		if (!is.null(event) & toc$tool==5 & toc$activeId=="-9999") {
-			if (!grepl("marker_", event$id) & !grepl("base_",event$id)) {
-				# select layer
-				isolate({
-					# select layer
-					eval(parse(text=toc$startEditFeature(event$id)))
-					# update feature
-					eval(parse(text=toc$plotFeature(event$id, highlight=editCol)))
-					# set cursor
-					session$sendCustomMessage("set_cursor",list(cursor="crosshair", scope="map"))
-					# set dirty
-					session$sendCustomMessage("page_state",list(type="dirty"))					
-				})
-			}
-		}
-	})
-	# start editing a polygon or line feature
-	observe({
-		event = input$map_geojson_click
-		if (!is.null(event) & toc$tool==5 & toc$activeId=="-9999") {
-			if(!grepl("base_",event$id)) {		
-				# select layer
-				isolate({
-					# select layer
-					eval(parse(text=toc$startEditFeature(event$id)))
-					# update feature
-					eval(parse(text=toc$plotFeature(event$id, highlight=editCol)))
-					# set cursor
-					session$sendCustomMessage("set_cursor",list(cursor="crosshair", scope="map"))
-				})
-			}
-		}
-	})
-
-	## remove layer observer
-	observe({
-		event = input$map_geojson_click
-		if (is.null(event))
-			event = input$map_marker_click
-		if (is.null(event) | toc$tool!=7)
-			return()
-		isolate({
-			if (!grepl("base_",event$id) & !grepl("base_",toc$activeId)) {
-				# update polygons
-				eval(parse(text=toc$removeFeature(as.character(event$id))))
-				# set dirty
-				session$sendCustomMessage("page_state",list(type="dirty"))				
-			}
-		})
-	})
-
-	## download button observer
-	observe({
-		if (input$downloadBtn==0)
-			return()
-		isolate({
-			# init
-			session$sendCustomMessage("disable_button",list(btn="downloadBtn"))
-			session$sendCustomMessage("set_cursor",list(cursor="wait", scope="all"))
-			alert=NULL
-			if (toc$activeId!="-9999") {
-				eval(parse(text=toc$stopEditFeature()))
-			}
 			toc$garbageCleaner()
-			toc$removeOldFiles()
-		
-			# main
-			if (length(toc$featureLST)>0) {
-				session$sendCustomMessage("download_file",list(message=toc$download()))
-			}
-			
-			# update button
-			session$sendCustomMessage("enable_button",list(btn="downloadBtn"))
-			session$sendCustomMessage("set_cursor",list(cursor="reset", scope="all"))
-			# set clean
-			session$sendCustomMessage("page_state",list(type="clean"))
+			session$sendCustomMessage("download_file",list(message=toc$download()))
+			session$sendCustomMessage("update_var",list(var="is_dirty", val="false"))
 		})
 	})
 	
 	## email button observer
 	observe({
-		if (input$emailBtn==0)
+		if (is.null(input$emailBtn))
 			return()
 		isolate({
-			### if custom email supplied
+			# if custom email supplied
 			session$sendCustomMessage("set_cursor",list(cursor="wait", scope="all"))
 			if (!is.null(toc$args$firstname) & !is.null(toc$args$lastname) & !is.null(toc$args$emailaddress)) {
 				# init
 				session$sendCustomMessage("disable_button",list(btn="emailBtn"))
-				alert=NULL
-				if (toc$activeId!="-9999") {
-					eval(parse(text=toc$stopEditFeature()))
-				}
 				toc$garbageCleaner()
-				toc$removeOldFiles()
-			
 				# main
-				if ((!toc$args$emailaddress %in% emailBlockList) & length(toc$featureLST)>0) {
+				if ((!toc$args$emailaddress %in% emailBlockList) & length(toc$features)>0) {
 					try(toc$export(toc$args$firstname, toc$args$lastname, toc$args$emailaddress, toc$args$message))
 				}
-				
 				# post
 				session$sendCustomMessage("enable_button",list(btn="emailBtn"))		 		 
 			} else {
@@ -445,11 +127,11 @@ shinyServer(function(input, output, session) {
 			# update buttons
 			session$sendCustomMessage("set_cursor",list(cursor="reset", scope="all"))
 			# set clean
-			session$sendCustomMessage("page_state",list(type="clean"))
+			session$sendCustomMessage("update_var",list(var="is_dirty", val="false"))
 		})
-	})
-
-	## send email button observer
+	})	
+	
+	## send email
 	observe({
 		if (input$sendEmailBtn==0)
 			return()
@@ -458,15 +140,10 @@ shinyServer(function(input, output, session) {
 			session$sendCustomMessage("disable_button",list(btn="sendEmailBtn"))
 			session$sendCustomMessage("set_cursor",list(cursor="wait", scope="all"))
 			alert=NULL
-			if (toc$activeId!="-9999") {
-				eval(parse(text=toc$stopEditFeature()))
-			}
 			toc$garbageCleaner()
-			toc$removeOldFiles()
-			
 			# main
 			x=list("First Name"=input$firstName, "Last Name"=input$lastName, "Email Address"=input$emailAddress)
-			if (length(toc$featureLST)==0) {
+			if (length(toc$features)==0) {
 				alert=list(text="No spatial data!",type="danger")
 			} else {
 				if (input$emailAddress %in% emailBlockList) {
@@ -500,7 +177,7 @@ shinyServer(function(input, output, session) {
 			session$sendCustomMessage("enable_button",list(btn="sendEmailBtn"))
 			session$sendCustomMessage("set_cursor",list(cursor="reset", scope="all"))
 			# set clean
-			session$sendCustomMessage("page_state",list(type="clean"))
+			session$sendCustomMessage("update_var",list(var="is_dirty", val="false"))
 		})
 	})
 })

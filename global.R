@@ -107,43 +107,6 @@ sanitise=function(x) {
 	return(x)
 }
 
-geocode.google=function(placename) {
-	# get data from google
-	doc=try(RCurl::getURL(paste0("https://maps.google.com/maps/api/geocode/", "json", "?address=", gsub(" ", "%20", placename, fixed=TRUE), "&sensor=", "false")),silent=TRUE)
-	if (inherits(doc, "try-error"))
-		doc=try(RCurl::getURL(paste0("http://maps.google.com/maps/api/geocode/", "json", "?address=", gsub(" ", "%20", placename, fixed=TRUE), "&sensor=", "false")),silent=TRUE)
-	if (!inherits(doc, "try-error")) {
-		# parse response
-		json=RJSONIO::fromJSON(doc, simplify=FALSE)
-		if (json$status=="OK")  {
-			return(
-				list(
-					lat=json$results[[1]]$geometry$location$lat,
-					lng=json$results[[1]]$geometry$location$lng,
-					name=json$results[[1]]$formatted_address,
-					bbox=c(
-						json$results[[1]]$geometry$bounds$northeast$lat,
-						json$results[[1]]$geometry$bounds$northeast$lng,
-						json$results[[1]]$geometry$bounds$southwest$lat,
-						json$results[[1]]$geometry$bounds$southwest$lng
-					),
-					status=TRUE
-				)
-			)
-		} else {
-			return(list(lat=NA, lng=NA, name=NA, bbox=NA, status=FALSE))
-		}
-	} else {
-		return(list(lat=NA, lng=NA, name=NA, bbox=NA, status=FALSE))
-	}
-	
-	
-}
-
-extractCoordinates=function(x) {
-	splt=strsplit(gsub(" ", "", gsub("[a-zA-Z]","",x), fixed=TRUE), ",")
-	return(as.numeric(c(splt[[1]][[1]], splt[[1]][[2]])))
-}
 
 generateUserId=function(x) {
 	userId=paste0("user_",sample(1e+10,1))
@@ -162,18 +125,19 @@ makeDirs=function(dname) {
 	dir.create(file.path("www/exports",dname,"data"), showWarnings=FALSE)
 }
 
-saveSpatialData=function(featureLST, expDir, attrVEC) {
+saveSpatialData=function(features, expDir, info) {
 	# generate nested list of objects
-	tempLST=list(Point=list(), LineString=list(), Polygon=list())
-	for (i in seq_along(featureLST)) {
-		tempLST[[featureLST[[i]]$type]][[length(tempLST[[featureLST[[i]]$type]])+1]] = featureLST[[i]]
-	}
+	save(features, file="debug/data.RDATA")
+	tempLST=list(POINT=list(), LINESTRING=list(), POLYGON=list())
+	for (i in seq_along(features))
+		tempLST[[class(features[[i]])]][[length(tempLST[[class(features[[i]])]])+1]] = features[[i]]$toSp()
+	
 	# save spatial objects
 	for (i in seq_along(tempLST)) {
 		if (length(tempLST[[i]])>0) {
-			currSp=do.call(paste0(names(tempLST)[i],"ToSp"), list(tempLST[[i]]))
-			for (j in seq_along(attrVEC))
-				currSp@data[[names(attrVEC)[j]]]=attrVEC[[j]]
+			currSp=do.call(rbind, tempLST[[i]])
+			for (j in seq_along(info))
+				currSp@data[[names(info)[j]]]=info[[j]]
 			currSp@data$created	= as.character(format(Sys.time(), tz="Australia/Brisbane"))
 			writeOGR(
 				currSp,
@@ -224,66 +188,41 @@ list2json=function(prefix,lst) {
 	}
 }
 
-# spatial functions
-PointToSp=function(x) {
-	# prepare data
-	tempLST=list(id=numeric(0), coords=numeric(0), annotation=character(0))
-	for (i in seq_along(x)) {
-		if (nrow(x[[i]]$coords)>0) {
-			tempLST$id = c(tempLST$id, rep(x[[i]]$featureId, nrow(x[[i]]$coords)))
-			tempLST$annotation = c(tempLST$annotation, rep(x[[i]]$featureId, nrow(x[[i]]$coords)))
-			tempLST$coords = rbind(tempLST$coords, x[[i]]$coords, deparse.level=0)
-		}
-	}
-	class(tempLST$coords)="numeric"
-	rownames(tempLST$coords)=seq_len(nrow(tempLST$coords))
-	# convert to sp class
-	return(SpatialPointsDataFrame(
-		coords=tempLST$coords,
-		data=data.frame(id=tempLST$id, annotation=tempLST$annotation),
-		proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")
-	))
+# sp functions
+rbind.SpatialLinesDataFrame=function (..., fix.duplicated.IDs = TRUE) {
+    dots <- as.list(substitute(list(...)))[-1L]
+    dots_names <- as.character(dots)
+    dots <- lapply(dots, eval)
+    names(dots) <- NULL
+    IDs_list <- lapply(dots, IDs)
+    dups.sel <- duplicated(unlist(IDs_list))
+    if (any(dups.sel)) {
+        if (fix.duplicated.IDs) {
+            dups <- unique(unlist(IDs_list)[dups.sel])
+            fixIDs <- function(x, prefix, badIDs) {
+                sel <- IDs(x) %in% badIDs
+                IDs(x)[sel] <- paste(prefix, IDs(x)[sel], sep = ".")
+                x
+            }
+            dots <- mapply(FUN = fixIDs, dots, dots_names, MoreArgs = list(badIDs = dups))
+        }
+        else {
+            stop("There are duplicated IDs, and fix.duplicated.IDs is not TRUE.")
+        }
+    }
+    else {
+        broken_IDs <- vapply(dots, function(x) all(IDs(x) != 
+            rownames(x@data)), FALSE)
+        if (any(broken_IDs)) {
+            for (i in which(broken_IDs)) {
+                rownames(dots[[i]]@data) <- IDs(dots[[i]])
+            }
+        }
+    }
+    pl = do.call("rbind", lapply(dots, function(x) as(x, "SpatialLines")))
+    df = do.call("rbind", lapply(dots, function(x) x@data))
+    sp::SpatialLinesDataFrame(pl, df)
 }
 
-LineStringToSp=function(x) {
-	tempLST=list()
-	ids=c()
-	annotations=c()
-	for (i in seq_along(x)) {
-		if (nrow(x[[i]]$coords)>0) {
-			tempLST[[length(tempLST)+1]]=Lines(list(Line(x[[i]]$coords)), x[[i]]$featureId)
-			ids[length(ids)+1]=x[[i]]$featureId
-			annotations[length(annotations)+1]=x[[i]]$annotation
-		}
-	}
-	return(SpatialLinesDataFrame(
-		sl=SpatialLines(tempLST, proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")),
-		data=data.frame(
-			id=ids,
-			annotation=annotations,
-			row.names=ids
-		)
-	))
-}
 
-PolygonToSp=function(x) {
-	tempLST=list()
-	ids=c()
-	annotations=c()
-	for (i in seq_along(x)) {
-		if (nrow(x[[i]]$coords)>0) {
-			tempLST[[length(tempLST)+1]]=Polygons(list(Polygon(x[[i]]$coords[c(seq_len(nrow(x[[i]]$coords)),1),])), x[[i]]$featureId)
-			ids[length(ids)+1]=x[[i]]$featureId
-			annotations[length(annotations)+1]=x[[i]]$annotation
-		}
-	}
-	return(SpatialPolygonsDataFrame(
-		Sr=SpatialPolygons(tempLST, proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")),
-		data=data.frame(
-			id=ids,
-			annotation=annotations,
-			row.names=ids
-		)
-	))
-}
 

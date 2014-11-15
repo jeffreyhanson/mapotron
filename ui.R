@@ -2,34 +2,6 @@ library(leaflet)
 library(ShinyDash)
 
 shinyUI(basicPage(
-	# navbar
-	bsNavBar2("navBar", "brandBtn", brand="Mapotron", inverse=TRUE, fixed=TRUE,
-		bsNavDropDown("baseSel", label="Base Layer", choices=c("None"="-9999")),
-		suppressWarnings(bsActionButton("toolBtn1", img(src="icons/toolBtn1_white.png", height=20, width=20), style="primary")),
-		tagList(
-			div(style="display:inline-block; position: relative; top: 6px; bottom: 0; left: 0; right 0; padding: 0;",
-				tags$input(id = "annotationTxt", type="text", value="", class="enterTextInput")
-			)
-		),
-		suppressWarnings(bsActionButton("toolBtn2", img(src="icons/toolBtn2_white.png", height=20, width=20), style="inverse")),
-		suppressWarnings(bsActionButton("toolBtn3", img(src="icons/toolBtn3_white.png", height=20, width=20), style="inverse")),
-		suppressWarnings(bsActionButton("toolBtn4", img(src="icons/toolBtn4_white.png", height=20, width=20), style="inverse")),
-		bsNavDivider(),
-		suppressWarnings(bsActionButton("toolBtn5", img(src="icons/toolBtn5_white.png", height=20, width=20), style="inverse")),
-		suppressWarnings(bsActionButton("toolBtn7", img(src="icons/toolBtn7_white.png", height=20, width=20), style="inverse")),
-		rightItems=list(
-			tagList(div(style="display:inline-block; position: relative; top: 3px; color: #999; font-size:130%;", tags$p("Take me to "))),
-			tagList(
-				div(style="display:inline-block; position: relative; top: 6px; bottom: 0; left: 0; right 0; padding: 0;",
-					tags$input(id = "geocodeTxt", type="text", value="", class="enterTextInput")
-				)
-			),
-			bsButton("helpBtn", img(src="icons/help_white.png", height=20, width=20), style="inverse"),
-			suppressWarnings(bsActionButton("downloadBtn", img(src="icons/download_white.png", height=20, width=20), style="inverse")),
-			suppressWarnings(bsActionButton("emailBtn", img(src="icons/email_white.png", height=20, width=20), style="inverse"))
-		)
-	),
-	
 	# leaflet map
 	div(class="mapContainer",
 		leafletMap(
@@ -43,16 +15,7 @@ shinyUI(basicPage(
 			)
 		)
 	),
-	
-	# tool tips
-	bsTooltip("toolBtn1", "navigation + select feature", placement = "bottom", trigger = "hover"),
-	bsTooltip("toolBtn2", "add point feature", placement = "bottom", trigger = "hover"),
-	bsTooltip("toolBtn3", "add line feature", placement = "bottom", trigger = "hover"),
-	bsTooltip("toolBtn4", "add polygon feature", placement = "bottom", trigger = "hover"),
-	bsTooltip("toolBtn5", "edit feature", placement = "bottom", trigger = "hover"),
-	bsTooltip("annotationTxt", "annotate feature", placement = "bottom", trigger = "hover"),
-	bsTooltip("toolBtn7", "remove feature", placement = "bottom", trigger = "hover"),
-	
+		
 	# email modal
 	bsModal("emailMdl", "Send Data", trigger="nonexistanBtn",
 	
@@ -277,7 +240,7 @@ shinyUI(basicPage(
 		
 			.mapContainer {
 			  position: fixed;
-			  top: 40px;
+			  top: 0;
 			  left: 0;
 			  right: 0;
 			  bottom: 0;
@@ -293,6 +256,31 @@ shinyUI(basicPage(
 				  eval(message.code);
 				}
 			  );
+		
+			Shiny.addCustomMessageHandler("update_var",
+				function(message) {
+					eval(message.var + \' = \' + message.val);
+				}
+			  );
+			
+		
+			var is_dirty=false;
+			var auto_send=false;
+			function exit_page(event) {
+				if (is_dirty && !auto_send) {
+					return \'You have made changes to the data without downloading or emailing it -- if you leave before performing either of these actions all data will be lost.\'
+				}
+			}
+			window.onbeforeunload = exit_page;
+			
+			Shiny.addCustomMessageHandler("download_file",
+				function(message) {
+					var link = document.createElement("a");
+					link.download = "spatialdata.zip";
+					link.href = message.message;
+					link.click();
+				}
+			);
 			
 			Shiny.addCustomMessageHandler("enable_button", 
 				function(message) {
@@ -304,92 +292,8 @@ shinyUI(basicPage(
 				function(message) {
 					$("#" + message.btn).prop(\"disabled\",true);
 				}
-			);
-			
-			var page_state_isDirty=false;
-			function exit_page(event) {
-				if (page_state_isDirty) {
-					return \'You have made changes to the data without downloading or emailing it -- if you leave before performing either of these actions all data will be lost.\'
-				} 
-			}
-			window.onbeforeunload= exit_page;
-						
-			Shiny.addCustomMessageHandler("page_state", 
-				function(message) {
-					if (message.type=="clean") {
-						page_state_isDirty=false;
-					}
-					if (message.type=="dirty") {
-						page_state_isDirty=true;
-					}
-				}
-			);
-			
-			Shiny.addCustomMessageHandler("set_cursor", 
-				function(message) {
-					if (message.scope=="all") {
-						if (message.cursor=="reset") {
-							$("html,body").css("cursor","default");
-							
-							$("#downloadBtn").css("cursor","pointer");
-							$("#emailBtn").css("cursor","pointer");
-							
-							$("#map").css("cursor","-webkit-grab");
-							$("#map").css("cursor","-moz-grab");
-							$("#aboutMdl").css("cursor","default");
-							
-							$("#saveMdl").css("cursor","default");
-							$("#firstName").css("cursor","default");
-							$("#lastName").css("cursor","default");
-							$("#emailAddress").css("cursor","default");
-							$("#sendEmailBtn").css("cursor","default");
-							$("#emailtxt").css("cursor","default");
-							
-							
-							$("#helpMdl").css("cursor","default");
-							$("#helpCollapse").css("cursor","default");					
-						} else {
-							$("html,body").css("cursor",message.cursor);
-							$("#map").css("cursor",message.cursor);
-							
-							$("#downloadBtn").css("cursor",message.cursor);
-							$("#emailBtn").css("cursor",message.cursor);						
-							
-							$("#aboutMdl").css("cursor",message.cursor);
-							
-							$("#saveMdl").css("cursor",message.cursor);
-							$("#firstName").css("cursor",message.cursor);
-							$("#lastName").css("cursor",message.cursor);
-							$("#emailAddress").css("cursor",message.cursor);
-							$("#sendEmailBtn").css("cursor",message.cursor);
-							$("#emailtxt").css("cursor",message.cursor);
-							
-							$("#helpMdl").css("cursor",message.cursor);
-							$("#helpCollapse").css("cursor",message.cursor);						
-						}
-					} else if (message.scope=="map") {
-						if (message.cursor=="hand") {
-							$("#map").css("cursor","-webkit-grab");
-							$("#map").css("cursor","-moz-grab");
-						} else if (message.cursor=="remove") {
-							$("#map").css("cursor","url(icons/skull_white.png),auto");					
-						} else {
-							$("#map").css("cursor",message.cursor);
-							$("#map").css("cursor",message.cursor);						
-						}
-					}
-				}
-			);
-			
-			Shiny.addCustomMessageHandler("download_file",
-				function(message) {
-					var link = document.createElement("a");
-					link.download = "spatialdata.zip";
-					link.href = message.message;
-					link.click();
-				}
-			);
-					
+			);			
+
 			var enterTextInputBinding = new Shiny.InputBinding();
 				$.extend(enterTextInputBinding, {
 				find: function(scope) {
@@ -434,11 +338,9 @@ shinyUI(basicPage(
 						delay: 250
 					};
 				}
-            });
-			
-            Shiny.inputBindings.register(enterTextInputBinding, \'shiny.enterTextInput\');
+			});
+			Shiny.inputBindings.register(enterTextInputBinding, \'shiny.enterTextInput\');
 
-				
 			
 		'))
 	)
