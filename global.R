@@ -20,8 +20,8 @@ program_version="2.0.0"
 load("data/baselayers.RDATA")
 
 # colors
-rwPals=c("Set1", "Set2", "Set3")
-rPals=c("Pastel1", "Pastel2")
+rwPals=c("Set1", "Dark2", "Accent")
+rPals=c("Pastel1", "Pastel2", "Set2", "Set3")
 rwCols=unlist(Map(brewer.pal, brewer.pal.info[match(rwPals, rownames(brewer.pal.info)),1], rwPals))
 rCols=unlist(Map(brewer.pal, brewer.pal.info[match(rPals, rownames(brewer.pal.info)),1], rPals))
 defaultCol='#1a16ff'
