@@ -75,7 +75,7 @@ shinyServer(function(input, output, session) {
 		if (is.null(input$map_note))
 			return()
 		isolate({
-			toc$updateFeature(sanitise(as.character(input$map_note$id),note=input$map_note$text))
+			toc$updateFeature(as.character(input$map_note$id),note=sanitise(input$map_note$text))
 			map$removePopup("map_add_note")
 			session$sendCustomMessage("update_var",list(var="is_dirty", val="true"))
 		})
