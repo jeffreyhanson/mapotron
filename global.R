@@ -269,7 +269,7 @@ to.SpatialLines.from.geojson=function(jsonlst, id) {
 			mainLST[[i]]=Lines(currLST, ID=paste0(.id, "_", i))
 		}
 	} else if (jsonlst$type=="LineString") {
-			mainLST[[1]]=Lines(list(Line(do.call(rbind,jsonlst$coordinates))), ID=paste0(id, '_', 1))
+		mainLST[[1]]=Lines(list(Line(do.call(rbind,jsonlst$coordinates))), ID=paste0(id, '_', 1))
 	}
 	return(
 		SpatialLines(
