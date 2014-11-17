@@ -69,7 +69,7 @@ shinyUI(basicPage(
 				"What's your deal?", 
 				HTML("
 				
-				<p>Expert elicitation is an integral component of conservation science (<a href=\"http://onlinelibrary.wiley.com/doi/10.1111/j.1523-1739.2011.01806.x/abstract?deniedAccessCustomisedMessage=&userIsAuthenticated=false\" target=\"_blank\">Martin et al. 2012</a>). We wanted to provide researchers with a simple platform to elicit spatially explicit data from experts. Mapotron is <a href=\"https://github.com/paleo13/mapotron\" target=\"_blank\">open source</a> and free to use for non-commercial purposes.</p>
+				<p>Expert elicitation is an integral component of conservation science (<a href=\"https://onlinelibrary.wiley.com/doi/10.1111/j.1523-1739.2011.01806.x/abstract?deniedAccessCustomisedMessage=&userIsAuthenticated=false\" target=\"_blank\">Martin et al. 2012</a>). We wanted to provide researchers with a simple platform to elicit spatially explicit data from experts. Mapotron is <a href=\"https://github.com/paleo13/mapotron\" target=\"_blank\">open source</a> and free to use for non-commercial purposes.</p>
 				
 				<p>If you have any questions on how to use Mapotron, want to request new features, or wish to contribute base layer datasets, please <a href=\"mailto:&#109;&#097;&#112;&#111;&#116;&#114;&#111;&#110;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109\">contact us</a>.</p>
 				
@@ -200,21 +200,21 @@ shinyUI(basicPage(
 					HTML("
 						<p>We thank the following people for their software. Please contact us if you should be added to this list!</p>
 						<ul>
-							<li>Agafonkin, V. (2014) <a href=\"http://leafletjs.com/\" target=\"_blank\">leafet.</a></li>
+							<li>Agafonkin, V. (2014) <a href=\"https://leafletjs.com/\" target=\"_blank\">leafet.</a></li>
 							<li>Bailey, E. (2014) <a href=\"https://github.com/ebailey78/shinyBS\" target=\"_blank\">shinyBS: Twitter Bootstrap Components for Shiny.</a> R package version 0.25.</li>
-							<li>Bivand, R., Keitt, T. and Rowlingson, B. (2014) <a href=\"http://CRAN.R-project.org/package=rgdal\" target=\"_blank\">rgdal: Bindings for the Geospatial Data Abstraction Library.</a> R package version  0.8-16.</li>
+							<li>Bivand, R., Keitt, T. and Rowlingson, B. (2014) <a href=\"https://CRAN.R-project.org/package=rgdal\" target=\"_blank\">rgdal: Bindings for the Geospatial Data Abstraction Library.</a> R package version  0.8-16.</li>
 							<li>Cheng, J. (2013) <a href=\"https://github.com/jcheng5/leaflet-shiny\" target=\"_blank\">leaflet: Interactive map component for Shiny, using Leaflet.</a> R package version 1.0.</li>
 							<li>Esri (2014) <a href=\"https://github.com/Esri/esri-leaflet\" target=\"_blank\">Esri Leaflet.</a> Release Candidate 4.</li>
-							<li>Friedman, A.B. (2014) <a href=\"http://CRAN.R-project.org/package=taRifx.geo\" target=\"_blank\">taRifx.geo: Collection of various spatial functions.</a> R package version 1.0.6.</li>
+							<li>Friedman, A.B. (2014) <a href=\"https://CRAN.R-project.org/package=taRifx.geo\" target=\"_blank\">taRifx.geo: Collection of various spatial functions.</a> R package version 1.0.6.</li>
 							<li>Google (2014) <a href=\"https://developers.google.com/maps/documentation/\" target=\"_blank\">Google Maps JavaScript API.</a> Version 3. 
-							<li>Harrell, F.E., Dupont, C. and others. (2014) <a href=\"http://CRAN.R-project.org/package=Hmisc\" target=\"_blank\">Hmisc: Harrell Miscellaneous.</a> R package version  3.14-4.</li>
+							<li>Harrell, F.E., Dupont, C. and others. (2014) <a href=\"https://CRAN.R-project.org/package=Hmisc\" target=\"_blank\">Hmisc: Harrell Miscellaneous.</a> R package version  3.14-4.</li>
 							<li>Liedman, P. (2014) <a href=\"https://github.com/perliedman/leaflet-control-geocoder\" target=\"_blank\">Leaflet Control Geocoder.</a> version 1.0.0.</li>
 							<li>Mapbox (2014) <a href=\"https://www.mapbox.com/maki/\" target=\"_blank\">MakiMarkers.</a> version 0.4.5.</li>
 							<li>Montague, D. (2014) <a href=\"https://github.com/CliffCloud/Leaflet.EasyButton\" target=\"_blank\">Leaflet Easy Button.</a> version 0.</li>
-							<li>Neuwirth, E. (2011) <a href=\"http://CRAN.R-project.org/package=RColorBrewer\" target=\"_blank\">RColorBrewer: ColorBrewer palettes.</a> R package version 1.0-5.</li>
+							<li>Neuwirth, E. (2011) <a href=\"https://CRAN.R-project.org/package=RColorBrewer\" target=\"_blank\">RColorBrewer: ColorBrewer palettes.</a> R package version 1.0-5.</li>
 							<li>Premraj, R. (2014) <a href=\"mailR: A utility to send emails from R.\" target=\"_blank\">https://github.com/rpremraj/mailR</a> R package version 0.3.1.</li>
-							<li>R Core Team (2014) <a href=\"http://www.R-project.org/\" target=\"_blank\"> R: A language and environment for statistical computing.</a> R Foundation for Statistical Computing, Vienna, Austria.</li>
-							<li>RStudio and Inc. (2014) <a href=\"http://CRAN.R-project.org/package=shiny\" target=\"_blank\">shiny: Web Application Framework for R.</a> R package version 0.10.2.1.</li>
+							<li>R Core Team (2014) <a href=\"https://www.R-project.org/\" target=\"_blank\"> R: A language and environment for statistical computing.</a> R Foundation for Statistical Computing, Vienna, Austria.</li>
+							<li>RStudio and Inc. (2014) <a href=\"https://CRAN.R-project.org/package=shiny\" target=\"_blank\">shiny: Web Application Framework for R.</a> R package version 0.10.2.1.</li>
 							<li>Seppi, J. (2014) <a href=\"https://github.com/jseppi/Leaflet.MakiMarkers\" target=\"_blank\">Leaflet MakiMarkers.</a></li>
 							<li>Shamrov, P. (2014) <a href=\"https://github.com/shramov/leaflet-plugins\" target=\"_blank\">Leaflet Plugins.</a> Version 1.2.0.</li>
 							<li>Toye, J. (2014) <a href=\"https://github.com/Leaflet/Leaflet.draw\" target=\"_blank\">Leaflet Draw.</a> Version 0.2.3.</li>
