@@ -28,8 +28,7 @@ shinyUI(basicPage(
 	  # tag head 
 		tagList(
 			tags$head(
-			tags$link(rel="stylesheet", type="text/css",href="style.css"),
-			tags$script(type="text/javascript", src = "busy.js")
+				tags$script(type="text/javascript", src = "busy.js")
 			),
 			tags$div(class="row-fluid",
 				fluidRow(

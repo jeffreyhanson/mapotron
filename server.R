@@ -53,8 +53,8 @@ shinyServer(function(input, output, session) {
 	observe({
 		if (is.null(input$map_create))
 			return()
-		isolate({?asve
-			toc$newFeature(input$map_create$id, RJSONIO::fromJSON(input$map_create$geojson)$geometry, "rw")
+		isolate({
+			toc$newFeature(input$map_create$id, RJSONIO::fromJSON(input$map_create$geojson)$geometry, "rw", radii=input$map_edit$radii)
 			session$sendCustomMessage("update_var",list(var="is_dirty", val="true"))
 		})
 	})
@@ -66,7 +66,7 @@ shinyServer(function(input, output, session) {
 		isolate({
 			x=input$map_edit
 			for (i in seq_along(input$map_edit$list)) {
-				toc$updateFeature(input$map_edit$list[[i]]$id, json=RJSONIO::fromJSON(input$map_edit$list[[i]]$geojson)$geometry)
+				toc$updateFeature(input$map_edit$list[[i]]$id, json=RJSONIO::fromJSON(input$map_edit$list[[i]]$geojson)$geometry, radii=input$map_edit$radii)
 			}
 			session$sendCustomMessage("update_var",list(var="is_dirty", val="true"))
 		})

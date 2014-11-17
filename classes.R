@@ -38,9 +38,9 @@ TOC = setRefClass("TOC",
 				features[[as.character(id)]]<<-POLYGON$new(id, data, mode, ...)
 			}
 		},
-		updateFeature=function(id, json=NULL, note=NULL) {
+		updateFeature=function(id, json=NULL, note=NULL, ...) {
 			if (!is.null(json))
-				features[[as.character(id)]]$update.json(json)
+				features[[as.character(id)]]$update.json(json, ...)
 			if (!is.null(note)) {
 				features[[as.character(id)]]$.notes<<-note
 			}
@@ -182,16 +182,16 @@ FEATURE=setRefClass("FEATURE",
 
 POINT=setRefClass("POINT",
 	contains="FEATURE",
-	fields=list(.data="SpatialPoints"),
+	fields=list(.data="SpatialPoints", .radii="numeric"),
 	methods=list(
-		initialize=function(id, data, mode="rw", name=paste0("F",id), notes=NULL, cols=NULL) {
+		initialize=function(id, data, mode="rw", name=paste0("F",id), notes=NULL, cols=NULL, radii=NULL) {
 			.id<<-as.character(id)
 			.mode<<-mode
 			.name<<-name
 			if (inherits(data, "SpatialPointsDataFrame")) {
 				update.sp(data)
 			} else {
-				update.json(data)
+				update.json(data, radii)
 			}
 			if (!is.null(notes)) {
 				.notes<<-as.character(notes)
@@ -208,17 +208,21 @@ POINT=setRefClass("POINT",
 				.cols<<-cols
 			}
 		},
-		update.json=function(jsonlst) {
+		update.json=function(jsonlst, radii) {
+			if (is.null(radii))
+				radii=rep(as.numeric(NA), nrow(.data@coords))
+			.radii<<-radii
 			.data<<-to.SpatialPoints.from.geojson(jsonlst)
 		},
 		update.sp=function(x) {
 			.data<<-SpatialPoints(coords=x@coords,proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs "))	
+			.radii<<-rep(as.numeric(NA), nrow(.data@coords))
 		},
 		to.json=function() {
 			return(to.geojson.from.SpatialPoints(.data, .cols, .notes, defaultStyles[[.mode]]))
 		},
 		to.sp=function() {
-			return(SpatialPointsDataFrame(coords=.data@coords, data=data.frame(note=.notes), proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")))		
+			return(SpatialPointsDataFrame(coords=.data@coords, data=data.frame(note=.notes,radius_m=.radii), proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")))		
 		}
 	)
 )
@@ -227,7 +231,7 @@ LINESTRING=setRefClass("LINESTRING",
 	contains="FEATURE",
 	fields=list(.data="SpatialLines"),
 	methods=list(
-		initialize=function(id, data, mode="rw", name=paste0("F",id), notes=NULL, cols=NULL) {
+		initialize=function(id, data, mode="rw", name=paste0("F",id), notes=NULL, cols=NULL, ...) {
 			.id<<-as.character(id)
 			.mode<<-mode
 			.name<<-name
@@ -251,7 +255,7 @@ LINESTRING=setRefClass("LINESTRING",
 				.cols<<-cols
 			}
 		},
-		update.json=function(jsonlst) {
+		update.json=function(jsonlst, ...) {
 			.data<<-to.SpatialLines.from.geojson(jsonlst, .id)
 		},
 		update.sp=function(x) {
@@ -280,7 +284,7 @@ POLYGON=setRefClass("POLYGON",
 	contains="FEATURE",
 	fields=list(.data="SpatialPolygons"),
 	methods=list(
-		initialize=function(id, data, mode="rw", name=paste0("F",id), notes=NULL, cols=NULL) {
+		initialize=function(id, data, mode="rw", name=paste0("F",id), notes=NULL, cols=NULL, ...) {
 			.id<<-as.character(id)
 			.mode<<-mode
 			.name<<-name
@@ -304,7 +308,7 @@ POLYGON=setRefClass("POLYGON",
 				.cols<<-cols
 			}
 		},
-		update.json=function(jsonlst) {
+		update.json=function(jsonlst, ...) {
 			.data<<-to.SpatialPolygons.from.geojson(jsonlst, .id)
 		},
 		update.sp=function(x) {
