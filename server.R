@@ -64,7 +64,6 @@ shinyServer(function(input, output, session) {
 		if (is.null(input$map_edit))
 			return()
 		isolate({
-			x=input$map_edit
 			for (i in seq_along(input$map_edit$list)) {
 				toc$updateFeature(input$map_edit$list[[i]]$id, json=RJSONIO::fromJSON(input$map_edit$list[[i]]$geojson)$geometry, radii=input$map_edit$radii)
 			}
