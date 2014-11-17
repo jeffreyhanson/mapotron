@@ -3,7 +3,7 @@ library(ShinyDash)
 
 shinyUI(basicPage(
 	# leaflet map
-	div(class="mapContainer",
+	div(class="map-wrapper",
 		leafletMap(
 			"map", "100%", "100%",
 			initialTileLayer = 'GOOGLE',
@@ -13,11 +13,17 @@ shinyUI(basicPage(
 				zoom = 4,
 				maxBounds = list(list(-90, -180), list(90, 180))
 			)
+		),
+		div(class="button-wrapper btn-group sbs-button-group",
+			bsActionButton('infoBtn', icon('info')),
+			bsActionButton('helpBtn', icon('question')),
+			bsActionButton('downloadBtn', icon('download')),
+			bsActionButton('emailBtn', icon('envelope-o'))
 		)
 	),
 		
 	# email modal
-	bsModal("emailMdl", "Send Data", trigger="nonexistanBtn",
+	bsModal("emailMdl", "Send Data", trigger="nonexistantbtn",
 	
 	  # tag head 
 		tagList(
@@ -73,9 +79,9 @@ shinyUI(basicPage(
 			bsCollapsePanel(
 				"How can I navigate to a particular location?", 
 				tags$div(class="row-fluid",
-					"Click on the navigate/select button(",
-					suppressWarnings(bsActionButton("toolBtn1_help", img(src="icons/toolBtn1_white.png", height=20, width=20), style="inverse")),
-					"), you can now click and drag the mouse to pan around the map. You can use the scroll wheel on your mouse to zoom in and out. If you know the latitude and longitude (eg. -27.454, 154.6767), or the name of the place (eg. Brisbane) type it into the text box on the top-right corner of the screen and hit enter."
+					"Click and drag the mouse to pan around the map, and use the scroll wheel on your mouse to zoom in and out. Additionally, if you know the name of a place you wish to navigate to (eg.Brisbane): click on the geocoder icon (",
+					suppressWarnings(bsActionButton("geocoder_help", img(src="icons/geocoderBtn.png", height=20, width=20))),
+					"), type in the place name, and press the enter key."
 				),
 				id="col2", value="helpPanel2"
 			),
@@ -83,49 +89,44 @@ shinyUI(basicPage(
 				"How do I draw new features?", 
 				tags$div(class="row-fluid",
 					"You can draw points(",
-					suppressWarnings(bsActionButton("toolBtn2_help", img(src="icons/toolBtn2_white.png", height=20, width=20), style="inverse")),
+					suppressWarnings(bsActionButton("pointBtn_help", img(src="icons/pointBtn.png", height=20, width=20))),
 					"), lines (",
-					suppressWarnings(bsActionButton("toolBtn3_help", img(src="icons/toolBtn3_white.png", height=20, width=20), style="inverse")),
-					"), and polyogns (",
-					suppressWarnings(bsActionButton("toolBtn4_help", img(src="icons/toolBtn4_white.png", height=20, width=20), style="inverse")),
-					") by clicking on a new feature button, and then click on the map. Each click will add a new point or add vertex to a line or polygon feature."
+					suppressWarnings(bsActionButton("lineBtn_help", img(src="icons/lineBtn.png", height=20, width=20))),
+					"), polygons (",
+					suppressWarnings(bsActionButton("polygonBtn_help", img(src="icons/polygonBtn.png", height=20, width=20))),
+					"), rectangles (",
+					suppressWarnings(bsActionButton("rectangleBtn_help", img(src="icons/rectangleBtn.png", height=20, width=20))),
+					"), circles (",
+					suppressWarnings(bsActionButton("circleBtn_help", img(src="icons/circleBtn.png", height=20, width=20))),
+					"by clicking on one of these buttons, and then clicking on the map. Each click will add a new point or add vertex to a line or polygon feature."
 				),
 				id="col3", value="helpPanel3"
 			),
 			bsCollapsePanel(
-				"How do I edit existing features?", 
+				"How do I edit or delete existing features?", 
 				tags$div(class="row-fluid",
-					"Click on the edit feature button(",
-					suppressWarnings(bsActionButton("toolBtn5_help", img(src="icons/toolBtn5_white.png", height=20, width=20), style="inverse")),
-					"), and then select a feature. Markers will appear over points or vertices of the feature, click on these markers to remove vertices or click on the map to add new vertices."
+					"Click on the edit button(",
+					suppressWarnings(bsActionButton("editBtn_help", img(src="icons/editBtn.png", height=20, width=20))),
+					"), and then move points/vertices. Click 'Save' if you wish to keep these edits or 'cancel' if you wish to undo these changes. Click on the delete button (",
+					suppressWarnings(bsActionButton("editBtn_help", img(src="icons/deleteBtn.png", height=20, width=20))),
+					"), and then click on a feature to remove it. Similar to the edit button, click 'Save' if you wish to keep these changes, or 'cancel' to undo them."
 				),
 				id="col4", value="helpPanel4"
 			),				
 			bsCollapsePanel(
-				"How can I annotate features?", 
+				"How can I label features?", 
 				tags$div(class="row-fluid",
-					"Click on the navigate/select button",
-					suppressWarnings(bsActionButton("toolBtn1_help", img(src="icons/toolBtn1_white.png", height=20, width=20), style="inverse")),
-					", and click on a feature to select it. The feature will now have a cyan border. Type text into the text box on the top left corner of the screen, and press enter to save the annotation."
+					"Right click on a feature and a textbox will appear. Type your label into this textbox and press enter to save."
 				),
 				id="col5", value="helpPanel5"
-			),
-			bsCollapsePanel(
-				"How do I remove existing features?", 
-				tags$div(class="row-fluid",
-					"Click on the remove feature button(",
-					suppressWarnings(bsActionButton("toolBtn7_help", img(src="icons/toolBtn7_white.png", height=20, width=20), style="inverse")),
-					"), and then click on a feature. Be careful: once you remove a feature there is no way to recover it."
-				),
-				id="col6", value="helpPanel6"
 			),
 			bsCollapsePanel(
 				"I've finished making the data, what now?", 
 				tags$div(class="row-fluid",
 					"You can download a zipfile containing data by clicking on the download button (",
-					bsButton("downloadBtn_help", img(src="icons/download_white.png", height=20, width=20), style="inverse"),	
+					bsButton("downloadBtn_help", img(src="icons/downloadBtn.png", height=20, width=20)),	
 					"). Alternatively, you can send this data to a colleague, by clicking on the email button (",
-					bsButton("emailBtn_help", img(src="icons/email_white.png", height=20, width=20), style="inverse"),
+					bsButton("emailBtn_help", img(src="icons/emailBtn.png", height=20, width=20)),
 					"), filling in the text boxes, and clicking on the send data button(",
 					bsActionButton("sendEmailBtn_help", label="Send Data", style="primary"),
 					")."
@@ -156,13 +157,13 @@ shinyUI(basicPage(
 						"<p>You can modify the url to send commands to Mapotron.</p>
 						<ul>
 							<li>
-								<p>You can specify latitude, longitude and zoom level parameters to set the starting location.:</p>
+								<p>You can specify latitude, longitude and zoom level parameters to set the starting location:</p>
 								<pre><code>",shinyurl,"?lng=-27.56&lat=140.5&zoom=5</code></pre>
 							</li>
 							<li>
-								<p>You can specify the first name, last name, email address, and message parameters that a user cannot override.
-								When these parameters are supplied, the email button (",suppressWarnings(bsActionButton("emailBtn_help", img(src="icons/email_white.png", height=20, width=20), style="inverse")),"), will automatically send the email. 
-								This is especially useful if you have multiple questions that each require a separate instance of Mapotron. You can set the message to have indicate the question number, so the question number be associated with features in the attribute table.</p>
+								<p>You can specify the first name, last name, email address, and message parameters.
+								Mapotron will automatically save the data and send a notification email when these parameters are supplied. Note the email button (",suppressWarnings(bsActionButton("emailBtn_help", img(src="icons/emailBtn.png", height=20, width=20))),") can still be used to send the notification.
+								You can use the message parameter to store metadata since messages are stored in the shapefiles' attribute tables. For example, if you have multiple questions in your survey, each with a separate instance of Mapotron, you can use the message parameter to associate each feature with its corresponding question:</p>
 								<pre><code>",shinyurl,"?firstname=Greg&lastname=McGreggorson&emailaddress=fakemcfakeerson@fakemail.com&message=question1</code></pre>
 							</li>
 						</ul>
@@ -175,7 +176,7 @@ shinyUI(basicPage(
 	)), 
 		
 	# about modal
-	bsModal("aboutMdl", "About", trigger="brandBtn",
+	bsModal("aboutMdl", "About", trigger="infoBtn",
 		tags$div(class="row-fluid",
 			column(
 				fluidRow(
@@ -195,8 +196,9 @@ shinyUI(basicPage(
 				width=5
 			),
 			column(wellPanel(
-				h4("Attributions"),
+				h4("Credits"),
 					HTML("
+						<p>We thank the following people for their software. Please contact us if you should be added to this list!</p>
 						<ul>
 							<li>Agafonkin, V. (2014) <a href=\"http://leafletjs.com/\" target=\"_blank\">leafet.</a></li>
 							<li>Bailey, E. (2014) <a href=\"https://github.com/ebailey78/shinyBS\" target=\"_blank\">shinyBS: Twitter Bootstrap Components for Shiny.</a> R package version 0.25.</li>
@@ -204,17 +206,19 @@ shinyUI(basicPage(
 							<li>Cheng, J. (2013) <a href=\"https://github.com/jcheng5/leaflet-shiny\" target=\"_blank\">leaflet: Interactive map component for Shiny, using Leaflet.</a> R package version 1.0.</li>
 							<li>Esri (2014) <a href=\"https://github.com/Esri/esri-leaflet\" target=\"_blank\">Esri Leaflet.</a> Release Candidate 4.</li>
 							<li>Friedman, A.B. (2014) <a href=\"http://CRAN.R-project.org/package=taRifx.geo\" target=\"_blank\">taRifx.geo: Collection of various spatial functions.</a> R package version 1.0.6.</li>
-							<li>Google (2014) <a href=\"https://developers.google.com/maps/documentation/geocoding/\" target=\"_blank\">Geocoding API.</a> Version 3. 
 							<li>Google (2014) <a href=\"https://developers.google.com/maps/documentation/\" target=\"_blank\">Google Maps JavaScript API.</a> Version 3. 
-							<li>Harrell F.E., Dupont, C. and others. (2014) <a href=\"http://CRAN.R-project.org/package=Hmisc\" target=\"_blank\">Hmisc: Harrell Miscellaneous.</a> R package version  3.14-4.</li>
-							<li>Icons made by <a href=\"http://www.google.com\" title=\"Google\" target=\"_blank\">Google</a> from <a href=\"http://www.flaticon.com\" title=\"Flaticon\">www.flaticon.com</a> is licensed under <a href=\"http://creativecommons.org/licenses/by/3.0/\" title=\"Creative Commons BY 3.0\">CC BY 3.0</a></li>
+							<li>Harrell, F.E., Dupont, C. and others. (2014) <a href=\"http://CRAN.R-project.org/package=Hmisc\" target=\"_blank\">Hmisc: Harrell Miscellaneous.</a> R package version  3.14-4.</li>
+							<li>Liedman, P. (2014) <a href=\"https://github.com/perliedman/leaflet-control-geocoder\" target=\"_blank\">Leaflet Control Geocoder.</a> version 1.0.0.</li>
 							<li>Mapbox (2014) <a href=\"https://www.mapbox.com/maki/\" target=\"_blank\">MakiMarkers.</a> version 0.4.5.</li>
+							<li>Montague, D. (2014) <a href=\"https://github.com/CliffCloud/Leaflet.EasyButton\" target=\"_blank\">Leaflet Easy Button.</a> version 0.</li>
 							<li>Neuwirth, E. (2011) <a href=\"http://CRAN.R-project.org/package=RColorBrewer\" target=\"_blank\">RColorBrewer: ColorBrewer palettes.</a> R package version 1.0-5.</li>
 							<li>Premraj, R. (2014) <a href=\"mailR: A utility to send emails from R.\" target=\"_blank\">https://github.com/rpremraj/mailR</a> R package version 0.3.1.</li>
 							<li>R Core Team (2014) <a href=\"http://www.R-project.org/\" target=\"_blank\"> R: A language and environment for statistical computing.</a> R Foundation for Statistical Computing, Vienna, Austria.</li>
-							<li>RStudio and Inc. (2014) <a href=\"http://CRAN.R-project.org/package=shiny\" target=\"_blank\">shiny: Web Application Framework for R.</a> R package version 0.10.2.1</li>
+							<li>RStudio and Inc. (2014) <a href=\"http://CRAN.R-project.org/package=shiny\" target=\"_blank\">shiny: Web Application Framework for R.</a> R package version 0.10.2.1.</li>
 							<li>Seppi, J. (2014) <a href=\"https://github.com/jseppi/Leaflet.MakiMarkers\" target=\"_blank\">Leaflet MakiMarkers.</a></li>
-							<li>Shamrov, P. (2014) <a href=\"https://github.com/shramov/leaflet-plugins\" target=\"_blank\">Leaflet Plugins.</a> Version 1.2.0</li>
+							<li>Shamrov, P. (2014) <a href=\"https://github.com/shramov/leaflet-plugins\" target=\"_blank\">Leaflet Plugins.</a> Version 1.2.0.</li>
+							<li>Toye, J. (2014) <a href=\"https://github.com/Leaflet/Leaflet.draw\" target=\"_blank\">Leaflet Draw.</a> Version 0.2.3.</li>
+							<li>Toye, J. (2014) <a href=\"https://github.com/Leaflet/Leaflet.label\" target=\"_blank\">Leaflet Label.</a> Version 0.2.1.</li>
 					</ul>
 					")
 			), width=7)
@@ -238,7 +242,7 @@ shinyUI(basicPage(
 				background-color: #FCFCFC;
 			}
 		
-			.mapContainer {
+			.map-wrapper {
 			  position: fixed;
 			  top: 0;
 			  left: 0;
@@ -247,7 +251,15 @@ shinyUI(basicPage(
 			  overflow: hidden;
 			  padding: 0;
 			}
-		"), tags$script(HTML('
+			
+			.button-wrapper {
+				position: absolute;
+				top: 0%;
+				padding-left: 50%;
+			}			
+		"), 
+		tags$link(rel="stylesheet", type="text/css", href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css"),
+		tags$script(HTML('
 			
 			
 			Shiny.addCustomMessageHandler("jsCode",

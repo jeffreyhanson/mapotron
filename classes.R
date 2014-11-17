@@ -1,4 +1,19 @@
 ### define classes
+# id class
+ID = setRefClass("ID", 
+	fields=list(Id="numeric"),
+	methods=list(
+		initialize=function() {
+			Id<<-0
+		},
+		new=function(n=1) {
+			ret=as.character(seq(Id, Id+n-1))
+			Id<<-Id+n
+			return(ret)
+		}
+	)
+)
+
 # toc class
 TOC = setRefClass("TOC",
 	fields=list(features="list", email="list", args="list"),
@@ -8,37 +23,30 @@ TOC = setRefClass("TOC",
 			email<<-list()
 			args<<-list()
 		},
-		newFeature=function(id, json) {
-			json=RJSONIO::fromJSON(json)
-			switch(json$geometry$type,
-				"Point"={newPoint(as.character(id), json)},
-				"LineString"={newLineString(as.character(id), json)},
-				"Polygon"={newPolygon(as.character(id), json)}
-			)
+		newFeature=function(id, data, mode, ...) {
+			if (inherits(data, "SpatialPointsDataFrame")) {
+				features[[as.character(id)]]<<-POINT$new(id, data, mode, ...)
+			} else if (inherits(data, "SpatialLinesDataFrame")) {
+				features[[as.character(id)]]<<-LINESTRING$new(id, data, mode, ...)
+			} else if (inherits(data, "SpatialPolygonsDataFrame")) {
+				features[[as.character(id)]]<<-POLYGON$new(id, data, mode, ...)
+			} else if (data$type=="Point") {
+				features[[as.character(id)]]<<-POINT$new(id, data, mode, ...)
+			} else if (data$type=="LineString") {
+				features[[as.character(id)]]<<-LINESTRING$new(id, data, mode, ...)
+			} else if (data$type=="Polygon") {
+				features[[as.character(id)]]<<-POLYGON$new(id, data, mode, ...)
+			}
 		},
-		updateFeature=function(id, json) {
-			features[[as.character(id)]]$update(RJSONIO::fromJSON(json))
+		updateFeature=function(id, json=NULL, note=NULL) {
+			if (!is.null(json))
+				features[[as.character(id)]]$update.json(json)
+			if (!is.null(note)) {
+				features[[as.character(id)]]$.notes<<-note
+			}
 		},
 		deleteFeature=function(id) {
 			features<<-features[setdiff(names(features),id)]
-		},
-		newPoint=function(id, jsonlst) {
-			features[[id]]<<-POINT$new(id, jsonlst)
-		},
-		newLineString=function(id, jsonlst) {
-			features[[id]]<<-LINESTRING$new(id, jsonlst)
-		},
-		newPolygon=function(id, jsonlst) {
-			features[[id]]<<-POLYGON$new(id, jsonlst)
-		},
-		newMultiPoint=function() {
-			return()
-		},
-		newMultiLine=function() {
-			return()		
-		},
-		newMultiPolygon=function() {
-			return()
 		},
 		reset=function() {
 			features<<-list()
@@ -53,7 +61,7 @@ TOC = setRefClass("TOC",
 			zipPTH=file.path("www","exports",userId,"zip","spatialdata.zip")
 			
 			## export data
-			saveSpatialData(features,file.path("www","exports",userId,"data",userId),NULL)
+			saveSpatialData(features[which(sapply(features, function(x){x$.mode=="rw"}))],file.path("www","exports",userId,"data",userId),NULL)
 
 			# generate zip file
 			if (file.exists(zipPTH))
@@ -81,15 +89,15 @@ TOC = setRefClass("TOC",
 			zipPTH=file.path("www","exports",emailaddress,"zip","spatialdata.zip")
 			
 			## export data
-			saveSpatialData(features,file.path("www","exports",emailaddress,"data",userId),c("firstname"=firstname,"lastname"=lastname, "message"=emailtxt))			
+			saveSpatialData(features[which(sapply(features, function(x){x$.mode=="rw"}))],file.path("www","exports",emailaddress,"data",userId),c("firstname"=firstname,"lastname"=lastname, "message"=emailtxt))			
 			
 			# load spatial objects and combine them
-			for (i in c("Point", "LineString", "Polygon")) {
+			for (i in c("POINT", "LINESTRING", "POLYGON")) {
 				# get list of files
 				currVEC=gsub(".shp", "", list.files(file.path("www","exports",emailaddress,"data"), paste0("^",i,".*.shp$"), full.names=TRUE, recursive=TRUE), fixed=TRUE)
 				if (length(currVEC)>0) {
 					currVEC=Map(readOGR, dirname(currVEC), basename(currVEC), verbose=FALSE)
-					if (i %in% c("LineString","Polygon")) {					
+					if (i %in% c("LINESTRING","POLYGON")) {					
 						currVEC=lapply(seq_along(currVEC), function(x) {
 							return(spChFIDs(currVEC[[x]], paste0(x,"_",row.names(currVEC[[x]]@data))))
 						})
@@ -150,15 +158,7 @@ parseFortune(fortune())
 			)
 		},
 		garbageCleaner=function() {
-			memoryGarbageCleaner()
 			diskGarbageCleaner()
-		},
-		memoryGarbageCleaner=function() {
-			if (length(features)>0) {
-				features<<-features[which(sapply(features, function(x) {
-					return(nrow(x$.coords)>0)
-				}))]
-			}
 		},
 		diskGarbageCleaner=function() {
 			# get date modified info for dirs
@@ -177,98 +177,145 @@ parseFortune(fortune())
 
 # feature class
 FEATURE=setRefClass("FEATURE",
-	fields=list(.id="character", .annotation="character", .coords="matrix"),
-	methods=list(
-		update=function(jsonlst) {
-			.coords<<-matrix(.Internal(unlist(jsonlst$geometry$coordinates[[1]], FALSE, FALSE)),ncol=2,byrow=TRUE)	
-		}
-	)
+	fields=list(.id="character", .mode="character", .name="character", .notes="character", .cols="character"),
 )
 
 POINT=setRefClass("POINT",
 	contains="FEATURE",
+	fields=list(.data="SpatialPoints"),
 	methods=list(
-		initialize=function(id,jsonlst=NULL) {
-			.id<<-id
-			.coords<<-matrix(nrow=0, ncol=2)
-			.annotation<<-""
-			if (!is.null(jsonlst))
-				update(jsonlst)
-		},
-		toGeoJSON=function() {
-			return(paste0(
-			   '{"type":"Feature",
-				"properties":{},
-				"geometry":{"type":"LineString","coordinates":  ',xyjson,' }
+		initialize=function(id, data, mode="rw", name=paste0("F",id), notes=NULL, cols=NULL) {
+			.id<<-as.character(id)
+			.mode<<-mode
+			.name<<-name
+			if (inherits(data, "SpatialPointsDataFrame")) {
+				update.sp(data)
+			} else {
+				update.json(data)
+			}
+			if (!is.null(notes)) {
+				.notes<<-as.character(notes)
+			} else {
+				.notes<<-rep("", nrow(.data@coords))
+			}
+			if (is.null(cols)) {
+				if (mode=="rw") {
+					.cols<<-rep(defaultCol, nrow(.data@coords))
+				} else if (mode=="r") {
+					.cols<<-rep(defaultCol, nrow(.data@coords))
 				}
-			'))		
+			} else {
+				.cols<<-cols
+			}
 		},
-		toSp=function() {
-			return(SpatialPointsDataFrame(coords=.coords, data=data.frame(id=.id,annotation=.annotation, row.names=.id), proj4stirng=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")))
+		update.json=function(jsonlst) {
+			.data<<-to.SpatialPoints.from.geojson(jsonlst)
+		},
+		update.sp=function(x) {
+			.data<<-SpatialPoints(coords=x@coords,proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs "))	
+		},
+		to.json=function() {
+			return(to.geojson.from.SpatialPoints(.data, .cols, .notes, defaultStyles[[.mode]]))
+		},
+		to.sp=function() {
+			return(SpatialPointsDataFrame(coords=.data@coords, data=data.frame(note=.notes), proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")))		
 		}
 	)
 )
 
 LINESTRING=setRefClass("LINESTRING",
 	contains="FEATURE",
+	fields=list(.data="SpatialLines"),
 	methods=list(
-		initialize=function(id,jsonlst=NULL) {
-			.id<<-id
-			.coords<<-matrix(nrow=0, ncol=2)
-			.annotation<<-""
-			if (!is.null(jsonlst))
-				update(jsonlst)
-		},
-		toGeoJSON=function() {
-			return(paste0(
-			   '{"type":"Feature",
-				"properties":{},
-				"geometry":{"type":"LineString","coordinates":  ',xyjson,' }
+		initialize=function(id, data, mode="rw", name=paste0("F",id), notes=NULL, cols=NULL) {
+			.id<<-as.character(id)
+			.mode<<-mode
+			.name<<-name
+			if (inherits(data, "SpatialLinesDataFrame")) {
+				update.sp(data)
+			} else {
+				update.json(data)
+			}
+			if (!is.null(notes)) {
+				.notes<<-as.character(notes)
+			} else {
+				.notes<<-rep("", length(.data@lines))
+			}
+			if (is.null(cols)) {
+				if (mode=="rw") {
+					.cols<<-rep(defaultCol, length(.data@lines))
+				} else if (mode=="r") {
+					.cols<<-rep(defaultCol, length(.data@lines))
 				}
-			'))	
+			} else {
+				.cols<<-cols
+			}
 		},
-		toSp=function() {
-			return(
-				SpatialLinesDataFrame(
-					sl=SpatialLines(
-						list(Lines(list(Line(.coords)), .id)),
-						proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")
-					),
-					data=data.frame(id=.id, annotation=.annotation, row.names=.id)
-				)
-			)
-		}
-	)
+		update.json=function(jsonlst) {
+			.data<<-to.SpatialLines.from.geojson(jsonlst, .id)
+		},
+		update.sp=function(x) {
+			.data<<-SpatialLines(x@lines, proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs "))
+		},
+		to.json=function() {
+			return(to.geojson.from.SpatialLines(.data, .cols, .notes, defaultStyles[[.mode]]))
+		},
+		to.sp=function() {
+			ids=paste0(.id,'_',seq_along(.notes))
+			return(SpatialLinesDataFrame(.data, data=data.frame(note=.notes, row.names=ids)))
+		},
+		style=function() {
+			retLST=list()
+			for (i in seq_along(.data@lines)) {
+				retLST[[i]]=defaultStyles[[.mode]]
+				retLST[[i]]$color=.cols[[i]]
+				retLST[[i]]$fillColor=.cols[[i]]
+			}
+			return(retLST)
+		}		
+	)	
 )
 
 POLYGON=setRefClass("POLYGON",
 	contains="FEATURE",
+	fields=list(.data="SpatialPolygons"),
 	methods=list(
-		initialize=function(id,jsonlst=NULL) {
-			.id<<-id
-			.coords<<-matrix(nrow=0, ncol=2)
-			.annotation<<-""
-			if (!is.null(jsonlst))
-				update(jsonlst)
-		},
-		toGeoJSON=function() {
-			return(paste0(
-			   '{"type":"Feature",
-				"properties":{},
-				"geometry":{"type":"Polygon","coordinates":  ',xyjson,' }
+		initialize=function(id, data, mode="rw", name=paste0("F",id), notes=NULL, cols=NULL) {
+			.id<<-as.character(id)
+			.mode<<-mode
+			.name<<-name
+			if (inherits(data, "SpatialPolygonsDataFrame")) {
+				update.sp(data)
+			} else {
+				update.json(data)
+			}
+			if (!is.null(notes)) {
+				.notes<<-as.character(notes)
+			} else {
+				.notes<<-rep("", length(.data@polygons))
+			}
+			if (is.null(cols)) {
+				if (mode=="rw") {
+					.cols<<-rep(defaultCol, length(.data@polygons))
+				} else if (mode=="r") {
+					.cols<<-rep(defaultCol, length(.data@polygons))
 				}
-			'))
+			} else {
+				.cols<<-cols
+			}
 		},
-		toSp=function() {
-			return(
-				SpatialPolygonsDataFrame(
-					Sr=SpatialPolygons(
-						list(Polygons(list(Polygon(.coords)), .id)),
-						proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")
-					),
-					data=data.frame(id=.id, annotation=.annotation, row.names=.id)
-				)
-			)
+		update.json=function(jsonlst) {
+			.data<<-to.SpatialPolygons.from.geojson(jsonlst, .id)
+		},
+		update.sp=function(x) {
+			.data<<-SpatialPolygons(x@polygons, proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs "))
+		},
+		to.json=function() {
+			return(to.geojson.from.SpatialPolygons(.data, .cols, .notes, defaultStyles[[.mode]]))
+		},
+		to.sp=function() {
+			ids=paste0(.id,'_',seq_along(.notes))
+			return(SpatialPolygonsDataFrame(.data, data=data.frame(note=.notes, row.names=ids)))
 		}
 	)
 )

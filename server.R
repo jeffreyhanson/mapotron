@@ -17,6 +17,10 @@ shinyServer(function(input, output, session) {
 	# prepare toc
 	map=createLeafletMap(session, 'map')
 	toc=TOC$new()
+	id=ID$new()
+	for (i in seq_along(baselayers)) {
+		toc$newFeature(paste0('r_',id$new()), baselayers[[i]], 'r', names(baselayers)[i], baselayers[[i]]@data[[1]], rCols[seq_len(nrow(baselayers[[1]]@data))])
+	}
 	if (!inherits(emailDF, "try-error")) {
 		toc$email=list(host.name=emailDF$host.name, port=emailDF$port, user.name=emailDF$user.name, passwd=emailDF$password, ssl=TRUE)
 	} else {
@@ -25,11 +29,13 @@ shinyServer(function(input, output, session) {
 	# get program arguments and execute startup parameters
 	toc$args=parseQueryString(isolate(session$clientData$url_search))
 	session$onFlushed(once=TRUE, function() {
+		# centre map on user-specified location
 		if (!is.null(toc$args$lat) & !is.null(toc$args$lng) & !is.null(toc$args$zoom)) {
 			if (toc$args$lat<90 & toc$args$lat>-90 & toc$args$lng<180 & toc$args$lng>-180) {
 				map$setView(as.numeric(toc$args$lat), as.numeric(toc$args$lng), as.numeric(toc$args$zoom), FALSE)
 			}
 		}
+		# set args to automatically send data on close
 		if (!is.null(toc$args$firstname) & !is.null(toc$args$lastname) & !is.null(toc$args$emailaddress)) {
 			# set auto_send variable
 			session$sendCustomMessage("update_var",list(var="auto_send", val="true"))
@@ -47,8 +53,8 @@ shinyServer(function(input, output, session) {
 	observe({
 		if (is.null(input$map_create))
 			return()
-		isolate({
-			toc$newFeature(input$map_create$id, input$map_create$geojson)
+		isolate({?asve
+			toc$newFeature(input$map_create$id, RJSONIO::fromJSON(input$map_create$geojson)$geometry, "rw")
 			session$sendCustomMessage("update_var",list(var="is_dirty", val="true"))
 		})
 	})
@@ -58,29 +64,23 @@ shinyServer(function(input, output, session) {
 		if (is.null(input$map_edit))
 			return()
 		isolate({
+			x=input$map_edit
+			save(x,file="debug/test.RDATA")
 			for (i in seq_along(input$map_edit$list)) {
-				toc$updateFeature(input$map_edit$list[[i]]$id, input$map_edit$list[[i]]$geojson)
+				toc$updateFeature(input$map_edit$list[[i]]$id, json=RJSONIO::fromJSON(input$map_edit$list[[i]]$geojson)$geometry)
 			}
 			session$sendCustomMessage("update_var",list(var="is_dirty", val="true"))
 		})
 	})
-	
 	observe({
-		print("input$map_note")
-		print(input$map_note)
-	
 		if (is.null(input$map_note))
 			return()
 		isolate({
-			x=1
+			toc$updateFeature(sanitise(as.character(input$map_note$id),note=input$map_note$text))
+			map$removePopup("map_add_note")
 		})
 	})
-	
-	observe({
-		print("input$debug")
-		print(input$debug)
-	})
-	
+
 	## delete existing feature
 	observe({
 		if (is.null(input$map_delete))
@@ -95,7 +95,7 @@ shinyServer(function(input, output, session) {
 	
 	## download data
 	observe({
-		if (is.null(input$downloadBtn))
+		if (input$downloadBtn==0)
 			return()
 		isolate({
 			toc$garbageCleaner()
@@ -106,7 +106,7 @@ shinyServer(function(input, output, session) {
 	
 	## email button observer
 	observe({
-		if (is.null(input$emailBtn))
+		if (input$emailBtn==0)
 			return()
 		isolate({
 			# if custom email supplied
@@ -178,6 +178,20 @@ shinyServer(function(input, output, session) {
 			session$sendCustomMessage("set_cursor",list(cursor="reset", scope="all"))
 			# set clean
 			session$sendCustomMessage("update_var",list(var="is_dirty", val="false"))
+		})
+	})
+	
+	# load data
+	observe({
+		if (is.null(input$map_load_data))
+			return()
+		isolate({
+			# send rfeatures to leaflet
+			for (i in seq_along(toc$features)) {
+				if (toc$features[[i]]$.mode=="r") {
+					map$addFeature(toc$features[[i]]$.id, toc$features[[i]]$to.json(), 'r', toc$features[[i]]$.name)
+				}
+			}
 		})
 	})
 })

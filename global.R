@@ -1,5 +1,5 @@
 ### default options
-options(shiny.error=traceback)
+options(shiny.error=traceback, stringsAsFactors=FALSE)
 
 ### load dependencies
 library(rgdal)
@@ -15,23 +15,28 @@ library(fortunes)
 source("classes.R")
 
 ### define global variables
-featurePals=c("Set1", "Set2", "Set3")
-basePals=c("Pastel1", "Pastel2")
-featureCol=unlist(Map(brewer.pal, brewer.pal.info[match(featurePals, rownames(brewer.pal.info)),1], featurePals))
-baseCol=unlist(Map(brewer.pal, brewer.pal.info[match(basePals, rownames(brewer.pal.info)),1], basePals))
-editCol="#FFFB0E"
-selectCol="#00FFFF"
-markerCol="#FF0000"
-program_version="1.0.5"
+# load data and set program vars
+program_version="2.0.0"
 load("data/baselayers.RDATA")
-featureDefaultOptions=list(fillOpacity=0.5,opacity=1)
-baseDefaultOptions=list(fillOpacity=0.2,opacity=0.3)
+
+# colors
+rwPals=c("Set1", "Set2", "Set3")
+rPals=c("Pastel1", "Pastel2")
+rwCols=unlist(Map(brewer.pal, brewer.pal.info[match(featurePals, rownames(brewer.pal.info)),1], featurePals))
+rCols=unlist(Map(brewer.pal, brewer.pal.info[match(basePals, rownames(brewer.pal.info)),1], basePals))
+defaultCol='#1a16ff'
+
+# default feature options
+defaultStyles=list(
+	rw=list(fillOpacity=0.7,opacity=1),
+	r=list(fillOpacity=0.6,opacity=0.9)
+)
+# server settings
 emailDF=try(read.table("other/mandrill_emailaccount.csv", sep=",", header=TRUE, as.is=TRUE))
 shinyurl="https://paleo13.shinyapps.io/mapotron/"
 emailWhiteList=read.table("other/emailwhitelist.csv", sep=",", header=TRUE, as.is=TRUE)[,1,drop=TRUE]
 emailBlockList=read.table("other/emailblocklist.csv", sep=",", header=TRUE, as.is=TRUE)[,1,drop=TRUE]
 fileExpiry=7
-google=GEOCODE$new()
 
 ### define functions
 # misc functions
@@ -130,7 +135,7 @@ saveSpatialData=function(features, expDir, info) {
 	save(features, file="debug/data.RDATA")
 	tempLST=list(POINT=list(), LINESTRING=list(), POLYGON=list())
 	for (i in seq_along(features))
-		tempLST[[class(features[[i]])]][[length(tempLST[[class(features[[i]])]])+1]] = features[[i]]$toSp()
+		tempLST[[class(features[[i]])]][[length(tempLST[[class(features[[i]])]])+1]] = features[[i]]$to.sp()
 	
 	# save spatial objects
 	for (i in seq_along(tempLST)) {
@@ -188,7 +193,121 @@ list2json=function(prefix,lst) {
 	}
 }
 
+to_list=function(x) {
+	lapply(seq_len(nrow(x)), function(i) x[i,])
+}
+
+to.geojson.from.SpatialPoints=function(x, cols, notes, style) {
+	list(
+		type="FeatureCollection",
+		features=lapply(seq_len(nrow(x@coords)), function(l) {
+			list(
+				type="Feature",
+				properties=list(note=notes[l], color=cols[l], fillColor=cols[l], opacity=style$opacity, fillOpacity=style$fillOpacity),
+				geometry=list(
+					type = "Point",
+					coordinates=list(c(x@coords[l,]))
+				)
+			)
+		})
+	)
+}
+
+
+to.geojson.from.SpatialLines=function(x, cols, notes, style) {
+	list(
+		type="FeatureCollection",
+		features=lapply(seq_along(x@lines), function(l) {
+			list(
+				type="Feature",
+				properties=list(note=notes[l], color=cols[l], fillColor=cols[l], opacity=style$opacity, fillOpacity=style$fillOpacity),
+				geometry=list(
+					type = "MultiLineString",
+					coordinates=list(lapply(x@lines[[l]]@Lines, function(m) {to_list(m@coords)}))
+				)
+			)
+		})
+	)
+}
+
+to.geojson.from.SpatialPolygons=function(x, cols, notes, style) {
+	list(
+		type="FeatureCollection",
+		features=lapply(seq_along(x@polygons), function(l) {
+			list(
+				type="Feature",
+				properties=list(note=notes[l], color=cols[l], fillColor=cols[l], opacity=style$opacity, fillOpacity=style$fillOpacity),
+				geometry=list(
+					type = "MultiPolygon",
+					coordinates=list(lapply(x@polygons[[l]]@Polygons, function(m) {to_list(m@coords)}))
+				)
+			)
+		})
+	)
+}
+
+to.SpatialPoints.from.geojson=function(jsonlst) {
+	if (jsonlst$type=="Point") {
+		coords=matrix(jsonlst$coordinates, ncol=2)
+	}
+	return(
+		SpatialPoints(
+			coords,
+			proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")
+		)
+	)
+}
+
+to.SpatialLines.from.geojson=function(jsonlst, id) {
+	mainLST=list()
+	if (jsonlst$type=="MultiLineString") {		
+		for (i in seq_along(jsonlst$coordinates)) {
+			currLST=list()
+			for (j in seq_along(jsonlst$coordinates[[i]])) {
+				currLST[[j]]=Line(do.call(rbind,jsonlst$coordinates[[i]][[j]]))
+			}
+			mainLST[[i]]=Lines(currLST, ID=paste0(.id, "_", i))
+		}
+	} else if (jsonlst$type=="LineString") {
+			mainLST[[i]]=Lines(list(Line(do.call(rbind,jsonlst$coordinates))), ID=paste0(id, '_', i))
+	}
+	return(
+		SpatialLines(
+				mainLST,
+				proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")
+		)
+	)
+}
+
+to.SpatialPolygons.from.geojson=function(jsonlst, id) {
+	mainLST=list()
+	if (jsonlst$type=="MultiPolygon") {		
+		for (i in seq_along(jsonlst$coordinates)) {
+			currLST=list()
+			for (j in seq_along(jsonlst$coordinates[[i]])) {
+				currLST[[j]]=Polygon(do.call(rbind,jsonlst$coordinates[[i]][[j]]))
+			}
+			mainLST[[i]]=Polygons(currLST, ID=paste0(.id, "_", i))
+		}
+	} else if (jsonlst$type=="Polygon") {
+		for (i in seq_along(jsonlst$coordinates)) {
+			mainLST[[i]]=Polygons(list(Polygon(do.call(rbind,jsonlst$coordinates[[i]]))), ID=paste0(id, '_', i))
+		}
+	}
+	return(
+		SpatialPolygons(
+				mainLST,
+				proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")
+		)
+	)
+}
+
+
 # sp functions
+IDs.SpatialLinesDataFrame=function (x, ...) {
+    vapply(slot(x, "lines"), function(x) slot(x, "ID"), "")
+}
+
 rbind.SpatialLinesDataFrame=function (..., fix.duplicated.IDs = TRUE) {
     dots <- as.list(substitute(list(...)))[-1L]
     dots_names <- as.character(dots)
@@ -211,8 +330,7 @@ rbind.SpatialLinesDataFrame=function (..., fix.duplicated.IDs = TRUE) {
         }
     }
     else {
-        broken_IDs <- vapply(dots, function(x) all(IDs(x) != 
-            rownames(x@data)), FALSE)
+        broken_IDs <- vapply(dots, function(x) all(IDs(x) != rownames(x@data)), FALSE)
         if (any(broken_IDs)) {
             for (i in which(broken_IDs)) {
                 rownames(dots[[i]]@data) <- IDs(dots[[i]])
