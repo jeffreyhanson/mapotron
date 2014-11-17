@@ -132,7 +132,6 @@ makeDirs=function(dname) {
 
 saveSpatialData=function(features, expDir, info) {
 	# generate nested list of objects
-	save(features, file="debug/data.RDATA")
 	tempLST=list(POINT=list(), LINESTRING=list(), POLYGON=list())
 	for (i in seq_along(features))
 		tempLST[[class(features[[i]])]][[length(tempLST[[class(features[[i]])]])+1]] = features[[i]]$to.sp()
