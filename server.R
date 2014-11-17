@@ -65,7 +65,6 @@ shinyServer(function(input, output, session) {
 			return()
 		isolate({
 			x=input$map_edit
-			save(x,file="debug/test.RDATA")
 			for (i in seq_along(input$map_edit$list)) {
 				toc$updateFeature(input$map_edit$list[[i]]$id, json=RJSONIO::fromJSON(input$map_edit$list[[i]]$geojson)$geometry)
 			}
@@ -78,6 +77,7 @@ shinyServer(function(input, output, session) {
 		isolate({
 			toc$updateFeature(sanitise(as.character(input$map_note$id),note=input$map_note$text))
 			map$removePopup("map_add_note")
+			session$sendCustomMessage("update_var",list(var="is_dirty", val="true"))
 		})
 	})
 
