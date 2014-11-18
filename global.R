@@ -11,7 +11,6 @@ library(taRifx.geo)
 library(Hmisc)
 library(fortunes)
 library(rgeos)
-library(dplyr)
 
 ### load classes
 source("classes.R")
@@ -304,11 +303,7 @@ to.SpatialPolygons.from.geojson=function(jsonlst, id, crs=CRS("+proj=longlat +el
 }
 
 to.SpatialPolygons.from.circle=function(jsonlst, id, radii, crs=CRS('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ')) {
-	x=	jsonlst %>% 
-		to.SpatialPoints.from.geojson(crs=crs) %>%
-		spTransform(CRSobj=CRS('+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs')) %>%
-		gBuffer(width=radii, byid=TRUE) %>%
-		spTransform(CRSobj=crs)
+	x=spTransform(gBuffer(spTransform(to.SpatialPoints.from.geojson(jsonlst, crs=crs), CRSobj=CRS('+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs')), width=radii, byid=TRUE),CRSobj=crs)
 	return(spChFIDs(x,paste0(id, '_', seq_along(x@polygons))))
 }
 
