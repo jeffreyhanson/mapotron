@@ -24,11 +24,11 @@ TOC = setRefClass("TOC",
 			args<<-list()
 		},
 		newFeature=function(id, data, mode, ...) {
-			if (inherits(data, "SpatialPointsDataFrame")) {
+			if (inherits(data, "SpatialPoints")) {
 				features[[as.character(id)]]<<-POINT$new(id, data, mode, ...)
-			} else if (inherits(data, "SpatialLinesDataFrame")) {
+			} else if (inherits(data, "SpatialLines")) {
 				features[[as.character(id)]]<<-LINESTRING$new(id, data, mode, ...)
-			} else if (inherits(data, "SpatialPolygonsDataFrame")) {
+			} else if (inherits(data, "SpatialPolygons")) {
 				features[[as.character(id)]]<<-POLYGON$new(id, data, mode, ...)
 			} else if (data$type=="Point") {
 				features[[as.character(id)]]<<-POINT$new(id, data, mode, ...)
@@ -184,14 +184,14 @@ POINT=setRefClass("POINT",
 	contains="FEATURE",
 	fields=list(.data="SpatialPoints", .radii="numeric"),
 	methods=list(
-		initialize=function(id, data, mode="rw", name=paste0("F",id), notes=NULL, cols=NULL, radii=NULL) {
+		initialize=function(id, data, mode="rw", name=paste0("F",id), notes=NULL, cols=NULL) {
 			.id<<-as.character(id)
 			.mode<<-mode
 			.name<<-name
-			if (inherits(data, "SpatialPointsDataFrame")) {
+			if (inherits(data, "SpatialPoints")) {
 				update.sp(data)
 			} else {
-				update.json(data, radii)
+				update.json(data)
 			}
 			if (!is.null(notes)) {
 				.notes<<-as.character(notes)
@@ -208,10 +208,7 @@ POINT=setRefClass("POINT",
 				.cols<<-cols
 			}
 		},
-		update.json=function(jsonlst, radii) {
-			if (is.null(radii))
-				radii=rep(as.numeric(NA), nrow(.data@coords))
-			.radii<<-radii
+		update.json=function(jsonlst) {
 			.data<<-to.SpatialPoints.from.geojson(jsonlst)
 		},
 		update.sp=function(x) {
@@ -222,7 +219,7 @@ POINT=setRefClass("POINT",
 			return(to.geojson.from.SpatialPoints(.data, .cols, .notes, defaultStyles[[.mode]]))
 		},
 		to.sp=function() {
-			return(SpatialPointsDataFrame(coords=.data@coords, data=data.frame(note=.notes,radius_m=.radii), proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")))		
+			return(SpatialPointsDataFrame(coords=.data@coords, data=data.frame(note=.notes), proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")))		
 		}
 	)
 )
@@ -235,7 +232,7 @@ LINESTRING=setRefClass("LINESTRING",
 			.id<<-as.character(id)
 			.mode<<-mode
 			.name<<-name
-			if (inherits(data, "SpatialLinesDataFrame")) {
+			if (inherits(data, "SpatialLines")) {
 				update.sp(data)
 			} else {
 				update.json(data)
@@ -288,7 +285,7 @@ POLYGON=setRefClass("POLYGON",
 			.id<<-as.character(id)
 			.mode<<-mode
 			.name<<-name
-			if (inherits(data, "SpatialPolygonsDataFrame")) {
+			if (inherits(data, "SpatialPolygons")) {
 				update.sp(data)
 			} else {
 				update.json(data)

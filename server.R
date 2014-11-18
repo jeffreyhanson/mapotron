@@ -54,7 +54,12 @@ shinyServer(function(input, output, session) {
 		if (is.null(input$map_create))
 			return()
 		isolate({
-			toc$newFeature(input$map_create$id, RJSONIO::fromJSON(input$map_create$geojson)$geometry, "rw", radii=input$map_create$radii)
+			if (is.null(input$map_create$radii)) {
+				toc$newFeature(input$map_create$id, RJSONIO::fromJSON(input$map_create$geojson)$geometry, "rw")
+			} else {
+				toc$newFeature(input$map_create$id, to.SpatialPolygons.from.circle(RJSONIO::fromJSON(input$map_create$geojson)$geometry, id=input$map_create$id, radii=input$map_create$radii), "rw")
+			}
+			
 			session$sendCustomMessage("update_var",list(var="is_dirty", val="true"))
 		})
 	})

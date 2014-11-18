@@ -10,6 +10,8 @@ library(mailR)
 library(taRifx.geo)
 library(Hmisc)
 library(fortunes)
+library(rgeos)
+library(dplyr)
 
 ### load classes
 source("classes.R")
@@ -245,19 +247,19 @@ to.geojson.from.SpatialPolygons=function(x, cols, notes, style) {
 	)
 }
 
-to.SpatialPoints.from.geojson=function(jsonlst) {
+to.SpatialPoints.from.geojson=function(jsonlst, crs=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")) {
 	if (jsonlst$type=="Point") {
 		coords=matrix(jsonlst$coordinates, ncol=2)
 	}
 	return(
 		SpatialPoints(
 			coords,
-			proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")
+			proj4string=crs
 		)
 	)
 }
 
-to.SpatialLines.from.geojson=function(jsonlst, id) {
+to.SpatialLines.from.geojson=function(jsonlst, id, crs=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")) {
 	mainLST=list()
 	if (jsonlst$type=="MultiLineString") {		
 		for (i in seq_along(jsonlst$coordinates)) {
@@ -273,12 +275,12 @@ to.SpatialLines.from.geojson=function(jsonlst, id) {
 	return(
 		SpatialLines(
 				mainLST,
-				proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")
+				crs
 		)
 	)
 }
 
-to.SpatialPolygons.from.geojson=function(jsonlst, id) {
+to.SpatialPolygons.from.geojson=function(jsonlst, id, crs=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")) {
 	mainLST=list()
 	if (jsonlst$type=="MultiPolygon") {		
 		for (i in seq_along(jsonlst$coordinates)) {
@@ -296,11 +298,19 @@ to.SpatialPolygons.from.geojson=function(jsonlst, id) {
 	return(
 		SpatialPolygons(
 				mainLST,
-				proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ")
+				proj4string=crs
 		)
 	)
 }
 
+to.SpatialPolygons.from.circle=function(jsonlst, id, radii, crs=CRS('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs ')) {
+	x=	jsonlst %>% 
+		to.SpatialPoints.from.geojson(crs=crs) %>%
+		spTransform(CRSobj=CRS('+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs')) %>%
+		gBuffer(width=radii, byid=TRUE) %>%
+		spTransform(CRSobj=crs)
+	return(spChFIDs(x,paste0(id, '_', seq_along(x@polygons))))
+}
 
 # sp functions
 IDs.SpatialLinesDataFrame=function (x, ...) {
