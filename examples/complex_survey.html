@@ -1,0 +1,78 @@
+<!--
+Complex example
+
+This example shows how to embed Mapotron in a web page and automatically update the url based on text entered into text boxes on the web page.
+
+The emailaddress parameter is hard-coded so that all notification emails and data are addressed are sent to the same person (presumably the person
+running the survey). Initially Mapotron is not loaded. The user then types in their first name and last name details into "firstname_txt" and "lastname_txt". 
+This triggers the updateURL() function is triggered. If both text boxes are filled, Mapotron will be loaded.
+
+This code was developed specifically to embed Mapotron into survyes generated using https://www.formstack.com/. 
+The styles are compatible formstack as of 18/11/2014.
+
+To recreate this survey in formstack:
+	- delete the html and body tags
+	- create three 'embed code' elements
+	- copy and paste each of three emelemnts below intoa seperate 'embed code element'
+	- if applicable: ad block plugins may have to be disabled
+	
+-->
+
+
+
+<html>
+<body>
+
+<!-- element text boxes -->
+<script>
+	function updateURL() {
+		if (firstname_txt.value!="" && lastname_txt.value!="") {
+			// generate the url
+			var url="https://paleo13.shinyapps.io/mapotron/";
+			url=url.concat("?", "firstname=",firstname_txt.value,"&lastname=",lastname_txt.value,"&emailaddress=fakemcfakeerson@fakemail.com");
+			// update every instance of mapotron
+			mapotronFrame_q1.src = url.concat("&message=location1");
+			mapotronFrame_q2.src = url.concat("&message=location1");
+		}
+	}
+</script>
+
+<div class="fsRowBody fsCell fsFieldCell fsFirst fsLabelVertical fsSpan33" id="mainNameDiv" lang="en">
+	<span id="mainNameLabel" class="fsLabel">Your Name</span>
+	<div class="fsSubFieldGroup">
+		<!-- first name input widget -->
+		<div class="fsSubField">
+			<input type="text" id="firstname_txt" name="firstname_txt" size="20" value="" class="fsField fsFieldName" onchange="updateURL();" />
+			<label class="fsSupporting" for="firstname_txt">First Name</label>
+		</div>
+		<!-- last name input widget -->
+		<div class="fsSubField">
+			<input type="text" id="lastname_txt" name="lastname_txt" size="20" value="" class="fsField fsFieldName" onchange="updateURL();" />
+			<label class="fsSupporting" for="lastname_txt">Last Name</label>
+		</div>
+	</div>
+	<div class="clear"></div>
+</div>
+
+
+<!-- element question 1-->
+<div class="fsRowBody">
+	<h4>Question 1</h4>
+	<p>Draw a polygon around your house.</p>
+	<iframe id="mapotronFrame_q1" style="border: none; width: 1400px; height: 700px"></iframe>
+</div>
+
+<!-- element question 2-->
+<div class="fsRowBody">
+	<h4>Question 2</h4>
+	<p>Place markers on all the trees in your backyard.</p>
+	<iframe id="mapotronFrame_q2" style="border: none; width: 1400px; height: 700px"></iframe>
+</div>
+
+</body>
+</html>
+
+
+
+
+
