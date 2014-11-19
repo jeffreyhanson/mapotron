@@ -39,8 +39,9 @@ TOC = setRefClass("TOC",
 			}
 		},
 		updateFeature=function(id, json=NULL, note=NULL, ...) {
-			if (!is.null(json))
+			if (!is.null(json)) {
 				features[[as.character(id)]]$update.json(json, ...)
+			}
 			if (!is.null(note)) {
 				features[[as.character(id)]]$.notes<<-note
 			}
@@ -208,7 +209,7 @@ POINT=setRefClass("POINT",
 				.cols<<-cols
 			}
 		},
-		update.json=function(jsonlst) {
+		update.json=function(jsonlst, ...) {
 			.data<<-to.SpatialPoints.from.geojson(jsonlst)
 		},
 		update.sp=function(x) {
