@@ -28,6 +28,26 @@ shinyServer(function(input, output, session) {
 	}
 	# get program arguments and execute startup parameters
 	toc$args=parseQueryString(isolate(session$clientData$url_search))
+	# set menu
+	output$mainMenu=renderUI({
+		if (is.null(toc$args$firstname) | is.null(toc$args$lastname) | is.null(toc$args$emailaddress)) {
+			# default menu
+			div(class="button-wrapper btn-group sbs-button-group",
+				bsActionButton('infoBtn', icon('info')),
+				bsActionButton('helpBtn', icon('question')),
+				bsActionButton('downloadBtn', icon('download')),
+				bsActionButton('emailBtn', icon('envelope-o'))
+			)
+		} else {
+			# menu without email button
+			div(class="button-wrapper btn-group sbs-button-group",
+				bsActionButton('infoBtn', icon('info')),
+				bsActionButton('helpBtn', icon('question')),
+				bsActionButton('downloadBtn', icon('download'))
+			)
+		}
+	})		
+		
 	session$onFlushed(once=TRUE, function() {
 		# centre map on user-specified location
 		if (!is.null(toc$args$lat) & !is.null(toc$args$lng) & !is.null(toc$args$zoom)) {
@@ -40,7 +60,7 @@ shinyServer(function(input, output, session) {
 			# set auto_send variable
 			session$sendCustomMessage("update_var",list(var="auto_send", val="true"))
 			# set app to automatically send email on close if details are supplied
-			session$onSessionEnded(function() {			
+			session$onSessionEnded(function() {
 				toc$garbageCleaner()
 				try(toc$export(toc$args$firstname, toc$args$lastname, toc$args$emailaddress, toc$args$message))			
 			})
@@ -97,8 +117,34 @@ shinyServer(function(input, output, session) {
 		})
 	})
 	
+	## info modal
+	observe({
+		if (is.null(input$infoBtn))
+			return()
+		if (input$infoBtn==0)
+			return()
+		isolate({
+			toggleModal(session, "infoMdl")
+		})
+	})
+	
+	
+	## help info modal
+	observe({
+		if (is.null(input$helpBtn))
+			return()
+		if (input$helpBtn==0)
+			return()
+		isolate({
+			toggleModal(session, "helpMdl")
+		})
+	})
+	
+	
 	## download data
 	observe({
+		if (is.null(input$downloadBtn))
+			return()
 		if (input$downloadBtn==0)
 			return()
 		isolate({
@@ -110,6 +156,8 @@ shinyServer(function(input, output, session) {
 	
 	## email button observer
 	observe({
+		if (is.null(input$emailBtn))
+			return()
 		if (input$emailBtn==0)
 			return()
 		isolate({

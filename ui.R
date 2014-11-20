@@ -14,12 +14,7 @@ shinyUI(basicPage(
 				maxBounds = list(list(-90, -180), list(90, 180))
 			)
 		),
-		div(class="button-wrapper btn-group sbs-button-group",
-			bsActionButton('infoBtn', icon('info')),
-			bsActionButton('helpBtn', icon('question')),
-			bsActionButton('downloadBtn', icon('download')),
-			bsActionButton('emailBtn', icon('envelope-o'))
-		)
+		uiOutput("mainMenu")
 	),
 		
 	# email modal
@@ -175,7 +170,7 @@ shinyUI(basicPage(
 	)), 
 		
 	# about modal
-	bsModal("aboutMdl", "About", trigger="infoBtn",
+	bsModal("infoMdl", "About", trigger="infoBtn",
 		tags$div(class="row-fluid",
 			column(
 				fluidRow(
