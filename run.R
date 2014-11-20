@@ -1,6 +1,6 @@
 # debugging computer code
 library(shiny)
-install('C:/Users/jeff/Documents/GitHub/leaflet-shiny')
+# install('C:/Users/jeff/Documents/GitHub/leaflet-shiny')
 runApp("C:/Users/jeff/Documents/GitHub/mapotron")
 
 # deply on server

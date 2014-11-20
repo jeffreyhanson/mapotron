@@ -14,7 +14,16 @@ shinyUI(basicPage(
 				maxBounds = list(list(-90, -180), list(90, 180))
 			)
 		),
-		uiOutput("mainMenu")
+		div(class="button-wrapper btn-group sbs-button-group",
+			bsActionButton('infoBtn', icon('info')),
+			bsActionButton('helpBtn', icon('question')),
+			bsActionButton('downloadBtn', icon('download')),
+			bsActionButton('emailBtn', icon('envelope-o'))
+		),
+		bsTooltip("infoBtn", "Information.", placement = "bottom", trigger = "hover"),
+		bsTooltip("helpBtn", "Help.", placement = "bottom", trigger = "hover"),
+		bsTooltip("downloadBtn", "Download data to computer.", placement = "bottom", trigger = "hover"),
+		bsTooltip("emailBtn", "Email data to friend.", placement = "bottom", trigger = "hover")
 	),
 		
 	# email modal
@@ -32,7 +41,7 @@ shinyUI(basicPage(
 						br(),
 						textInput("lastName", "Last Name", value = ""),
 						br(),
-						textInput("emailAddress", "Colleague's Email Address", value = ""),
+						textInput("emailAddress", "Friend's Email Address", value = ""),
 						br(),
 						br(),
 						div(style="position: relative; left: 25%;",
@@ -298,8 +307,8 @@ shinyUI(basicPage(
 				function(message) {
 					$("#" + message.btn).prop(\"disabled\",true);
 				}
-			);			
-
+			);
+						
 			var enterTextInputBinding = new Shiny.InputBinding();
 				$.extend(enterTextInputBinding, {
 				find: function(scope) {

@@ -19,7 +19,12 @@ shinyServer(function(input, output, session) {
 	toc=TOC$new()
 	id=ID$new()
 	for (i in seq_along(baselayers)) {
-		toc$newFeature(paste0('r_',id$new()), baselayers[[i]], 'r', names(baselayers)[i], baselayers[[i]]@data[[1]], rCols[seq_len(nrow(baselayers[[1]]@data))])
+		if (nrow(baselayers[[i]]@data)<30) {
+			currCols=rCols[seq_len(nrow(baselayers[[1]]@data))]
+		} else {
+			currCols=rep(rCols[i],nrow(baselayers[[1]]@data))
+		}
+		toc$newFeature(paste0('r_',id$new()), baselayers[[i]], 'r', names(baselayers)[i], baselayers[[i]]@data[[1]], currCols)
 	}
 	if (!inherits(emailDF, "try-error")) {
 		toc$email=list(host.name=emailDF$host.name, port=emailDF$port, user.name=emailDF$user.name, passwd=emailDF$password, ssl=TRUE)
@@ -28,26 +33,6 @@ shinyServer(function(input, output, session) {
 	}
 	# get program arguments and execute startup parameters
 	toc$args=parseQueryString(isolate(session$clientData$url_search))
-	# set menu
-	output$mainMenu=renderUI({
-		if (is.null(toc$args$firstname) | is.null(toc$args$lastname) | is.null(toc$args$emailaddress)) {
-			# default menu
-			div(class="button-wrapper btn-group sbs-button-group",
-				bsActionButton('infoBtn', icon('info')),
-				bsActionButton('helpBtn', icon('question')),
-				bsActionButton('downloadBtn', icon('download')),
-				bsActionButton('emailBtn', icon('envelope-o'))
-			)
-		} else {
-			# menu without email button
-			div(class="button-wrapper btn-group sbs-button-group",
-				bsActionButton('infoBtn', icon('info')),
-				bsActionButton('helpBtn', icon('question')),
-				bsActionButton('downloadBtn', icon('download'))
-			)
-		}
-	})		
-		
 	session$onFlushed(once=TRUE, function() {
 		# centre map on user-specified location
 		if (!is.null(toc$args$lat) & !is.null(toc$args$lng) & !is.null(toc$args$zoom)) {
@@ -59,10 +44,17 @@ shinyServer(function(input, output, session) {
 		if (!is.null(toc$args$firstname) & !is.null(toc$args$lastname) & !is.null(toc$args$emailaddress)) {
 			# set auto_send variable
 			session$sendCustomMessage("update_var",list(var="auto_send", val="true"))
+			# set style as disable
+			session$sendCustomMessage("disable_button",list(btn="emailBtn"))
+			# change tool tip
+			removeTooltip(session,"emailBtn")
+			addTooltip(session,"emailBtn", "Data will automatically be emailed.", placement = "bottom", trigger = "hover")
+			
 			# set app to automatically send email on close if details are supplied
 			session$onSessionEnded(function() {
 				toc$garbageCleaner()
-				try(toc$export(toc$args$firstname, toc$args$lastname, toc$args$emailaddress, toc$args$message))			
+				if (length(toc$features)==0)
+					try(toc$export(toc$args$firstname, toc$args$lastname, toc$args$emailaddress, toc$args$message))			
 			})
 		}
 	})
