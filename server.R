@@ -20,9 +20,9 @@ shinyServer(function(input, output, session) {
 	id=ID$new()
 	for (i in seq_along(baselayers)) {
 		if (nrow(baselayers[[i]]@data)<30) {
-			currCols=rCols[seq_len(nrow(baselayers[[1]]@data))]
+			currCols=rCols[seq_len(nrow(baselayers[[i]]@data))]
 		} else {
-			currCols=rep(rCols[i],nrow(baselayers[[1]]@data))
+			currCols=rep(rCols[i],nrow(baselayers[[i]]@data))
 		}
 		toc$newFeature(paste0('r_',id$new()), baselayers[[i]], 'r', names(baselayers)[i], baselayers[[i]]@data[[1]], currCols)
 	}
