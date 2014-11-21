@@ -209,8 +209,8 @@ shinyUI(basicPage(
 							<li>Cheng, J. (2013) <a href=\"https://github.com/jcheng5/leaflet-shiny\" target=\"_blank\">leaflet: Interactive map component for Shiny, using Leaflet.</a> R package version 1.0.</li>
 							<li>Esri (2014) <a href=\"https://github.com/Esri/esri-leaflet\" target=\"_blank\">Esri Leaflet.</a> Release Candidate 4.</li>
 							<li>Friedman, A.B. (2014) <a href=\"https://CRAN.R-project.org/package=taRifx.geo\" target=\"_blank\">taRifx.geo: Collection of various spatial functions.</a> R package version 1.0.6.</li>
-							<li>Google (2014) <a href=\"https://developers.google.com/maps/documentation/\" target=\"_blank\">Google Maps JavaScript API.</a> Version 3.
-							<li>Grundy, D. (2014) <a href=\"https://github.com/FortAwesome/Font-Awesome\" target=\"_blank\">Font Awesome.</a> Version 4.2.0.
+							<li>Google (2014) <a href=\"https://developers.google.com/maps/documentation/\" target=\"_blank\">Google Maps JavaScript API.</a> Version 3.</li>
+							<li>Grundy, D. (2014) <a href=\"https://github.com/FortAwesome/Font-Awesome\" target=\"_blank\">Font Awesome.</a> Version 4.2.0.</li>
 							<li>Harrell, F.E., Dupont, C. and others. (2014) <a href=\"https://CRAN.R-project.org/package=Hmisc\" target=\"_blank\">Hmisc: Harrell Miscellaneous.</a> R package version  3.14-4.</li>
 							<li>Liedman, P. (2014) <a href=\"https://github.com/perliedman/leaflet-control-geocoder\" target=\"_blank\">Leaflet Control Geocoder.</a> version 1.0.0.</li>
 							<li>Mapbox (2014) <a href=\"https://www.mapbox.com/maki/\" target=\"_blank\">MakiMarkers.</a> Version 0.4.5.</li>

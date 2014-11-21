@@ -109,30 +109,6 @@ shinyServer(function(input, output, session) {
 		})
 	})
 	
-	## info modal
-	observe({
-		if (is.null(input$infoBtn))
-			return()
-		if (input$infoBtn==0)
-			return()
-		isolate({
-			toggleModal(session, "infoMdl")
-		})
-	})
-	
-	
-	## help info modal
-	observe({
-		if (is.null(input$helpBtn))
-			return()
-		if (input$helpBtn==0)
-			return()
-		isolate({
-			toggleModal(session, "helpMdl")
-		})
-	})
-	
-	
 	## download data
 	observe({
 		if (is.null(input$downloadBtn))
