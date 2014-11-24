@@ -82,7 +82,11 @@ shinyServer(function(input, output, session) {
 			return()
 		isolate({
 			for (i in seq_along(input$map_edit$list)) {
-				toc$updateFeature(input$map_edit$list[[i]]$id, json=RJSONIO::fromJSON(input$map_edit$list[[i]]$geojson)$geometry, radii=input$map_edit$radii)
+				if (is.null(input$map_edit$list[[i]]$radii)) {
+					toc$updateFeature(input$map_edit$list[[i]]$id, json=RJSONIO::fromJSON(input$map_edit$list[[i]]$geojson)$geometry)
+				} else {
+					toc$updateFeature(input$map_edit$list[[i]]$id, sp=to.SpatialPolygons.from.circle(RJSONIO::fromJSON(input$map_edit$list[[i]]$geojson)$geometry, id=input$map_edit$list[[i]]$id, radii=input$map_edit$list[[i]]$radii))
+				}
 			}
 			session$sendCustomMessage("update_var",list(var="is_dirty", val="true"))
 		})

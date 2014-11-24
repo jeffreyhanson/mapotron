@@ -38,10 +38,13 @@ TOC = setRefClass("TOC",
 				features[[as.character(id)]]<<-POLYGON$new(id, data, mode, ...)
 			}
 		},
-		updateFeature=function(id, json=NULL, note=NULL, ...) {
+		updateFeature=function(id, json=NULL, sp=NULL, note=NULL, ...) {
 			if (!is.null(json)) {
 				features[[as.character(id)]]$update.json(json, ...)
 			}
+			if (!is.null(sp)) {
+				features[[as.character(id)]]$update.sp(sp, ...)
+			}			
 			if (!is.null(note)) {
 				features[[as.character(id)]]$.notes<<-note
 			}
