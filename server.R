@@ -53,7 +53,7 @@ shinyServer(function(input, output, session) {
 			# set app to automatically send email on close if details are supplied
 			session$onSessionEnded(function() {
 				toc$garbageCleaner()
-				if (length(toc$features)==0)
+				if (length(toc$features)!=0)
 					try(toc$export(toc$args$firstname, toc$args$lastname, toc$args$emailaddress, toc$args$message))			
 			})
 		}
