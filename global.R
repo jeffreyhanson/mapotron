@@ -17,7 +17,7 @@ source("classes.R")
 
 ### define global variables
 # load data and set program vars
-program_version="2.0.2"
+program_version="2.0.5"
 load("data/baselayers.RDATA")
 
 # colors
