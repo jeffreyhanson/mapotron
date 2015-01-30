@@ -74,7 +74,7 @@ shinyUI(basicPage(
 				
 				<p>Expert elicitation is an integral component of conservation science (<a href=\"https://onlinelibrary.wiley.com/doi/10.1111/j.1523-1739.2011.01806.x/abstract?deniedAccessCustomisedMessage=&userIsAuthenticated=false\" target=\"_blank\">Martin et al. 2012</a>). We wanted to provide researchers with a simple platform to elicit spatially explicit data from experts. Mapotron is <a href=\"https://github.com/paleo13/mapotron\" target=\"_blank\">open source</a> and free to use for non-commercial purposes.</p>
 				
-				<p>If you have any questions on how to use Mapotron, want to request new features, or wish to contribute base layer datasets, please <a href=\"mailto:&#109;&#097;&#112;&#111;&#116;&#114;&#111;&#110;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109\">contact us</a>.</p>
+				<p>If you have any questions on how to use Mapotron, want to request new features, or wish to contribute base layer datasets, please <a href=\"javascript:location='mailto:\u006a\u0065\u0066\u0066\u0072\u0065\u0079\u002e\u0068\u0061\u006e\u0073\u006f\u006e\u0040\u0075\u0071\u0063\u006f\u006e\u006e\u0065\u0063\u0074\u002e\u0065\u0064\u0075\u002e\u0061\u0075';void 0\">contact us</a>.</p>
 				
 				<p>If you used Mapotron to collect data, please cite this software:</p>",
 				"<p>",paste0("Hanson, J.O., Watts M.E., Barnes M., Ringma, J. & Beher, J. (2014) Mapotron. Version ", program_version, ". URL ",shinyurl, "."),"</p>"),
@@ -140,7 +140,7 @@ shinyUI(basicPage(
 				"Some of the buttons don't work and/or the interface looks really stupid!", 
 				tags$div(class="row-fluid",HTML(
 					"<p>Mapotron was tested using <a href=\"https://www.google.com/chrome/\" target=\"_blank\">Google Chrome</a>. Please use <a href=\"https://www.google.com/chrome/\" target=\"_blank\">Google Chrome</a>.  We cannot guarantee that Mapotron will work with any other web browser; we do not plan to explicitly accommodate other web browsers in the near future.</p>
-					<p>If you are using Google Chrome and encounter issues, please <a href=\"mailto:&#109;&#097;&#112;&#111;&#116;&#114;&#111;&#110;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109\">contact us</a>.</p>"
+					<p>If you are using Google Chrome and encounter issues, please <a href=\"mailto:jeffrey.hanson@uqconnect.edu.au\">contact us</a>.</p>"
 				)),
 				id="col8", value="helpPanel8"
 			),
