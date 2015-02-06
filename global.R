@@ -11,13 +11,15 @@ library(taRifx.geo)
 library(Hmisc)
 library(fortunes)
 library(rgeos)
+library(rDrop)
+library(RCurl)
 
 ### load classes
 source("classes.R")
 
 ### define global variables
 # load data and set program vars
-program_version="2.0.5"
+program_version="2.0.6"
 load("data/baselayers.RDATA")
 
 # colors
@@ -38,6 +40,9 @@ shinyurl="https://paleo13.shinyapps.io/mapotron/"
 emailWhiteList=read.table("other/emailwhitelist.csv", sep=",", header=TRUE, as.is=TRUE)[,1,drop=TRUE]
 emailBlockList=read.table("other/emailblocklist.csv", sep=",", header=TRUE, as.is=TRUE)[,1,drop=TRUE]
 fileExpiry=7
+
+# set up dropbox authorization
+load('other/dropbox.rda')
 
 ### define functions
 # misc functions

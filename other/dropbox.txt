@@ -1,0 +1,2 @@
+email,password,key,secret
+nerp.monitoring@gmail.com,CallMeMaybe?622015,9et7i9n741l6qgq,6ddkpbnqbge6gwi
