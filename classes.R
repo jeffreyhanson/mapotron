@@ -160,6 +160,10 @@ parseFortune(fortune())
 				authenticate = TRUE,
 				send = TRUE
 			)
+			
+			## upload data to dropbox
+			dropbox_put()
+			
 		},
 		garbageCleaner=function() {
 			diskGarbageCleaner()

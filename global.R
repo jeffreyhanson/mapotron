@@ -129,6 +129,7 @@ generateUserId=function(x) {
 
 # file management functions
 makeDirs=function(dname) {
+	# local folders
 	dir.create(file.path("www/exports"), showWarnings=FALSE)
 	dir.create(file.path("www/exports",dname), showWarnings=FALSE)
 	dir.create(file.path("www/exports",dname,"temp"), showWarnings=FALSE)
