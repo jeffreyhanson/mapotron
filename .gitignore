@@ -20,6 +20,7 @@ gmail_emailaccount.csv
 mandrill_emailaccount.csv
 dropbox.txt
 dropbox.rda
+registerDropBox.R
 
 # shiny apps secret key
 shinyapps.txt
