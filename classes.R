@@ -95,6 +95,28 @@ TOC = setRefClass("TOC",
 			## export data
 			saveSpatialData(features[which(sapply(features, function(x){x$.mode=="rw"}))],file.path("www","exports",emailaddress,"data",userId),c("firstname"=firstname,"lastname"=lastname, "message"=emailtxt))			
 			
+			## zip users data and upload data to dropbox
+			usrZipPTH=file.path("www","exports",emailaddress,"data",userId,'user_data.zip')
+			if (file.exists(usrZipPTH))
+				file.remove(usrZipPTH)
+			zip(usrZipPTH, list.files(file.path("www","exports",emailaddress,"data",userId), full.names=TRUE), flags="-r9X -j -q")
+			# upload data to dropbox
+			file.path("www","exports",emailaddress,"data",userId)
+			res=dropbox_put(cred=oauth_cred, usrZipPTH, paste0(
+				'exports/',
+				gsub('[[:punct:]]','-',firstname),' ',
+				gsub('[[:punct:]]','-',lastname),' ',
+				gsub('@', '~AT~', gsub('.','-',emailaddress,fixed=TRUE), fixed=TRUE),'.zip',' ',
+				gsub('[[:punct:]]','-',emailtxt)
+			))
+			if (identical(res, structure("Unauthorized", .Names = "error"))) {
+				print('firstname',firstname)
+				print('lastname',lastname)
+				print('emailaddress',emailaddress)
+				stop('Error: cannot upload data to dropbox')
+			}
+			
+			## save combined data to server
 			# load spatial objects and combine them
 			for (i in c("POINT", "LINESTRING", "POLYGON")) {
 				# get list of files
@@ -160,9 +182,6 @@ parseFortune(fortune())
 				authenticate = TRUE,
 				send = TRUE
 			)
-			
-			## upload data to dropbox
-			dropbox_put()
 			
 		},
 		garbageCleaner=function() {

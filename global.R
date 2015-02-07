@@ -1,4 +1,5 @@
 ### default options
+# options(shiny.error=traceback, stringsAsFactors=FALSE, RCurlOptions = list(cainfo = system.file("CurlSSL", "cacert.pem", package = "RCurl"), verbose = TRUE))
 options(shiny.error=traceback, stringsAsFactors=FALSE)
 
 ### load dependencies
@@ -11,8 +12,8 @@ library(taRifx.geo)
 library(Hmisc)
 library(fortunes)
 library(rgeos)
-library(rDrop)
 library(RCurl)
+library(rDrop)
 
 ### load classes
 source("classes.R")
