@@ -106,8 +106,10 @@ TOC = setRefClass("TOC",
 				'exports/',
 				gsub('[[:punct:]]','-',firstname),' ',
 				gsub('[[:punct:]]','-',lastname),' ',
-				gsub('@', '~AT~', gsub('.','-',emailaddress,fixed=TRUE), fixed=TRUE),'.zip',' ',
-				gsub('[[:punct:]]','-',emailtxt)
+				gsub('@', '~AT~', gsub('.','-',emailaddress,fixed=TRUE), fixed=TRUE),' ',
+				gsub('[[:punct:]]','-',emailtxt),' ',
+				paste(sample(c(letters,LETTERS), size=5), collapse=""),
+				'.zip'
 			))
 			if (identical(res, structure("Unauthorized", .Names = "error"))) {
 				print('firstname',firstname)
