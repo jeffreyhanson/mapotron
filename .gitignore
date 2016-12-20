@@ -34,3 +34,4 @@ Temporary Items
 # Temporary data
 app/data/user/users/*
 !app/data/user/users/fakemcfakeerson@fakemail.com/data.rds
+*-swp
