@@ -13,9 +13,8 @@ RUN apt-get update && apt-get install -y \
 	libssl-dev \
 	gdal-bin \
 	libgdal-dev \
-	libgdal11-dev \
+	libgdal1-dev \
 	libproj-dev \
-	libgeos \
 	libgeos-dev \
 	libgeos-c1
 
