@@ -7,8 +7,8 @@ test:
 	R --slave -e "shiny::runApp('app', port=5922)"
 
 run:
-	docker run -v /data:/host/data --rm -p 80:80 .
+	docker run -v /data:/host/data --rm -p 80:80 mapotron
 build:
-	docker build .
+	docker build -t mapotron .
 
 .PHONY: build all test
