@@ -13,7 +13,7 @@ script:
   - make build
   - make run
   - sleep 60
-  - docker run mapotron "cat /var/log/shiny-server.log"
+  - docker run mapotron cat /var/log/shiny-server/shiny-server.log
 
 after_success:
   - echo "SUCCESS" # TODO upload to production server
