@@ -12,7 +12,7 @@ script:
   - sudo cp -R app/data /data
   - make build
   - make run
-  - sleep 300
+  - sleep 60
   - docker run mapotron "cat /var/log/shiny-server.log"
 
 after_success:

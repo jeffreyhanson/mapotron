@@ -7,7 +7,7 @@ test:
 	R --slave -e "shiny::runApp('app', port=5922)"
 
 run:
-	docker run -d -v /data:/host/data --rm -p 80:80 mapotron "mkdir -p /var/log/shiny-server && chown shiny.shiny && /var/log/shiny-server >> /var/log/shiny-server.log 2>&1"
+	docker run -v /data:/host/data --rm -p 80:80 mapotron "mkdir -p /var/log/shiny-server && chown shiny.shiny && /var/log/shiny-server >> /var/log/shiny-server.log 2>&1"
 
 build:
 	docker build -t mapotron .
