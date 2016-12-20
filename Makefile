@@ -9,6 +9,6 @@ test:
 run:
 	docker run -v /data:/host/data --rm -p 80:80 jeffreyhanson/mapotron
 build:
-	docker build -t jeffreyhanson/mapotron
+	docker build .
 
 .PHONY: build all test

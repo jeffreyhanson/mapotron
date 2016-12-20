@@ -9,7 +9,7 @@ before install:
   - sudo mkdir -p /data
   
 script:
-  - cp -R app/data /data
+  - sudo cp -R app/data /data
   - make all
 
 after_success:
