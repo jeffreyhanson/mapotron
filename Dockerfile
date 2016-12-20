@@ -13,10 +13,9 @@ RUN apt-get update && apt-get install -y \
 	libssl-dev \
 	gdal-bin \
 	libgdal-dev \
-	libgdal1-dev \
 	libproj-dev \
 	libgeos-dev \
-	libgeos-c1
+	libgeos-c1v5
 
 RUN wget --no-verbose https://s3.amazonaws.com/rstudio-shiny-server-os-build/ubuntu-14.04/x86_64/VERSION -O "version.txt" && \
 	VERSION=$(cat version.txt) && \
