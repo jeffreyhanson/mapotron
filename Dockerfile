@@ -1,4 +1,4 @@
-FROM r-base:latest
+FROM r-base
 
 MAINTAINER Jeffrey O Hanson "jeffrey.hanson@uqconnect.edu.au"
 
