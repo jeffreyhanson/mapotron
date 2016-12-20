@@ -1,0 +1,30 @@
+
+pre  {
+	background-color: #FCFCFC;
+}
+
+pre code{
+	color: #FF1493;
+}
+
+code {
+	color: #FF1493;
+	background-color: #FCFCFC;
+}
+
+.map-wrapper {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	overflow: hidden;
+	padding: 0;
+}
+
+.button-wrapper {
+	position: absolute;
+	top: 0%;
+	padding-left: 50%;
+}
+
