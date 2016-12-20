@@ -10,7 +10,10 @@ before install:
   
 script:
   - sudo cp -R app/data /data
-  - make all
+  - make build
+  - make run
+  - sleep 300
+  - docker run mapotron "cat /var/log/shiny-server.log"
 
 after_success:
   - echo "SUCCESS" # TODO upload to production server
