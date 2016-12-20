@@ -28,9 +28,9 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-# system files
-# .directory
+# System files
+.directory
 
-# temporary data
+# Temporary data
 app/data/user/users/*
 !app/data/user/users/fakemcfakeerson@fakemail.com/data.rds
