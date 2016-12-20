@@ -37,5 +37,3 @@ RUN mkdir -p /var/log/shiny-server
 RUN chown shiny.shiny /var/log/shiny-server 
 
 EXPOSE 80
-
-CMD ["exec shiny-server > /var/log/shiny-server/shiny-server.log 2>&1"]
