@@ -1,6 +1,6 @@
 sudo: required
 dist: trusty
-language: r
+language: C
 
 services:
   - docker
@@ -10,7 +10,7 @@ before install:
   
 script:
   - cp -R app/data /data
-  - docker run -v /data:/host/data --rm -p 80:80 jeffreyhanson/mapotron
+  - make all
 
 after_success:
   - echo "SUCCESS" # TODO upload to production server
