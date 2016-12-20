@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
 	libcairo2-dev/unstable \
 	libxt-dev \
 	libssl-dev \
+	libssh2-1-dev \
 	gdal-bin \
 	libgdal-dev \
 	libproj-dev \
