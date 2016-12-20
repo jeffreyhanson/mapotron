@@ -44,7 +44,7 @@ TOC = setRefClass("TOC",
 			}
 			if (!is.null(sp)) {
 				features[[as.character(id)]]$update.sp(sp, ...)
-			}			
+			}
 			if (!is.null(note)) {
 				features[[as.character(id)]]$.notes<<-note
 			}
@@ -57,28 +57,32 @@ TOC = setRefClass("TOC",
 		},
 		download=function() {
 			## prepare directories
-			# create direcroties
-			# generate user 
-			userId=generateUserId(file.path("www","exports"))
+			# create directories
+			# generate user folders
+			userId=generateUserId(data.params.LST[['data.directory']])
 			makeDirs(userId)
-			dir.create(file.path("www","exports",userId,"data",userId), showWarnings=FALSE)
-			zipPTH=file.path("www","exports",userId,"zip","spatialdata.zip")
+			dir.create(file.path(data.params.LST[['data.directory']],userId,"data",userId), showWarnings=FALSE)
+			zipPTH=file.path(data.params.LST[['data.directory']],userId,"zip","spatialdata.zip")
 			
 			## export data
-			saveSpatialData(features[which(sapply(features, function(x){x$.mode=="rw"}))],file.path("www","exports",userId,"data",userId),NULL)
+			saveSpatialData(features[which(sapply(features, function(x){x$.mode=="rw"}))],
+                      file.path(data.params.LST[['data.directory']],userId,"data",userId),
+                      NULL)
 
 			# generate zip file
 			if (file.exists(zipPTH))
 				file.remove(zipPTH)
-			zip(zipPTH, list.files(file.path("www","exports",userId,"data",userId), full.names=TRUE), flags="-r9X -j -q")
+			zip(zipPTH,
+					dir(file.path(data.params.LST[['data.directory']],userId,"data",userId), full.names=TRUE), 
+					flags="-r9X -j -q")
 
 			# return command to parse
-			return(gsub(" ", "%20", paste0(shinyurl,file.path("exports",userId,"zip","spatialdata.zip")), fixed=TRUE))
+			return(gsub(" ", "%20", file.path(app.params.LST[['application.url']],'/', zipPTH), fixed=TRUE))
 		},
 		
 		export=function(firstname, lastname, emailaddress, emailtxt) {
 			## test if email settings loaded
-			if (length(email)==0) {
+			if (inherits(email, 'try-error')) {
 				stop("Email settings failed to load. You cannot send emails!")
 			}
 			## replace emailTxt with NA if NULL
@@ -88,20 +92,22 @@ TOC = setRefClass("TOC",
 			## prepare directories
 			# generate a user id
 			makeDirs(emailaddress)
-			userId=generateUserId(file.path("www","exports",emailaddress,"data"))
-			dir.create(file.path("www","exports",emailaddress,"data",userId), showWarnings=FALSE)		
-			zipPTH=file.path("www","exports",emailaddress,"zip","spatialdata.zip")
+			userId=generateUserId(file.path(data.params.LST[['data.directory']],emailaddress,"data"))
+			dir.create(file.path(data.params.LST[['data.directory']],emailaddress,"data",userId), showWarnings=FALSE)
+			zipPTH=file.path(data.params.LST[['data.directory']],emailaddress,"zip","spatialdata.zip")
 			
 			## export data
-			saveSpatialData(features[which(sapply(features, function(x){x$.mode=="rw"}))],file.path("www","exports",emailaddress,"data",userId),c("firstname"=firstname,"lastname"=lastname, "message"=emailtxt))			
+			saveSpatialData(features[which(sapply(features, function(x){x$.mode=="rw"}))],
+											file.path(data.params.LST[['data.directory']],emailaddress,"data"),
+											c("firstname"=firstname,"lastname"=lastname, "message"=emailtxt))
 			
 			# load spatial objects and combine them
 			for (i in c("POINT", "LINESTRING", "POLYGON")) {
 				# get list of files
-				currVEC=gsub(".shp", "", list.files(file.path("www","exports",emailaddress,"data"), paste0("^",i,".*.shp$"), full.names=TRUE, recursive=TRUE), fixed=TRUE)
+				currVEC=gsub(".shp", "", dir(file.path(data.params.LST[['data.directory']],emailaddress,"data"), paste0("^",i,".*.shp$"), full.names=TRUE, recursive=TRUE), fixed=TRUE)
 				if (length(currVEC)>0) {
 					currVEC=Map(readOGR, dirname(currVEC), basename(currVEC), verbose=FALSE)
-					if (i %in% c("LINESTRING","POLYGON")) {					
+					if (i %in% c("LINESTRING","POLYGON")) {
 						currVEC=lapply(seq_along(currVEC), function(x) {
 							return(spChFIDs(currVEC[[x]], paste0(x,"_",row.names(currVEC[[x]]@data))))
 						})
@@ -109,7 +115,7 @@ TOC = setRefClass("TOC",
 					currShp=do.call(rbind, currVEC)
 					writeOGR(
 						currShp,
-						file.path("www/exports",emailaddress,"temp"),
+						file.path(data.params.LST[['data.directory']],emailaddress,"tmp"),
 						i,
 						overwrite=TRUE,
 						driver="ESRI Shapefile"
@@ -120,59 +126,56 @@ TOC = setRefClass("TOC",
 			# generate zip file
 			if (file.exists(zipPTH))
 				file.remove(zipPTH)
-			zip(zipPTH, list.files(file.path("www/exports",emailaddress,"temp"), full.names=TRUE), flags="-r9X -j -q")
+			zip(zipPTH,
+					dir(file.path(data.params.LST[['data.directory']],emailaddress,"tmp"), full.names=TRUE),
+					flags="-r9X -j -q")
 			
 			## send email
 			txt1=ifelse(nchar(emailtxt)==0,"",paste0("They also left the following message: ",emailtxt))
-			txt2=ifelse(emailaddress %in% emailWhiteList,"",paste0("You have ",fileExpiry, " days to download this data before it is automatically deleted."))
-			send.mail(from = "mapotron@gmail.com", html=FALSE,
-				to = paste0(firstname, " ", lastname, " <", emailaddress, ">"),
-				subject = paste0(firstname," ",lastname," made you some spatial data!"),
-				body = paste0("
+			txt2=ifelse(emailaddress %in% emailWhiteList,"",paste0("You have ",data.params.LST[['data.directory']], " days to download this data before it is automatically deleted."))
+			f <- tempfile(fileext='.txt')
+			cat('
+To: ',paste0(firstname, " ", lastname, " <", emailaddress, ">"),'
+From: ',app.params.LST[['email.address']],'
+Subject: ',paste0(firstname," ",lastname," made you some spatial data!"),'
 Hi,
 
-",capitalize(firstname)," ",capitalize(lastname)," generated some spatial data for you,
+',capitalize(firstname),' ',capitalize(lastname),' generated some spatial data for you,
 
-",
+',
 txt1
-,"
+,'
 
 Download all the data people have made for you here:
 
-", gsub(" ", "%20", paste0(shinyurl,file.path("exports",emailaddress,"zip","spatialdata.zip")), fixed=TRUE),"
+', gsub(' ', '%20', file.path(data.params.LST[['data.directory']],emailaddress,'zip','spatialdata.zip'), fixed=TRUE),'
 
-",
+',
 txt2
-,"
+,'
 
 Cheers,
 
-Mapotron (",substr(shinyurl, 1, nchar(shinyurl)-1),")
+Mapotron (',app.params.LST[['application.url']],')
 
-------------------",
-parseFortune(fortune())
-
-,"
-
-")
-,
-				smtp = email,
-				authenticate = TRUE,
-				send = TRUE
-			)
+------------------',
+parseFortune(fortune()), '\n',
+			file=f)
+			system(paste('ssmtp', emailaddress, '<', f))
+			unlink(f)
 		},
 		garbageCleaner=function() {
 			diskGarbageCleaner()
 		},
 		diskGarbageCleaner=function() {
 			# get date modified info for dirs
-			dirs=setdiff(list.dirs(file.path("www","exports"),recursive=FALSE), emailWhiteList)
+			dirs=setdiff(dir(data.params.LST[['data.directory']],recursive=FALSE, full.names=TRUE), emailWhiteList)
 			if (length(dirs)>0) {
 				# get modified date times for dirs
-				dirs=dirs[which(difftime(Sys.time(),file.info(dirs)$mtime,units="days")>fileExpiry)]
+				dirs=dirs[which(difftime(Sys.time(),file.info(dirs)$mtime,units="days")>data.params.LST[['number.of.days.to.retain.data']])]
 				# delete dirs that haven't been modified in a while
 				if (length(dirs)>0) {
-					unlink(dirs, recursive=TRUE)
+					try(unlink(dirs, recursive=TRUE, force=TRUE), silent=TRUE)
 				}
 			}
 		}

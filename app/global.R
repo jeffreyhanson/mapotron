@@ -1,24 +1,34 @@
 ### default options
-options(shiny.error=traceback, stringsAsFactors=FALSE)
+options(stringsAsFactors=FALSE)
 
 ### load dependencies
 library(rgdal)
 library(leaflet)
 library(RColorBrewer)
 library(shinyBS)
-library(mailR)
-library(taRifx.geo)
 library(Hmisc)
 library(fortunes)
 library(rgeos)
+library(RcppTOML)
 
 ### load classes
 source("classes.R")
 
 ### define global variables
-# load data and set program vars
-program_version="2.0.5"
-load("data/baselayers.RDATA")
+
+# load program parameters
+app.params.LST <- parseTOML('parameters/app.toml')
+MODE <- c('debug', 'release')[as.numeric(Sys.info()['nodename'] == app.params.LST[['production.server']])+1]
+app.params.LST <- app.params.LST[[MODE]]
+data.params.LST <- parseTOML('parameters/data.toml')[[MODE]]
+
+# load email lists
+email.params.LST <- parseTOML('parameters/email.toml')
+emailWhiteList=email.params.LST[['whitelist']]
+emailBlockList=email.params.LST[['blocklist']]
+
+# parse program version from DESCRIPTION
+program_version <- strsplit(grep('Version', readLines('DESCRIPTION'), value=TRUE), ': ', fixed=TRUE)[[1]][[2]]
 
 # colors
 rwPals=c("Set1", "Dark2", "Accent")
@@ -32,12 +42,6 @@ defaultStyles=list(
 	rw=list(fillOpacity=0.7,opacity=1),
 	r=list(fillOpacity=0.6,opacity=0.9)
 )
-# server settings
-emailDF=try(read.table("other/mandrill_emailaccount.csv", sep=",", header=TRUE, as.is=TRUE))
-shinyurl="https://paleo13.shinyapps.io/mapotron/"
-emailWhiteList=read.table("other/emailwhitelist.csv", sep=",", header=TRUE, as.is=TRUE)[,1,drop=TRUE]
-emailBlockList=read.table("other/emailblocklist.csv", sep=",", header=TRUE, as.is=TRUE)[,1,drop=TRUE]
-fileExpiry=7
 
 ### define functions
 # misc functions
@@ -124,11 +128,10 @@ generateUserId=function(x) {
 
 # file management functions
 makeDirs=function(dname) {
-	dir.create(file.path("www/exports"), showWarnings=FALSE)
-	dir.create(file.path("www/exports",dname), showWarnings=FALSE)
-	dir.create(file.path("www/exports",dname,"temp"), showWarnings=FALSE)
-	dir.create(file.path("www/exports",dname,"zip"), showWarnings=FALSE)
-	dir.create(file.path("www/exports",dname,"data"), showWarnings=FALSE)
+	dir.create(file.path(data.params.LST[['data.directory']],dname,"temp"), showWarnings=FALSE, recursive=TRUE)
+	dir.create(file.path(data.params.LST[['data.directory']],dname,"zip"), showWarnings=FALSE, recursive=TRUE)
+	dir.create(file.path(data.params.LST[['data.directory']],dname,"data"), showWarnings=FALSE, recursive=TRUE)
+	dir.create(file.path(data.params.LST[['data.directory']],dname,"basemap"), showWarnings=FALSE, recursive=TRUE)
 }
 
 saveSpatialData=function(features, expDir, info) {
@@ -143,7 +146,7 @@ saveSpatialData=function(features, expDir, info) {
 			currSp=do.call(rbind, tempLST[[i]])
 			for (j in seq_along(info))
 				currSp@data[[names(info)[j]]]=info[[j]]
-			currSp@data$created	= as.character(format(Sys.time(), tz="Australia/Brisbane"))
+			currSp@data$created= as.character(format(Sys.time(), tz="Australia/Brisbane"))
 			writeOGR(
 				currSp,
 				expDir,
@@ -345,6 +348,4 @@ rbind.SpatialLinesDataFrame=function (..., fix.duplicated.IDs = TRUE) {
     df = do.call("rbind", lapply(dots, function(x) x@data))
     sp::SpatialLinesDataFrame(pl, df)
 }
-
-
 

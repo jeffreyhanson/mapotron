@@ -28,7 +28,7 @@ To recreate this survey in formstack:
 	function updateURL() {
 		if (firstname_txt.value!="" && lastname_txt.value!="") {
 			// generate the url
-			var url="https://paleo13.shinyapps.io/mapotron/";
+			var url="http://mapotron.org/";
 			url=url.concat("?", "firstname=",firstname_txt.value,"&lastname=",lastname_txt.value,"&emailaddress=fakemcfakeerson@fakemail.com");
 			// update every instance of mapotron
 			mapotronFrame_q1.src = url.concat("&message=location1");
@@ -71,8 +71,5 @@ To recreate this survey in formstack:
 
 </body>
 </html>
-
-
-
 
 

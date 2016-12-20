@@ -1,5 +1,4 @@
 library(leaflet)
-library(ShinyDash)
 
 shinyUI(basicPage(
 	# leaflet map
@@ -15,10 +14,10 @@ shinyUI(basicPage(
 			)
 		),
 		div(class="button-wrapper btn-group sbs-button-group",
-			bsActionButton('infoBtn', icon('info')),
-			bsActionButton('helpBtn', icon('question')),
-			bsActionButton('downloadBtn', icon('download')),
-			bsActionButton('emailBtn', icon('envelope-o'))
+			bsButton('infoBtn', icon('info')),
+			bsButton('helpBtn', icon('question')),
+			bsButton('downloadBtn', icon('download')),
+			bsButton('emailBtn', icon('envelope-o'))
 		),
 		bsTooltip("infoBtn", "Information.", placement = "bottom", trigger = "hover"),
 		bsTooltip("helpBtn", "Help.", placement = "bottom", trigger = "hover"),
@@ -45,7 +44,7 @@ shinyUI(basicPage(
 						br(),
 						br(),
 						div(style="position: relative; left: 25%;",
-								bsActionButton("sendEmailBtn", label="Send Data", style="primary")
+								bsButton("sendEmailBtn", label="Send Data", style="primary")
 						)
 					),
 					column(width=4,
@@ -67,74 +66,74 @@ shinyUI(basicPage(
 	# help modal
 	bsModal("helpMdl", "Help", trigger="helpBtn",
 		tags$div(class="row-fluid",
-		bsCollapse(multiple = FALSE, open = "col1", id = "helpCollapse",
+		bsCollapse(multiple = FALSE, open = "helpPanel1", id = "helpCollapse",
 			bsCollapsePanel(
 				"What's your deal?", 
 				HTML("
 				
 				<p>Expert elicitation is an integral component of conservation science (<a href=\"https://onlinelibrary.wiley.com/doi/10.1111/j.1523-1739.2011.01806.x/abstract?deniedAccessCustomisedMessage=&userIsAuthenticated=false\" target=\"_blank\">Martin et al. 2012</a>). We wanted to provide researchers with a simple platform to elicit spatially explicit data from experts. Mapotron is <a href=\"https://github.com/paleo13/mapotron\" target=\"_blank\">open source</a> and free to use for non-commercial purposes.</p>
 				
-				<p>If you have any questions on how to use Mapotron, want to request new features, or wish to contribute base layer datasets, please <a href=\"javascript:location='mailto:\u006a\u0065\u0066\u0066\u0072\u0065\u0079\u002e\u0068\u0061\u006e\u0073\u006f\u006e\u0040\u0075\u0071\u0063\u006f\u006e\u006e\u0065\u0063\u0074\u002e\u0065\u0064\u0075\u002e\u0061\u0075';void 0\">contact us</a>.</p>
+				<p>If you have any questions on how to use Mapotron, want to request new features, or wish to contribute base layer datasets, please <a href=\"javascript:location='mailto:jeffrey.hanson@uqconnect.edu.au';void 0\">contact us</a>.</p>
 				
 				<p>If you used Mapotron to collect data, please cite this software:</p>",
-				"<p>",paste0("Hanson, J.O., Watts M.E., Barnes M., Ringma, J. & Beher, J. (2014) Mapotron. Version ", program_version, ". URL ",shinyurl, "."),"</p>"),
-				id="col1", value="helpPanel1"),
+				"<p>",paste0("Hanson, J.O., Watts M.E., Barnes M., Ringma, J. & Beher, J. (2014) Mapotron. Version ", program_version, ". URL ",app.params.LST[['application.url']], "."),"</p>"),
+				value="helpPanel1"),
 			bsCollapsePanel(
 				"How can I navigate to a particular location?", 
 				tags$div(class="row-fluid",
-					"Click and drag the mouse to pan around the map, and use the scroll wheel on your mouse to zoom in and out. Additionally, if you know the name of a place you wish to navigate to (eg.Brisbane): click on the geocoder icon (",
-					suppressWarnings(bsActionButton("geocoder_help", img(src="icons/geocoderBtn.png", height=20, width=20))),
+					"Click and drag the mouse to pan around the map, and use the scroll wheel on your mouse to zoom in and out. Additionally, if you know the name of a place you wish to navigate to (eg. Brisbane): click on the geocoder icon (",
+					suppressWarnings(bsButton("geocoder_help", img(src="icons/geocoderBtn.png", height=20, width=20))),
 					"), type in the place name, and press the enter key."
 				),
-				id="col2", value="helpPanel2"
+				value="helpPanel2"
 			),
 			bsCollapsePanel(
 				"How do I draw new features?", 
 				tags$div(class="row-fluid",
 					"You can draw points(",
-					suppressWarnings(bsActionButton("pointBtn_help", img(src="icons/pointBtn.png", height=20, width=20))),
+					suppressWarnings(bsButton("pointBtn_help", img(src="icons/pointBtn.png", height=20, width=20))),
 					"), lines (",
-					suppressWarnings(bsActionButton("lineBtn_help", img(src="icons/lineBtn.png", height=20, width=20))),
+					suppressWarnings(bsButton("lineBtn_help", img(src="icons/lineBtn.png", height=20, width=20))),
 					"), polygons (",
-					suppressWarnings(bsActionButton("polygonBtn_help", img(src="icons/polygonBtn.png", height=20, width=20))),
+					suppressWarnings(bsButton("polygonBtn_help", img(src="icons/polygonBtn.png", height=20, width=20))),
 					"), rectangles (",
-					suppressWarnings(bsActionButton("rectangleBtn_help", img(src="icons/rectangleBtn.png", height=20, width=20))),
+					suppressWarnings(bsButton("rectangleBtn_help", img(src="icons/rectangleBtn.png", height=20, width=20))),
 					"), circles (",
-					suppressWarnings(bsActionButton("circleBtn_help", img(src="icons/circleBtn.png", height=20, width=20))),
+					suppressWarnings(bsButton("circleBtn_help", img(src="icons/circleBtn.png", height=20, width=20))),
 					"by clicking on one of these buttons, and then clicking on the map. Each click will add a new point or add vertex to a line or polygon feature."
 				),
-				id="col3", value="helpPanel3"
+				value="helpPanel3"
 			),
 			bsCollapsePanel(
 				"How do I edit or delete existing features?", 
 				tags$div(class="row-fluid",
 					"Click on the edit button(",
-					suppressWarnings(bsActionButton("editBtn_help", img(src="icons/editBtn.png", height=20, width=20))),
+					suppressWarnings(bsButton("editBtn_help", img(src="icons/editBtn.png", height=20, width=20))),
 					"), and then move points/vertices. Click 'Save' if you wish to keep these edits or 'cancel' if you wish to undo these changes. Click on the delete button (",
-					suppressWarnings(bsActionButton("editBtn_help", img(src="icons/deleteBtn.png", height=20, width=20))),
+					suppressWarnings(bsButton("editBtn_help", img(src="icons/deleteBtn.png", height=20, width=20))),
 					"), and then click on a feature to remove it. Similar to the edit button, click 'Save' if you wish to keep these changes, or 'cancel' to undo them."
 				),
-				id="col4", value="helpPanel4"
-			),				
+				value="helpPanel4"
+			),
 			bsCollapsePanel(
 				"How can I label features?", 
 				tags$div(class="row-fluid",
 					"Right click on a feature and a textbox will appear. Type your label into this textbox and press enter to save."
 				),
-				id="col5", value="helpPanel5"
+				value="helpPanel5"
 			),
 			bsCollapsePanel(
 				"I've finished making the data, what now?", 
 				tags$div(class="row-fluid",
 					"You can download a zipfile containing data by clicking on the download button (",
-					bsButton("downloadBtn_help", img(src="icons/downloadBtn.png", height=20, width=20)),	
+					bsButton("downloadBtn_help", label=img(src="icons/downloadBtn.png", height=20, width=20)),
 					"). Alternatively, you can send this data to a colleague, by clicking on the email button (",
-					bsButton("emailBtn_help", img(src="icons/emailBtn.png", height=20, width=20)),
+					bsButton("emailBtn_help", label=img(src="icons/emailBtn.png", height=20, width=20)),
 					"), filling in the text boxes, and clicking on the send data button(",
-					bsActionButton("sendEmailBtn_help", label="Send Data", style="primary"),
+					bsButton("sendEmailBtn_help", label="Send Data", style="primary"),
 					")."
 				),
-				id="col7", value="helpPanel7"
+				value="helpPanel7"
 			),
 			bsCollapsePanel(
 				"Some of the buttons don't work and/or the interface looks really stupid!", 
@@ -142,16 +141,16 @@ shinyUI(basicPage(
 					"<p>Mapotron was tested using <a href=\"https://www.google.com/chrome/\" target=\"_blank\">Google Chrome</a>. Please use <a href=\"https://www.google.com/chrome/\" target=\"_blank\">Google Chrome</a>.  We cannot guarantee that Mapotron will work with any other web browser; we do not plan to explicitly accommodate other web browsers in the near future.</p>
 					<p>If you are using Google Chrome and encounter issues, please <a href=\"mailto:jeffrey.hanson@uqconnect.edu.au\">contact us</a>.</p>"
 				)),
-				id="col8", value="helpPanel8"
+				value="helpPanel8"
 			),
 			bsCollapsePanel(
 				"How can I embed Mapotron in my survey?", 
 				tags$div(class="row-fluid",HTML(
 					paste0("<p> You can embed Mapotron in a web page using the following html code:</p>
-					<pre><code>&lt;iframe src=\"",shinyurl,"\" style=\"border: none; width: 440px; height: 500px\">&lt;/iframe></code></pre>
+					<pre><code>&lt;iframe src=\"",app.params.LST[['application.url']],"\" style=\"border: none; width: 440px; height: 500px\">&lt;/iframe></code></pre>
 					<p>You can change the <code>width</code> and <code>height</code> arguments to change the size of Mapotron in your web page.")
 				)),
-				id="col9", value="helpPanel9"
+				value="helpPanel9"
 			),
 			bsCollapsePanel(
 				"How can I customise Mapotron for my survey?", 
@@ -161,19 +160,19 @@ shinyUI(basicPage(
 						<ul>
 							<li>
 								<p>You can specify latitude, longitude and zoom level parameters to set the starting location:</p>
-								<pre><code>",shinyurl,"?lng=-27.56&lat=140.5&zoom=5</code></pre>
+								<pre><code>",app.params.LST[['application.url']],"?lng=-27.56&lat=140.5&zoom=5</code></pre>
 							</li>
 							<li>
 								<p>You can specify the first name, last name, email address, and message parameters.
-								Mapotron will automatically save the data and send a notification email when these parameters are supplied. Note the email button (",suppressWarnings(bsActionButton("emailBtn_help", img(src="icons/emailBtn.png", height=20, width=20))),") can still be used to send the notification.
+								Mapotron will automatically save the data and send a notification email when these parameters are supplied. Note the email button (",suppressWarnings(bsButton("emailBtn_help", img(src="icons/emailBtn.png", height=20, width=20))),") can still be used to send the notification.
 								You can use the message parameter to store metadata since messages are stored in the shapefiles' attribute tables. For example, if you have multiple questions in your survey, each with a separate instance of Mapotron, you can use the message parameter to associate each feature with its corresponding question:</p>
-								<pre><code>",shinyurl,"?firstname=Greg&lastname=McGreggorson&emailaddress=fakemcfakeerson@fakemail.com&message=question1</code></pre>
+								<pre><code>",app.params.LST[['application.url']],"?firstname=Greg&lastname=McGreggorson&emailaddress=fakemcfakeerson@fakemail.com&message=question1</code></pre>
 							</li>
 						</ul>
 						"
 					)
 				)),
-				id="col10", value="helpPanel10"
+				value="helpPanel10"
 			)
 		)
 	)), 
@@ -356,8 +355,6 @@ shinyUI(basicPage(
 				}
 			});
 			Shiny.inputBindings.register(enterTextInputBinding, \'shiny.enterTextInput\');
-
-			
 		'))
 	)
 ))

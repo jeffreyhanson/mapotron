@@ -14,18 +14,12 @@ bindEvent <- function(eventExpr, callback, env=parent.frame(), quoted=FALSE) {
 ### shiny server function
 shinyServer(function(input, output, session) {
 	## initialization
-	# prepare toc
+	# initialize widgets
 	map=createLeafletMap(session, 'map')
 	toc=TOC$new()
 	id=ID$new()
-	for (i in seq_along(baselayers)) {
-		if (nrow(baselayers[[i]]@data)<30) {
-			currCols=rCols[seq_len(nrow(baselayers[[i]]@data))]
-		} else {
-			currCols=rep(rCols[i],nrow(baselayers[[i]]@data))
-		}
-		toc$newFeature(paste0('r_',id$new()), baselayers[[i]], 'r', names(baselayers)[i], baselayers[[i]]@data[[1]], currCols)
-	}
+	# load email data
+	emailDF <- try(a + 1, silent=TRUE) # TODO: reimplement email services
 	if (!inherits(emailDF, "try-error")) {
 		toc$email=list(host.name=emailDF$host.name, port=emailDF$port, user.name=emailDF$user.name, passwd=emailDF$password, ssl=TRUE)
 	} else {
@@ -40,6 +34,28 @@ shinyServer(function(input, output, session) {
 				map$setView(as.numeric(toc$args$lat), as.numeric(toc$args$lng), as.numeric(toc$args$zoom), FALSE)
 			}
 		}
+		# load basemap data
+		if (!is.null(toc$args$emailaddress)) {
+			if (file.exists(file.path(data.params.LST[['data.directory']],dname,"basemap"))) {
+				files <- dir(file.path(data.params.LST[['data.directory']],dname,"basemap"), '^.*\\.rds', full.names=TRUE)
+				for (f in files) {
+					d <- readRDS(d)
+					if (!is.list(d)) {
+						d <- structure(d, names='Data')
+					}
+					for (di in seq_along(d)) {
+						if (is.Spatial(d[[di]])) {
+							if (nrow(baselayers[[i]]@data)<30) {
+								currCols=rCols[seq_len(nrow(d[[di]]@data))]
+							} else {
+								currCols=rep(rCols[di],nrow(d[[di]]@data))
+							}
+								toc$newFeature(paste0('r_',id$new()), d[[di]], 'r', names(d)[di], d[[di]]@data[[1]], currCols)
+							}
+						}
+				}
+			}
+		}
 		# set args to automatically send data on close
 		if (!is.null(toc$args$firstname) & !is.null(toc$args$lastname) & !is.null(toc$args$emailaddress)) {
 			# set auto_send variable
@@ -49,12 +65,11 @@ shinyServer(function(input, output, session) {
 			# change tool tip
 			removeTooltip(session,"emailBtn")
 			addTooltip(session,"emailBtn", "Data will automatically be emailed.", placement = "bottom", trigger = "hover")
-			
 			# set app to automatically send email on close if details are supplied
 			session$onSessionEnded(function() {
 				toc$garbageCleaner()
 				if (length(toc$features)!=0)
-					try(toc$export(toc$args$firstname, toc$args$lastname, toc$args$emailaddress, toc$args$message))			
+					try(toc$export(toc$args$firstname, toc$args$lastname, toc$args$emailaddress, toc$args$message))
 			})
 		}
 	})

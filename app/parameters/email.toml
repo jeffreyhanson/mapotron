@@ -1,0 +1,13 @@
+title = "Email settings"
+
+[whitelist]
+- fakemcfakeerson@fakemail.com
+- jeffrey.hanson@uqconnect.edu.au
+- m.watts@uq.edu.au
+- j.beher@uq.edu.au
+- m.barnes4@uq.edu.au
+- nerp.monitoring@gmail.com
+- fakemcfakeerson@fakemail.com,
+
+[blocklist]
+- fakemcfakeerson@fakemail.com

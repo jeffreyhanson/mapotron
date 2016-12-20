@@ -1,0 +1,11 @@
+title = "Application parameters"
+
+production.server = 'mapotron'
+
+[debug]
+application.url = ''
+email.address = 'admin@mapotron.org'
+
+[release]
+application.url = 'http://mapotron.org'
+email.address = 'admin@mapotron.org'

@@ -1,0 +1,21 @@
+sudo: required
+dist: trusty
+language: r
+
+services:
+  - docker
+
+before install:
+  - sudo mkdir -p /data
+  
+script:
+  - cp -R app/data /data
+  - docker run -v /data:/host/data --rm -p 80:80 jeffreyhanson/mapotron
+
+after_success:
+  - echo "SUCCESS" # TODO upload to production server
+
+notifications:
+  email:
+    on_success: change
+    on_failure: change

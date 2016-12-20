@@ -16,7 +16,7 @@ updateURL function and update the iframe's url, so that it loads Mapotron with t
 
 <script>
 	function updateURL() {
-		var url="https://paleo13.shinyapps.io/mapotron/";
+		var url="http://mapotron.org/";
 		url=url.concat("?", "firstname=",firstnameInput.value,"&lastname=",lastnameInput.value,"&message=",messageInput.value,"&emailaddress=",emailInput.value);
 		mapotronFrame.src = url;
 	}

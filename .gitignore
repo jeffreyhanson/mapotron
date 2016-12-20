@@ -14,28 +14,6 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 
-# email details file
-emailaccount.csv
-gmail_emailaccount.csv
-mandrill_emailaccount.csv
-
-# shiny apps secret key
-shinyapps.txt
-
-# =========================
-# Operating System Files
-# =========================
-
-# OSX
-# =========================
-
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Icon must end with two \r
-Icon
-
 # Thumbnails
 ._*
 
@@ -49,3 +27,7 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# temporary data
+app/data/user/users/*
+!app/data/user/users/fakemcfakeerson@fakemail.com/data.rds

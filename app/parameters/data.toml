@@ -1,0 +1,10 @@
+title = "Data parameters" 
+
+
+[debug]
+number.of.days.to.retain.data = 7
+data.directory = 'data/users'
+
+[release]
+number.of.days.to.retain.data = 7
+data.directory = '/data'
