@@ -23,7 +23,7 @@ RUN wget --no-verbose https://s3.amazonaws.com/rstudio-shiny-server-os-build/ubu
 	gdebi -n ss-latest.deb && \
 	rm -f version.txt ss-latest.deb
  
-RUN R -e "install.packages(c('ghit', 'rgdal', 'shiny', 'rgeos', 'HMisc', 'RColorBewer', 'fortunes', 'shinyBS', 'RcppTOML', 'RJSONIO', repos='http://cran.rstudio.com/'))"
+RUN R -e "install.packages(c('ghit', 'rgdal', 'shiny', 'rgeos', 'Hmisc', 'RColorBrewer', 'fortunes', 'shinyBS', 'RcppTOML', 'RJSONIO', repos='http://cran.rstudio.com/'))"
 
 RUN R -e  "ghit::install_github('jeffreyhanson/leaflet-shiny')"
 
@@ -34,4 +34,4 @@ EXPOSE 80
 
 COPY shiny-server.sh /usr/bin/shiny-server.sh
 
-CMD ["/usr/bin/shiny-server.sh"]
+CMD ["sudo /usr/bin/shiny-server.sh"]
