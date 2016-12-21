@@ -2,7 +2,7 @@ FROM r-base
 
 MAINTAINER Jeffrey O Hanson "jeffrey.hanson@uqconnect.edu.au"
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --allow-downgrades \
 	sudo \
 	gdebi-core \
 	pandoc \
