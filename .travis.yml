@@ -15,7 +15,7 @@ before install:
 script:
   - sudo cp -R app/data/ /data
   - make build
-  - make run &
+  - docker run -v /data:/host/data -d -p 80:80 mapotron
   - sleep 60
   - docker run mapotron cat /var/log/shiny-server/shiny-server.log
 
