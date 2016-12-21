@@ -2,14 +2,14 @@ sudo: required
 dist: trusty
 language: C
 
+
 services:
   - docker
 
 before install:
-  - openssl aes-256-cbc -K $encrypted_7a7b4fe22176_key -iv $encrypted_7a7b4fe22176_iv -in mapotron.enc -out mapotron -d
-  - mkdir -p ~/.ssh
-  - cp mapotron ~/.ssh/mapotron
-  - chmod 600 ~/.ssh/mapotron
+  - openssl aes-256-cbc -K $encrypted_7a7b4fe22176_key -iv $encrypted_7a7b4fe22176_iv -in mapotron.pem.enc -out ~/.ssh/mapotron.pem -d
+  - chmod 600 ~/.ssh/mapotron.pem
+  - ssh-add ~/.ssh/mapotron.pem
   - sudo mkdir -p /data
   
 script:
@@ -21,6 +21,7 @@ script:
 
 after_success:
   - echo "SUCCESS"
+  - git remote add dokku dokku@mapotron.org:mapotron
   - git push dokku master
 
 notifications:
