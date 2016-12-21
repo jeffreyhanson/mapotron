@@ -17,7 +17,7 @@ script:
   - make build
   - docker run -v /data:/host/data -d -p 80:80 mapotron
   - sleep 60
-  - docker run mapotron cat /var/log/shiny-server/shiny-server.log
+  - docker exec mapotron cat /var/log/shiny-server/shiny-server.log
 
 after_success:
   - echo "SUCCESS"
