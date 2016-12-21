@@ -18,7 +18,8 @@ RUN apt-get update && apt-get install -y \
 	libgeos-dev \
 	libgeos-c1v5 \
 	libgeotiff-dev \
-	libtiff-dev
+	libtiff-dev \
+	libtiff5
 
 RUN wget --no-verbose https://s3.amazonaws.com/rstudio-shiny-server-os-build/ubuntu-12.04/x86_64/VERSION -O "version.txt" && \
 	VERSION=$(cat version.txt) && \
