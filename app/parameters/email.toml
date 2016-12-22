@@ -1,5 +1,0 @@
-title = "Email settings" 
-
-api.key = "api:key-10d761826002588f7ccaf02f1c6e2ce4"
-api.url = "https://api.mailgun.net/v3/mg.mapotron.org/messages"
-api.address = "admin@mapotron.org"
