@@ -35,3 +35,6 @@ Temporary Items
 app/data/user/users/*
 !app/data/user/users/fakemcfakeerson@fakemail.com/data.rds
 *-swp
+
+# Sensitive files
+email.toml

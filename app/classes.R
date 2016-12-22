@@ -133,12 +133,10 @@ TOC = setRefClass("TOC",
 			## send email
 			txt1=ifelse(nchar(emailtxt)==0,"",paste0("They also left the following message: ",emailtxt))
 			txt2=ifelse(emailaddress %in% emailWhiteList,"",paste0("You have ",data.params.LST[['data.directory']], " days to download this data before it is automatically deleted."))
-			f <- tempfile(fileext='.txt')
-			cat('
-To: ',paste0(firstname, " ", lastname, " <", emailaddress, ">"),'
-From: ',app.params.LST[['email.address']],'
-Subject: ',paste0(firstname," ",lastname," made you some spatial data!"),'
-Hi,
+			toTXT=paste0(firstname, " ", lastname, " <", emailaddress, ">")
+			fromTXT=email$api.address
+			subjectTXT=paste0(firstname," ",lastname," made you some spatial data!")
+			bodyTXT <- paste0('Hi,
 
 ',capitalize(firstname),' ',capitalize(lastname),' generated some spatial data for you,
 
@@ -159,10 +157,11 @@ Cheers,
 Mapotron (',app.params.LST[['application.url']],')
 
 ------------------',
-parseFortune(fortune()), '\n',
-			file=f)
-			system(paste('ssmtp', emailaddress, '<', f))
-			unlink(f)
+parseFortune(fortune()), '\n')
+		# send email
+		try(RCurl::postForm(email$api.url,
+			to=toTXT, from=fromTXT, subject=subjectTXT, text=bodyTXT,
+			.opts=list(userpwd=email$api.key)), silent=TRUE)
 		},
 		garbageCleaner=function() {
 			diskGarbageCleaner()

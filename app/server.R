@@ -19,9 +19,8 @@ shinyServer(function(input, output, session) {
 	toc=TOC$new()
 	id=ID$new()
 	# load email data
-	emailDF <- try(a + 1, silent=TRUE) # TODO: reimplement email services
-	if (!inherits(emailDF, "try-error")) {
-		toc$email=list(host.name=emailDF$host.name, port=emailDF$port, user.name=emailDF$user.name, passwd=emailDF$password, ssl=TRUE)
+	if (!inherits(email.params.LST, "try-error")) {
+		toc$email=list(api.key=email.params.LST$api.key, api.url=email.params.LST$api.url, api.address=email.params.LST$api.address)
 	} else {
 		warning("File containing email details failed to load, check \"emailDF\" in global.R")
 	}

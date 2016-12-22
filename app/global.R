@@ -10,6 +10,7 @@ library(Hmisc)
 library(fortunes)
 library(rgeos)
 library(RcppTOML)
+library(RCurl)
 
 ### load classes
 source("classes.R")
@@ -22,10 +23,13 @@ MODE <- c('debug', 'release')[as.numeric(Sys.info()['nodename'] == app.params.LS
 app.params.LST <- app.params.LST[[MODE]]
 data.params.LST <- parseTOML('parameters/data.toml')[[MODE]]
 
+# load email settings
+email.params.LST <- try(parseTOML('parameters/email.toml'), silent=TRUE)
+
 # load email lists
-email.params.LST <- parseTOML('parameters/email.toml')
-emailWhiteList=email.params.LST[['whitelist']]
-emailBlockList=email.params.LST[['blocklist']]
+lists.params.LST <- parseTOML('parameters/lists.toml')
+emailWhiteList=lists.params.LST[['whitelist']]
+emailBlockList=lists.params.LST[['blocklist']]
 
 # parse program version from DESCRIPTION
 program_version <- strsplit(grep('Version', readLines('DESCRIPTION'), value=TRUE), ': ', fixed=TRUE)[[1]][[2]]
