@@ -21,7 +21,7 @@ script:
 
 after_success:
   - echo "SUCCESS"
-  - git remote add dokku dokku@mapotron.org:mapotron
+  - git remote add dokku dokku@mapotron.org:mapotron.org
   - git push dokku master
 
 notifications:
