@@ -2,7 +2,7 @@ FROM stencila/ubuntu-14.04-r-3.2
 
 MAINTAINER Jeffrey O Hanson "jeffrey.hanson@uqconnect.edu.au"
 
-RUN apt-get update && apt-get install -y --allow-downgrades \
+RUN sudo apt-get update && apt-get install -y --allow-downgrades \
 	sudo \
 	gdebi-core \
 	pandoc \
@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y --allow-downgrades \
 	libtiff5=4.0.7-1 \
 	software-properties-common
 
-RUN add-apt-repository -y ppa:marutter/c2d4u && apt-get update && apt-get -f install \
+RUN sudo add-apt-repository -y ppa:marutter/rrutter && add-apt-repository -y ppa:marutter/c2d4u && apt-get update && apt-get -f install \
 	r-cran-rcpp \ 
 	r-cran-httpuv \ 
 	r-cran-RcppTOML \ 
@@ -30,7 +30,7 @@ RUN add-apt-repository -y ppa:marutter/c2d4u && apt-get update && apt-get -f ins
 	r-cran-htmltools \
 	r-cran-plyr
 
-RUN wget --no-verbose https://s3.amazonaws.com/rstudio-shiny-server-os-build/ubuntu-12.04/x86_64/VERSION -O "version.txt" && \
+RUN sudo wget --no-verbose https://s3.amazonaws.com/rstudio-shiny-server-os-build/ubuntu-12.04/x86_64/VERSION -O "version.txt" && \
 	VERSION=$(cat version.txt) && \
 	wget --no-verbose "https://s3.amazonaws.com/rstudio-shiny-server-os-build/ubuntu-12.04/x86_64/shiny-server-$VERSION-amd64.deb" -O ss-latest.deb && \
 	gdebi -n ss-latest.deb && \
