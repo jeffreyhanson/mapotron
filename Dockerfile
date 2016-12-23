@@ -1,4 +1,4 @@
-FROM stencila/ubuntu-14.04-r-3.2
+FROM r-base
 
 MAINTAINER Jeffrey O Hanson "jeffrey.hanson@uqconnect.edu.au"
 
@@ -20,9 +20,6 @@ RUN sudo apt-get update && apt-get install -y --allow-downgrades \
 	libgeotiff-dev \
 	libtiff-dev \
 	libtiff5=4.0.7-1 \
-	software-properties-common
-
-RUN sudo add-apt-repository -y ppa:marutter/rrutter && add-apt-repository -y ppa:marutter/c2d4u && apt-get update && apt-get -f install \
 	r-cran-rcpp \ 
 	r-cran-httpuv \ 
 	r-cran-RcppTOML \ 
