@@ -26,8 +26,6 @@ RUN apt-get update && apt-get install -y --allow-downgrades \
 	r-cran-htmltools \
 	r-cran-plyr \
 	r-cran-shiny \
-	r-cran-rgeos \
-	r-cran-rgdal \
 	r-cran-hmisc \
 	r-cran-ggplot2 \
 	r-cran-latticeextra \
@@ -35,7 +33,6 @@ RUN apt-get update && apt-get install -y --allow-downgrades \
 	r-cran-gridextra \
 	r-cran-bitops \
 	r-cran-rcurl \
-	r-cran-rjsonio \
 	r-cran-raster
 
 RUN wget --no-verbose https://s3.amazonaws.com/rstudio-shiny-server-os-build/ubuntu-12.04/x86_64/VERSION -O "version.txt" && \
@@ -44,7 +41,7 @@ RUN wget --no-verbose https://s3.amazonaws.com/rstudio-shiny-server-os-build/ubu
 	gdebi -n ss-latest.deb && \
 	rm -f version.txt ss-latest.deb
  
-RUN R -e "install.packages(c('ghit', 'RColorBrewer', 'fortunes', 'RcppTOML'), repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages(c('ghit', 'rgdal', 'rgeos', 'RJSONIO', 'RColorBrewer', 'fortunes', 'RcppTOML'), repos='https://cran.rstudio.com/')"
 
 RUN R -e  "ghit::install_github('jeffreyhanson/leaflet-shiny')"
 
