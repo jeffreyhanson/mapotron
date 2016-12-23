@@ -2,6 +2,10 @@ FROM r-base
 
 MAINTAINER Jeffrey O Hanson "jeffrey.hanson@uqconnect.edu.au"
 
+RUN su iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
+
+EXPOSE 80
+
 RUN apt-get update && apt-get install -y --allow-downgrades \
 	sudo \
 	gdebi-core \
@@ -51,11 +55,8 @@ COPY app/* /srv/shiny-server/
 
 RUN mkdir -p /var/log/shiny-server
 
-RUN iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
-
-EXPOSE 80
-
 COPY shiny-server.sh /usr/bin/shiny-server.sh
+
 RUN chmod +x /usr/bin/shiny-server.sh
 
 CMD ["/usr/bin/shiny-server.sh"]
