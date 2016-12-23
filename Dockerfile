@@ -20,7 +20,6 @@ RUN apt-get update && apt-get install -y --allow-downgrades \
 	libgeotiff-dev \
 	libtiff-dev \
 	libtiff5=4.0.7-1 \
-	swapspace \
 	r-cran-rcpp \ 
 	r-cran-httpuv \ 
 	r-cran-tibble \ 
