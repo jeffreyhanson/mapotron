@@ -1,4 +1,4 @@
-FROM r-base
+FROM stencila/ubuntu-14.04-r-3.2
 
 MAINTAINER Jeffrey O Hanson "jeffrey.hanson@uqconnect.edu.au"
 
@@ -20,16 +20,15 @@ RUN apt-get update && apt-get install -y --allow-downgrades \
 	libgeotiff-dev \
 	libtiff-dev \
 	libtiff5=4.0.7-1 \
-	gpg \
 	software-properties-common
 
 RUN add-apt-repository -y ppa:marutter/c2d4u && apt-get update && apt-get -f install \
-	rcpp \ 
-	httpuv \ 
-	RcppTOML \ 
-	tibble \ 
-	htmltools \ 
-	plyr
+	r-cran-rcpp \ 
+	r-cran-httpuv \ 
+	r-cran-RcppTOML \ 
+	r-cran-tibble \ 
+	r-cran-htmltools \
+	r-cran-plyr
 
 RUN wget --no-verbose https://s3.amazonaws.com/rstudio-shiny-server-os-build/ubuntu-12.04/x86_64/VERSION -O "version.txt" && \
 	VERSION=$(cat version.txt) && \
