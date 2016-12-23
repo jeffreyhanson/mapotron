@@ -22,7 +22,6 @@ RUN apt-get update && apt-get install -y --allow-downgrades \
 	libtiff5=4.0.7-1 \
 	r-cran-rcpp \ 
 	r-cran-httpuv \ 
-	r-cran-RcppTOML \ 
 	r-cran-tibble \ 
 	r-cran-htmltools \
 	r-cran-plyr
