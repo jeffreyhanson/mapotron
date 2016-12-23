@@ -2,8 +2,6 @@ FROM r-base
 
 MAINTAINER Jeffrey O Hanson "jeffrey.hanson@uqconnect.edu.au"
 
-RUN add-apt-repository -y ppa:marutter/c2d4u
-
 RUN apt-get update && apt-get install -y --allow-downgrades \
 	sudo \
 	gdebi-core \
@@ -21,9 +19,11 @@ RUN apt-get update && apt-get install -y --allow-downgrades \
 	libgeos-c1v5 \
 	libgeotiff-dev \
 	libtiff-dev \
-	libtiff5=4.0.7-1
+	libtiff5=4.0.7-1 \
+	software-properties-common \
+	python-software-properties
 
-RUN apt-get -f install \
+RUN add-apt-repository -y ppa:marutter/c2d4u && apt-get update && apt-get -f install \
 	r-cran-rcpp \ 
 	r-cran-httpuv \ 
 	r-cran-RcppTOML \ 
