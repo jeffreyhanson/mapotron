@@ -51,7 +51,7 @@ COPY app/* /srv/shiny-server/
 
 RUN mkdir -p /var/log/shiny-server
 
-RUN chown -R shiny.shiny /var/log/shiny-server
+RUN iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
 
 EXPOSE 80
 
