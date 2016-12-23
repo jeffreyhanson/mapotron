@@ -20,19 +20,16 @@ RUN apt-get update && apt-get install -y --allow-downgrades \
 	libgeotiff-dev \
 	libtiff-dev \
 	libtiff5=4.0.7-1 \
+	gpg \
 	software-properties-common
 
-RUN add-apt-repository -y ppa:marutter/c2d4u
-
-RUN apt-get update
-
-RUN apt-get -f install \
-	r-cran-rcpp \ 
-	r-cran-httpuv \ 
-	r-cran-RcppTOML \ 
-	r-cran-tibble \ 
-	r-cran-htmltools \ 
-	r-cran-plyr
+RUN add-apt-repository -y ppa:marutter/c2d4u && apt-get update && apt-get -f install \
+	rcpp \ 
+	httpuv \ 
+	RcppTOML \ 
+	tibble \ 
+	htmltools \ 
+	plyr
 
 RUN wget --no-verbose https://s3.amazonaws.com/rstudio-shiny-server-os-build/ubuntu-12.04/x86_64/VERSION -O "version.txt" && \
 	VERSION=$(cat version.txt) && \
