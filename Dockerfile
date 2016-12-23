@@ -20,8 +20,7 @@ RUN apt-get update && apt-get install -y --allow-downgrades \
 	libgeotiff-dev \
 	libtiff-dev \
 	libtiff5=4.0.7-1 \
-	software-properties-common \
-	python-software-properties
+	software-properties-common
 
 RUN add-apt-repository -y ppa:marutter/c2d4u && apt-get update && apt-get -f install \
 	r-cran-rcpp \ 
