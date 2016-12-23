@@ -47,7 +47,9 @@ RUN R -e  "ghit::install_github('jeffreyhanson/leaflet-shiny')"
 
 COPY shiny-server.conf /etc/shiny-server/shiny-server.conf
 
-COPY app /srv/shiny-server/
+RUN mkdir -p /srv/shiny-server/app/
+
+COPY app /srv/shiny-server/app/
 
 RUN mkdir -p /var/log/shiny-server && chown shiny.shiny /var/log/shiny-server
 
