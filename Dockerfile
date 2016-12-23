@@ -35,6 +35,8 @@ RUN apt-get update && apt-get install -y --allow-downgrades \
 	r-cran-rcurl \
 	r-cran-raster
 
+RUN fallocate -l 1G /swapfile
+
 RUN wget --no-verbose https://s3.amazonaws.com/rstudio-shiny-server-os-build/ubuntu-12.04/x86_64/VERSION -O "version.txt" && \
 	VERSION=$(cat version.txt) && \
 	wget --no-verbose "https://s3.amazonaws.com/rstudio-shiny-server-os-build/ubuntu-12.04/x86_64/shiny-server-$VERSION-amd64.deb" -O ss-latest.deb && \
