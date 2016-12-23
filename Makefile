@@ -6,11 +6,11 @@ clean:
 test:
 	R --slave -e "shiny::runApp('app', port=5922)"
 
-run:
-	docker run -d -v /data:/host/data -p 80:80 --name mapotron mapotron
-
 build:
 	docker build -t mapotron .
+
+run:
+	docker run -d -v /data:/host/data -p 80:80 --name mapotron mapotron
 
 log:
 	docker exec mapotron cat /var/log/shiny-server/shiny-server.log
