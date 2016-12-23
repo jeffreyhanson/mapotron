@@ -49,11 +49,12 @@ COPY shiny-server.conf /etc/shiny-server/shiny-server.conf
 
 COPY app /srv/shiny-server/
 
-RUN mkdir -p /var/log/shiny-server
+RUN mkdir -p /var/log/shiny-server && chown shiny.shiny /var/log/shiny-server
 
 EXPOSE 80
 
 COPY shiny-server.sh /usr/bin/shiny-server.sh
+
 RUN chmod +x /usr/bin/shiny-server.sh
 
 CMD ["/usr/bin/shiny-server.sh"]
