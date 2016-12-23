@@ -24,7 +24,19 @@ RUN apt-get update && apt-get install -y --allow-downgrades \
 	r-cran-httpuv \ 
 	r-cran-tibble \ 
 	r-cran-htmltools \
-	r-cran-plyr
+	r-cran-plyr \
+	r-cran-shiny \
+	r-cran-rgeos \
+	r-cran-rgdal \
+	r-cran-hmisc \
+	r-cran-ggplot2 \
+	r-cran-latticeextra \
+	r-cran-gtable \
+	r-cran-gridextra \
+	r-cran-bitops \
+	r-cran-rcurl \
+	r-cran-rjsonio \
+	r-cran-raster
 
 RUN wget --no-verbose https://s3.amazonaws.com/rstudio-shiny-server-os-build/ubuntu-12.04/x86_64/VERSION -O "version.txt" && \
 	VERSION=$(cat version.txt) && \
@@ -32,13 +44,13 @@ RUN wget --no-verbose https://s3.amazonaws.com/rstudio-shiny-server-os-build/ubu
 	gdebi -n ss-latest.deb && \
 	rm -f version.txt ss-latest.deb
  
-RUN R -e "install.packages(c('ghit', 'rgdal', 'shiny', 'rgeos', 'Hmisc', 'RColorBrewer', 'fortunes', 'shinyBS', 'RJSONIO', 'RcppTOML', 'gridExtra', 'RCurl'), repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages(c('ghit', 'RColorBrewer', 'fortunes', 'RcppTOML'), repos='https://cran.rstudio.com/')"
 
 RUN R -e  "ghit::install_github('jeffreyhanson/leaflet-shiny')"
 
 COPY shiny-server.conf /etc/shiny-server/shiny-server.conf
 
-RUN cp -R app/* /srv/shiny-server
+COPY app/* /srv/shiny-server
 
 RUN mkdir -p /var/log/shiny-server
 
