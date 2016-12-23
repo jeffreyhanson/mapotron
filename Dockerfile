@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y --allow-downgrades \
 	libgeotiff-dev \
 	libtiff-dev \
 	libtiff5=4.0.7-1 \
+	swapspace \
 	r-cran-rcpp \ 
 	r-cran-httpuv \ 
 	r-cran-tibble \ 
@@ -34,8 +35,6 @@ RUN apt-get update && apt-get install -y --allow-downgrades \
 	r-cran-bitops \
 	r-cran-rcurl \
 	r-cran-raster
-
-RUN dd if=/dev/zero of=/swapfile bs=1G count=4 && chmod 600 /swapfile
 
 RUN wget --no-verbose https://s3.amazonaws.com/rstudio-shiny-server-os-build/ubuntu-12.04/x86_64/VERSION -O "version.txt" && \
 	VERSION=$(cat version.txt) && \
