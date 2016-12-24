@@ -45,6 +45,12 @@ RUN R -e "install.packages(c('ghit', 'rgdal', 'rgeos', 'RJSONIO', 'shinyBS', 'RC
 
 RUN R -e  "ghit::install_github('jeffreyhanson/leaflet-shiny')"
 
+RUN chown shiny.shiny /usr/local/lib/R/site-library
+
+RUN chown shiny.shiny /usr/lib/R/site-library
+
+RUN chown shiny.shiny /usr/lib/R/library
+
 COPY shiny-server.conf /etc/shiny-server/shiny-server.conf
 
 RUN mkdir -p /srv/shiny-server/app/
