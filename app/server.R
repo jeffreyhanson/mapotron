@@ -22,7 +22,7 @@ shinyServer(function(input, output, session) {
 	if (!inherits(email.params.LST, "try-error")) {
 		toc$email=list(api.key=email.params.LST$api.key, api.url=email.params.LST$api.url, api.address=email.params.LST$api.address)
 	} else {
-		warning("File containing email details failed to load, check \"emailDF\" in global.R")
+		warning("File containing email settings failed to load")
 	}
 	# get program arguments and execute startup parameters
 	toc$args=parseQueryString(isolate(session$clientData$url_search))
@@ -233,7 +233,3 @@ shinyServer(function(input, output, session) {
 		})
 	})
 })
-
-
-
-

@@ -25,6 +25,8 @@ script:
 after_success:
   - echo "SUCCESS"
   - git remote add dokku dokku@mapotron.org:mapotron.org
+  - sed -i 's/email.toml//g' .gitignore 
+  - git commit -am "update"
   - git push dokku master
 
 notifications:
