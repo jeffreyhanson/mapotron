@@ -58,4 +58,6 @@ COPY shiny-server.sh /usr/bin/shiny-server.sh
 
 RUN chmod +x /usr/bin/shiny-server.sh
 
+RUN ls /srv/shiny-server/app/parameters
+
 CMD ["/usr/bin/shiny-server.sh"]
