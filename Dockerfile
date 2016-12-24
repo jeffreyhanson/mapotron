@@ -48,7 +48,7 @@ COPY shiny-server.conf /etc/shiny-server/shiny-server.conf
 
 RUN mkdir -p /srv/shiny-server/app/
 
-COPY test-app /srv/shiny-server/app/
+COPY app /srv/shiny-server/app/
 
 RUN mkdir -p /var/log/shiny-server && chown shiny.shiny /var/log/shiny-server
 
