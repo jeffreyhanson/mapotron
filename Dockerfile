@@ -50,7 +50,7 @@ RUN mkdir -p /srv/shiny-server/app/
 
 COPY app /srv/shiny-server/app/
 
-RUN mkdir -p /var/log/shiny-server && chown shiny.shiny /var/log/shiny-server
+RUN mkdir -p /var/log/shiny-server && chown shiny.shiny /var/log/shiny-server && chmod 777 /var/log/shiny-server
 
 EXPOSE 80
 
