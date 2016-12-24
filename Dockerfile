@@ -25,7 +25,6 @@ RUN apt-get update && apt-get install -y --allow-downgrades \
 	r-cran-tibble \ 
 	r-cran-htmltools \
 	r-cran-plyr \
-	r-cran-shiny \
 	r-cran-hmisc \
 	r-cran-ggplot2 \
 	r-cran-latticeextra \
@@ -41,15 +40,9 @@ RUN wget --no-verbose https://s3.amazonaws.com/rstudio-shiny-server-os-build/ubu
 	gdebi -n ss-latest.deb && \
 	rm -f version.txt ss-latest.deb
  
-RUN R -e "install.packages(c('ghit', 'rgdal', 'rgeos', 'RJSONIO', 'shinyBS', 'RColorBrewer', 'fortunes', 'RcppTOML'), repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages(c('ghit', 'rgdal', 'rgeos', 'RJSONIO', 'shinyBS', 'shiny', 'RColorBrewer', 'fortunes', 'RcppTOML'), repos='https://cran.rstudio.com/')"
 
 RUN R -e  "ghit::install_github('jeffreyhanson/leaflet-shiny')"
-
-RUN chown shiny.shiny /usr/local/lib/R/site-library
-
-RUN chown shiny.shiny /usr/lib/R/site-library
-
-RUN chown shiny.shiny /usr/lib/R/library
 
 COPY shiny-server.conf /etc/shiny-server/shiny-server.conf
 
