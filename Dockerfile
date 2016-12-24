@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y --allow-downgrades \
 	libgeos-c1v5 \
 	libgeotiff-dev \
 	libtiff-dev \
-	libtiff5=4.0.7-1 \
+	libtiff5 \
 	r-cran-rcpp \ 
 	r-cran-httpuv \ 
 	r-cran-tibble \ 
