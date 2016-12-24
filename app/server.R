@@ -12,7 +12,7 @@ bindEvent <- function(eventExpr, callback, env=parent.frame(), quoted=FALSE) {
 }
 
 ### add resources
-addResourcePath('www', 'www')
+addResourcePath('www', system.file('www', package='shiny'))
 
 ### shiny server function
 shinyServer(function(input, output, session) {
