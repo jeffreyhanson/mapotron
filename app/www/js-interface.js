@@ -7,7 +7,7 @@ Shiny.addCustomMessageHandler("jsCode",
 
 Shiny.addCustomMessageHandler("update_var",
 	function(message) {
-		eval(message.var + \' = \' + message.val);
+		eval(message.var + "=" + message.val);
 	}
 	);
 

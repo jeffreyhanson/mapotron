@@ -11,6 +11,9 @@ bindEvent <- function(eventExpr, callback, env=parent.frame(), quoted=FALSE) {
   }))
 }
 
+### add resources
+addResourcePath('www', 'www')
+
 ### shiny server function
 shinyServer(function(input, output, session) {
 	## initialization

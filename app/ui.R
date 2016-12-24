@@ -3,7 +3,6 @@ library(leaflet)
 shinyUI(basicPage(
 	# load styles and js scripts
 	tags$head(
-		addResourcePath('www'),
 		includeScript('www/google-analytics.js'),
 		includeScript('www/js-interface.js'),
 		includeCSS('www/main-styles.css'),
