@@ -1,6 +1,6 @@
 title = "Application parameters"
 
-production.server = 'mapotron'
+production.server = 'mapotron.org'
 
 [debug]
 application.url = ''
