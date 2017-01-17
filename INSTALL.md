@@ -22,4 +22,3 @@ chmod 600 /swap
 mkswap /swap
 swapon /swap
 ```
-

@@ -4,7 +4,7 @@ clean:
 	@R --slave -e "unlink(dir('app/data/users', '^user.*', full.names=TRUE), recursive=TRUE, force=TRUE)"
 
 test:
-	R --slave -e "shiny::runApp('app', port=5922)"
+	R --slave -e "shiny::runApp('app', port=5922, launch.browser=TRUE)"
 
 build:
 	docker build -t mapotron .

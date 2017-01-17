@@ -24,13 +24,14 @@ script:
 
 after_success:
   - echo "SUCCESS"
-  - ls .
-  - ls app/parameters
   - git remote add dokku dokku@mapotron.org:mapotron.org
-  - sed -i 's/email.toml//g' .gitignore
+  - sed -i 's/email.toml//g' .gitignore 
   - git add -A
   - git commit -m "update"
   - git push dokku master
+  - ls .
+  - ls app/parameters
+  - cat .gitignore
 
 notifications:
   email:

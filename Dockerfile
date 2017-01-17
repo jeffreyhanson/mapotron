@@ -2,6 +2,8 @@ FROM r-base
 
 MAINTAINER Jeffrey O Hanson "jeffrey.hanson@uqconnect.edu.au"
 
+ENV SHINY_LOG_LEVEL=TRACE
+
 RUN apt-get update && apt-get install -y --allow-downgrades \
 	sudo \
 	gdebi-core \

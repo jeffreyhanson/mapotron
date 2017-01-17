@@ -1,5 +1,5 @@
 ### default options
-options(stringsAsFactors=FALSE)
+options(stringsAsFactors=FALSE, shiny.trace=TRUE)
 
 ### load dependencies
 library(rgdal)
